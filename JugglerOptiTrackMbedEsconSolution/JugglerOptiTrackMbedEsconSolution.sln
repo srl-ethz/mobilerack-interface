@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerialCommunicatorClassTest", "SerialCommunicatorClassTest\SerialCommunicatorClassTest.vcxproj", "{1F4FE226-BF02-4592-9328-8C4972AA666D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OptiTrackClassTest", "OptiTrackClassTest\OptiTrackClassTest.vcxproj", "{56E190C9-A22C-4C89-BEC6-B4D769D84E70}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JugglerOptiTrackMbedEscon", "JugglerOptiTrackMbedEscon\JugglerOptiTrackMbedEscon.vcxproj", "{C16C711F-7F44-4A89-ADD0-430396FFB7DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Debug|x64.ActiveCfg = Debug|x64
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Debug|x64.Build.0 = Debug|x64
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Debug|x86.ActiveCfg = Debug|Win32
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Debug|x86.Build.0 = Debug|Win32
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Release|x64.ActiveCfg = Release|x64
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Release|x64.Build.0 = Release|x64
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Release|x86.ActiveCfg = Release|Win32
+		{1F4FE226-BF02-4592-9328-8C4972AA666D}.Release|x86.Build.0 = Release|Win32
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Debug|x64.ActiveCfg = Debug|x64
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Debug|x64.Build.0 = Debug|x64
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Debug|x86.ActiveCfg = Debug|Win32
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Debug|x86.Build.0 = Debug|Win32
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Release|x64.ActiveCfg = Release|x64
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Release|x64.Build.0 = Release|x64
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Release|x86.ActiveCfg = Release|Win32
+		{56E190C9-A22C-4C89-BEC6-B4D769D84E70}.Release|x86.Build.0 = Release|Win32
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Debug|x64.ActiveCfg = Debug|x64
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Debug|x64.Build.0 = Debug|x64
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Debug|x86.ActiveCfg = Debug|Win32
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Debug|x86.Build.0 = Debug|Win32
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Release|x64.ActiveCfg = Release|x64
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Release|x64.Build.0 = Release|x64
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Release|x86.ActiveCfg = Release|Win32
+		{C16C711F-7F44-4A89-ADD0-430396FFB7DE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
