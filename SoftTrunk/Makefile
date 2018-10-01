@@ -3,3 +3,9 @@ soft-trunk: ./src/soft_trunk.cpp ./src/mpa/mpa.cpp ./src/MiniPID/MiniPID.cpp
 
 clean: soft_trunk
 	rm $^
+
+forceController: ./src/forceController.cpp ./src/mpa/mpa.cpp ./src/MiniPID/MiniPID.cpp
+	g++  $^ -o forceController -std=c++11 `pkg-config --libs --cflags libmodbus` -pthread
+
+example_forceController: ./src/example_forceController.cpp ./src/forceController.cpp ./src/mpa/mpa.cpp ./src/MiniPID/MiniPID.cpp
+	g++  $^ -o test_forceController -std=c++11 `pkg-config --libs --cflags libmodbus` -pthread
