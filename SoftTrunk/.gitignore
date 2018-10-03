@@ -1,1 +1,10 @@
-soft_trunk
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+!*Makefile
