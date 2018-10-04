@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "./forceController.h"
+#include "forceController.h"
 #include <iostream>
 #include <thread>
 
