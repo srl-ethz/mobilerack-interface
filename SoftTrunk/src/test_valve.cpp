@@ -1,6 +1,6 @@
-#include "../include/mpa/mpa.h"
-#include "./MiniPID/MiniPID.h"
-#include "./matplotlib-cpp/matplotlibcpp.h"
+#include "MiniPID.h"
+#include "matplotlibcpp.h"
+#include "mpa.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -73,7 +73,7 @@ int main() {
     output = commandPressure + pid.getOutput(sensorvalue, commandPressure);
 
     if (USE_PID) {
-      mpa.set_single_pressure(valveNum, <int> output);
+      mpa.set_single_pressure(valveNum, static_cast<int>(output));
     } else {
       mpa.set_single_pressure(valveNum, commandPressure);
     }

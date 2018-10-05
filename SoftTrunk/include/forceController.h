@@ -1,9 +1,9 @@
 #ifndef FORCECONTROLLER_H
 #define FORCECONTROLLER_H
 
-#include "../include/mpa/mpa.h"
-#include "./MiniPID/MiniPID.h"
-#include "./matplotlib-cpp/matplotlibcpp.h"
+#include "MiniPID.h"
+#include "matplotlibcpp.h"
+#include "mpa.h"
 #include <thread>
 #include <vector>
 
