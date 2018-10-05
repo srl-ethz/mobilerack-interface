@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "./forceController.h"
+#include "forceController.h"
 #include <iostream>
 #include <thread>
 
@@ -51,11 +51,8 @@ void ForceController::controllerThread() {
   }
   int i = 0;
   int plot_cycles = 500;
-  std::vector<double> x(plot_cycles), pressure_log(plot_cycles),
-      commandpressure_log(plot_cycles);
-
   while (run) {
-    std::cout << output_pressures[0] << '\n';
+    i++;
     mpa.get_all_pressures(&sensor_pressures);
     for (int i = 0; i < DoF; i++) {
       output_pressures[i] =
@@ -72,12 +69,9 @@ void ForceController::controllerThread() {
       mpa.set_all_pressures(commanded_pressures);
     }
     if (PLOT) {
-      i++;
-      if (i < plot_cycles) {
-        x.at(i) = i;
-        pressure_log.at(i) = sensor_pressures[0];
-        commandpressure_log.at(i) = commanded_pressures[0];
-      }
+      x.push_back(i);
+      pressure_log.push_back(sensor_pressures[0]);
+      commandpressure_log.push_back(commanded_pressures[0]);
     }
   }
 
@@ -87,18 +81,17 @@ void ForceController::controllerThread() {
   }
   mpa.set_all_pressures(output_pressures);
   mpa.disconnect();
+}
+void ForceController::disconnect() {
+  run = false;
+  controller_thread.join();
   if (PLOT) {
     namespace plt = matplotlibcpp;
     plt::figure_size(1200, 780);
     plt::named_plot("measured pressure", x, pressure_log);
     plt::named_plot("commanded pressure", x, commandpressure_log);
-    // plt::ylim(800,1200);
     plt::legend();
     plt::save("./graph.png");
     std::cout << "graph output to ./graph.png" << '\n';
   }
-}
-void ForceController::disconnect() {
-  run = false;
-  controller_thread.join();
 }
