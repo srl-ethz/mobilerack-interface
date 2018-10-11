@@ -16,6 +16,7 @@ Steps to fabricate the soft trunk
         1. turn on pump
         1. twist valve to vacuum air out
         1. and keep turning them on and off to prevent overflowing
+        ![](img/IMG_1644.JPG)
         1. do until bubbles subside
         1. turn off pump, slowly pressurize
     1. weigh equal amounts of ingredients(use zero button on scale)

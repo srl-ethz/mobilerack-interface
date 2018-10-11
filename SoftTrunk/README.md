@@ -1,5 +1,5 @@
 # Fabrication of soft robot
-View [*Soft Robot Fabrication.md*](./Soft\ Robot\ Fabrication.md)
+View **Soft Robot Fabrication.md**
 # Installing libmodbus
 `sudo apt install libmodbus-dev`
 # Installing RBDL
