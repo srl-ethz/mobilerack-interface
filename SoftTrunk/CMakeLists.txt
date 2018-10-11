@@ -19,3 +19,11 @@ target_link_libraries(example_forceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 target_include_directories(example_forceController PRIVATE ${PC_LIBMODBUS_DIRS})
 target_link_libraries(example_forceController ${PC_LIBMODBUS_LIBRARIES} )
+
+add_executable(example_sinusoidal src/example_sinusoidal.cpp src/forceController.cpp src/mpa/mpa.cpp src/MiniPID/MiniPID.cpp)
+target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES})
+target_link_libraries(example_sinusoidal -pthread)
+# http://www.kaizou.org/2014/11/typical-cmake-project/
+target_include_directories(example_sinusoidal PRIVATE ${PC_LIBMODBUS_DIRS})
+target_link_libraries(example_sinusoidal ${PC_LIBMODBUS_LIBRARIES} )
