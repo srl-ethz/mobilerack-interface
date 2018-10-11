@@ -1,3 +1,7 @@
+# Fabrication of soft robot
+View **Soft Robot Fabrication.md**
+# Installing libmodbus
+`sudo apt install libmodbus-dev`
 # Installing RBDL
 This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html).
 Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon;
