@@ -32,3 +32,6 @@ FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
 ADD_EXECUTABLE( example_optitrack "src/example_optitrack.cpp" )
 TARGET_LINK_LIBRARIES( example_optitrack ${Boost_LIBRARIES} )
+
+ADD_EXECUTABLE( OptiTrackClient "src/OptiTrackClient.cpp" )
+TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
