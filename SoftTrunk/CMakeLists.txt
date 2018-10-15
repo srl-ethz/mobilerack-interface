@@ -27,3 +27,8 @@ target_link_libraries(example_sinusoidal -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 target_include_directories(example_sinusoidal PRIVATE ${PC_LIBMODBUS_DIRS})
 target_link_libraries(example_sinusoidal ${PC_LIBMODBUS_LIBRARIES} )
+
+FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
+ADD_EXECUTABLE( example_optitrack "src/example_optitrack.cpp" )
+TARGET_LINK_LIBRARIES( example_optitrack ${Boost_LIBRARIES} )
