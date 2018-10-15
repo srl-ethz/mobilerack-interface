@@ -9,6 +9,11 @@ FIND_PACKAGE(PkgConfig)
 pkg_check_modules(PC_LIBMODBUS REQUIRED libmodbus)
 
 
+FIND_PACKAGE (Eigen3 REQUIRED)
+# Add the include directory to the include paths
+INCLUDE_DIRECTORIES ( ${EIGEN3_INCLUDE_DIR})
+
+
 add_executable(test_valve src/test_valve.cpp src/mpa/mpa.cpp src/MiniPID/MiniPID.cpp)
 
 
@@ -35,3 +40,6 @@ TARGET_LINK_LIBRARIES( example_optitrack ${Boost_LIBRARIES} )
 
 ADD_EXECUTABLE( OptiTrackClient "src/OptiTrackClient.cpp" )
 TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
+
+ADD_EXECUTABLE( CurvatureCalculator "src/CurvatureCalculator.cpp")
+TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARY} )

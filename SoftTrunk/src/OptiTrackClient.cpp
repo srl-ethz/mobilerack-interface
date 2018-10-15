@@ -39,13 +39,12 @@ OptiTrackClient::OptiTrackClient(std::string localAddress,
   frameListener = new FrameListener(sdData, natNetMajor, natNetMinor);
   frameListener->start();
 }
-std::vector<RigidBody> v;
-OptiTrackClient::getData() {
+std::vector<RigidBody> OptiTrackClient::getData() {
   bool valid;
   // Try to get a new frame from the listener.
   MocapFrame frame{frameListener->pop(&valid).first};
-  if (!valid)
-    return;
+  /*  if (!valid)
+      return;*/
   std::cout << frame << '\n';
   return frame.rigidBodies();
 }
@@ -54,10 +53,12 @@ int OptiTrackClient::stop() {
   commandListener->stop();
   frameListener->join();
   commandListener->join();
+  delete frameListener;
+  delete commandListener;
 
   close(sdData);
   close(sdCommand);
   return 0;
 }
 
-int main() {}
+// int main() {return 1;}
