@@ -1,0 +1,14 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+*CMakeCache.txt
+*cmake_install.cmake
+CMakeFiles/*
+graph.png
+*.h.gch
