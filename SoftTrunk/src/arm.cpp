@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "./arm.h"
+#include "arm.h"
 #include <iostream>
 #include <rbdl/rbdl.h>
 

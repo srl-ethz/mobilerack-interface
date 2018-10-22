@@ -1,4 +1,3 @@
-// Copyright 2018 Yasu
 #ifndef SOFTTRUNK_INCLUDE_CurvatureCalculator_H_
 #define SOFTTRUNK_INCLUDE_CurvatureCalculator_H_
 
@@ -8,6 +7,7 @@
 #include "OptiTrackClient.h"
 
 #include <Eigen/Geometry>
+#include <cmath>
 
 class CurvatureCalculator {
   /*
@@ -20,10 +20,9 @@ private:
   int numOfRigidBodies;
   int sensorType;
   OptiTrackClient *optiTrackClient;
-  std::vector<Eigen::Translation<double, 3>> positions; // save positions
-  std::vector<Eigen::Quaternion<double>> quaternions;   // save quaternions
   // std::vector<Eigen::Transform<double, 3, Eigen::Affine>> transforms;
-  std::vector<Eigen::Matrix4d> transforms;
+  std::vector<Eigen::Transform<double, 3, Eigen::Affine>> abs_transforms;
+  std::vector<Eigen::Transform<double, 3, Eigen::Affine>> rel_transforms;
 
 public:
   explicit CurvatureCalculator(int numOfRigidBodies, int sensorType);
@@ -37,8 +36,7 @@ public:
   id conventions:
   base is 0, first frame after that is 1, and so on...
   */
-  void setupIntegratedSensor(); // for future, if you want to use sensors
-                                // embedded in arm.
+  void setupIntegratedSensor(); // for future, if you want to use sensors embedded in arm.
   void stop();
   void calculateCurvature(); // calculate current theta and phi values
   std::vector<double> theta; // offset angle from x axis

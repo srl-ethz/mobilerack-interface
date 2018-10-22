@@ -1,27 +1,18 @@
-// Copyright 2018 Yasu
 #include "CurvatureCalculator.h"
 
-#include "OptiTrackClient.cpp"
-// This looks 100% like I have no idea what I'm doing...
-// But, due to the implementation of NatNetLinux, it is impossible to link
-// multiple compiled object files that use NatNetLinux.
-// So, rather than linking them while compiling, I just included the cpp files
-// directly.
-
 /*
-https://stackoverflow.com/questions/25504397/eigen-combine-rotation-and-translation-into-one-matrix/25504884
-
+Eigen- getting started: https://eigen.tuxfamily.org/dox/GettingStarted.html
 */
 CurvatureCalculator::CurvatureCalculator(int numOfRigidBodies,
                                          int sensorType = USE_OPTITRACK)
     : numOfRigidBodies(numOfRigidBodies), sensorType(sensorType) {
   for (int i = 0; i <= numOfRigidBodies; i++) {
-    // initialize positions and quaternions
-    // positions.push_back(Eigen::Translation<double,3>(0,0,0));
-    // quaternions.push_back(Eigen::Quaternion<double>);
-    transforms.push_back(
-        // Eigen::Transform<double, 3, Eigen::Affine>{}.Identity());
-        Eigen::Matrix4d{});
+    // initialize transforms
+    abs_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
+  }
+  for (int j = 0; j < numOfRigidBodies; ++j) {
+    theta.push_back(0.);
+    phi.push_back(0.);
   }
 }
 
@@ -38,8 +29,12 @@ void CurvatureCalculator::setupOptiTrack(std::string localAddress,
 void CurvatureCalculator::setupIntegratedSensor() {
   // for future.
 }
+double sign(double val){
+  if (val==0) return 0.0;
+  else return val/abs(val);
+}
 void CurvatureCalculator::calculateCurvature() {
-  // first, update the internal data for positions and quaternions of each frame
+  // first, update the internal data for transforms of each frame
   if (sensorType == USE_OPTITRACK) {
     std::vector<RigidBody> rigidBodies = optiTrackClient->getData();
     for (int i = 0; i < rigidBodies.size(); i++) {
@@ -49,12 +44,13 @@ void CurvatureCalculator::calculateCurvature() {
         // quaternions[id] = RigidBodies[i]->orientation;
         Point3f position = rigidBodies[i].location();
         Quaternion4f quaternion = rigidBodies[i].orientation();
-        transforms[id] =
-            (Eigen::Affine3d{Eigen::Quaterniond(quaternion.qw, quaternion.qx,
-                                                quaternion.qy, quaternion.qz)} *
-             Eigen::Affine3d{Eigen::Translation3d(
-                 Eigen::Vector3d(position.x, position.y, position.z))})
-                .matrix();
+        Eigen::Quaterniond quaternion_eigen;
+        quaternion_eigen.x() = quaternion.qx;
+        quaternion_eigen.y() = quaternion.qy;
+        quaternion_eigen.z() = quaternion.qz;
+        quaternion_eigen.w() = quaternion.qw;
+        quaternion_eigen.normalize();
+        abs_transforms[id] = quaternion_eigen * Eigen::Translation3d(position.x, position.y, position.z);
       }
     }
   } else if (sensorType == USE_INTEGRATEDSENSOR) {
@@ -63,7 +59,10 @@ void CurvatureCalculator::calculateCurvature() {
 
   // next, calculate the curvature (theta and phi)
   for (int i = 0; i < numOfRigidBodies; i++) {
-    // Eigen::Quaterniond
+    rel_transforms[i] = abs_transforms[i+1] * abs_transforms[i].inverse();
+    Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
+    phi[i] = atan(matrix(1,3)/matrix(0,3));
+    theta[i] = sign(matrix(0,3)) * abs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
   }
 }
 
