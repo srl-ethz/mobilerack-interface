@@ -67,7 +67,6 @@ Supposed to consolidate all the kinematic & dynamic info about the arm, but stil
 ## create_urdf.cpp
 Uses the arm library to generate the *robot.urdf.xacro* file, based on the parameters set inside the arm library, in the urdf/ directory.
 
-
 # comments in code
 As suggested [here](https://softwareengineering.stackexchange.com/questions/84071/is-it-better-to-document-functions-in-the-header-file-or-the-source-file),
 * **how to use** the function / class / variable will be commented in the header file
