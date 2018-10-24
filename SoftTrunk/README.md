@@ -1,27 +1,5 @@
-# Fabrication of Soft Robot
-View **Soft Robot Fabrication.md**
-
-# Libraries
-each library usually has a demo program, just compile the library with `cmake .; make`.
-## OptiTrackClient.cpp
-Talks to Motive software over UDP, receives current information for each RigidBody which can then be used in CurvatureCalculator.cpp (see below).
-
-## CurvatureCalculator.cpp
-Calculates the curvature of each soft arm segment based on the OptiTrack measurements of the base and tip of a segment. This has not been tested on the actual system yet.
-
-example_CurvatureCalculator.cpp is the sample code using this library - This demo prints out for each segment of the soft arm the calculated degree of curvature called theta and the rotation around the center axis called phi.
-
-## forceController.cpp
-Implements an individual PID control for each valve of the FESTO valve array.
-
-example_sinusoidal.cpp and example_forceController.cpp is a demo of this library. The former sends out sinusoidal signals to each compartment.
-
-## arm.cpp
-Supposed to consolidate all the kinematic & dynamic info about the arm, but still a work in progress.
-
-# programs
-(only libraries and demo for each library has been created, no programs that combine the libraries yet.)
-
+# Fabrication of Physical Soft Robot
+See **Soft Robot Fabrication.md**
 
 # Installing necessary libraries
 ## libmodbus
@@ -49,6 +27,29 @@ sudo make install
 ```
 ## Eigen
 [Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), and install(make build directory, `cmake ..`, `make`, `sudo make install`).
+
+
+# Libraries
+each library usually has a demo program, just compile the library with `cmake .; make`.
+## OptiTrackClient.cpp
+Talks to Motive software over UDP, receives current information for each RigidBody which can then be used in CurvatureCalculator.cpp (see below).
+
+## CurvatureCalculator.cpp
+Calculates the curvature of each soft arm segment based on the OptiTrack measurements of the base and tip of a segment. This has not been tested on the actual system yet.
+
+example_CurvatureCalculator.cpp is the sample code using this library - This demo prints out for each segment of the soft arm the calculated degree of curvature called theta and the rotation around the center axis called phi.
+
+## forceController.cpp
+Implements an individual PID control for each valve of the FESTO valve array.
+
+example_sinusoidal.cpp and example_forceController.cpp is a demo of this library. The former sends out sinusoidal signals to each compartment.
+
+## arm.cpp
+Supposed to consolidate all the kinematic & dynamic info about the arm, but still a work in progress.
+
+# programs
+(only libraries and demo for each library has been created, no programs that combine the libraries yet.)
+
 
 # comments in code
 As suggested [here](https://softwareengineering.stackexchange.com/questions/84071/is-it-better-to-document-functions-in-the-header-file-or-the-source-file),
