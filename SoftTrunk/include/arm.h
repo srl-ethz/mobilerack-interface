@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <fstream>
+#include "forceController.h"
+#include <Eigen>
 
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
@@ -34,9 +36,15 @@ private:
   Model* rbdl_model;
   void create_rbdl_model();
   void create_actual_model();
+  ForceController* forceController;
+  std::vector<double>
 public:
   Arm(bool create_urdf=false);
   void create_urdf(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
+  Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented
+  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm;
+  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm;
+  void update(Eigen::Matrix<double, NUM_ELEMENTS*2, 1>, Eigen::Matrix<double, NUM_ELEMENTS*2, 1>); // update the member variables based on current values
   void actuate();
   void setTargetForces();
 };

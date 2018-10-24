@@ -19,10 +19,11 @@ private:
   std::vector<double> x;
   std::vector<double> pressure_log;
   std::vector<double> commandpressure_log;
+  int maxPressure;
 
 public:
   void setSinglePressure(int, int);
-  explicit ForceController(int);
+  explicit ForceController(int, int);
   void disconnect();
 };
 #endif

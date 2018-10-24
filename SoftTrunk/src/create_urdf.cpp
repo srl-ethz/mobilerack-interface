@@ -3,9 +3,10 @@
 //
 
 #include "arm.h"
-
+/*
+ * generates a URDF XACRO file based on the parameters set inside arm.cpp.
+ */
 int main() {
     Arm arm = Arm{true};
-    //arm.create_urdf();
     return 1;
 }

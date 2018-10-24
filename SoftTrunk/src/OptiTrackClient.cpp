@@ -14,7 +14,7 @@ OptiTrackClient::OptiTrackClient(std::string localAddress,
 
   // Use this socket address to send commands to the server.
   struct sockaddr_in serverCommands =
-      NatNet::createAddress(_localAddress, NatNet::commandPort);
+      NatNet::createAddress(_serverAddress, NatNet::commandPort);
 
   // create sockets
   sdCommand = NatNet::createCommandSocket(_localAddress);
@@ -40,13 +40,14 @@ OptiTrackClient::OptiTrackClient(std::string localAddress,
   frameListener->start();
 }
 std::vector<RigidBody> OptiTrackClient::getData() {
-  bool valid;
   // Try to get a new frame from the listener.
-  MocapFrame frame{frameListener->pop(&valid).first};
-  /*  if (!valid)
-      return;*/
+  bool valid = false;
+  MocapFrame* frame;
+  while (!valid) {
+    frame = new MocapFrame{frameListener->pop(&valid).first};
+  }
   std::cout << frame << '\n';
-  return frame.rigidBodies();
+  return frame->rigidBodies();
 }
 int OptiTrackClient::stop() {
   frameListener->stop();

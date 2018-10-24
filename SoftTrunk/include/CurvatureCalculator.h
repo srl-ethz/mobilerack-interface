@@ -8,6 +8,7 @@
 
 #include <Eigen/Geometry>
 #include <cmath>
+#include <iostream>
 
 class CurvatureCalculator {
   /*

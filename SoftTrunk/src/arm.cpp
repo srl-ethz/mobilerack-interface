@@ -12,6 +12,7 @@ Arm::Arm(bool create_urdf) {
         Arm::create_urdf();
         return;
     }
+    forceController = new ForceController{NUM_ELEMENTS*4, 400};
   Arm::create_rbdl_model();
   Arm::create_actual_model();
 }
@@ -41,7 +42,7 @@ void Arm::create_urdf(){
 
 void Arm::create_rbdl_model() {
     auto rbdl_model = new RigidBodyDynamics::Model();
-  if (!RigidBodyDynamics::Addons::URDFReadFromFile("../urdf/robot.urdf", rbdl_model, false)) {
+  if (!RigidBodyDynamics::Addons::URDFReadFromFile("./urdf/robot.urdf", rbdl_model, false)) {
     std::cerr << "Error loading model ../urdf/robot.urdf" << std::endl;
     abort();
   }
@@ -60,6 +61,26 @@ void Arm::setTargetForces() {
 }
 void Arm::actuate(){
 
+}
+
+void Arm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double, NUM_ELEMENTS*2, 1> dq) {
+    double phi;
+    double theta;
+    double L_c;
+    // first update xi (augmented model parameters)
+    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+        phi = q(2*i+0);
+        theta = q(2*i+1);
+        L_c = lengths[i]*sin(theta/2)/(theta/2);
+        xi(8*i+0,0) = phi;
+        xi(8*i+1,0) = theta/2;
+        xi(8*i+2,0) = L_c/2;
+        xi(8*i+3,0) = -phi;
+        xi(8*i+4,0) = phi;
+        xi(8*i+5,0) = L_c/2;
+        xi(8*i+6,0) = theta/2;
+        xi(8*i+7,0) = -phi;
+    }
 }
 
 ArmElement::ArmElement(double length):length(length) {
