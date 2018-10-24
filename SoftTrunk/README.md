@@ -5,7 +5,9 @@ See **Soft Robot Fabrication.md**
 
 ## libmodbus
 Communication to FESTO valve array via mod bus 
-`sudo apt install libmodbus-dev`
+```
+sudo apt install libmodbus-dev
+```
 
 ## NatNetLinux
 This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies.
