@@ -25,12 +25,11 @@ make
 sudo make install
 ```
 ## Eigen3
-[Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), unzip, navigate into the unzipped folder, and install:
+[Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), unzip, navigate into the unzipped folder, prepare with cmake and then install this header libary:
 ```
 mkdir build
 cd build/
 cmake ..
-make
 sudo make install
 ```
 
