@@ -1,18 +1,18 @@
-# Fabrication of soft robot
+# Fabrication of Soft Robot
 View **Soft Robot Fabrication.md**
 
-# libraries
-each library usually has a demo program, just compile it with `cmake .; make`.
+# Libraries
+each library usually has a demo program, just compile the library with `cmake .; make`.
 ## OptiTrackClient.cpp
-Talks to Motive software over IP, receives current information for each RigidBody which can then be used in CurvatureCalculator.cpp.
+Talks to Motive software over UDP, receives current information for each RigidBody which can then be used in CurvatureCalculator.cpp (see below).
 
 ## CurvatureCalculator.cpp
-calculates the curvature of each piece based on OptiTrack measurements. (not tested on actual thing yet)
+Calculates the curvature of each soft arm segment based on the OptiTrack measurements of the base and tip of a segment. This has not been tested on the actual system yet.
 
-example_CurvatureCalculator.cpp is the sample code using this library- Prints out calculated theta and phi for each segment.
+example_CurvatureCalculator.cpp is the sample code using this library - This demo prints out for each segment of the soft arm the calculated degree of curvature called theta and the rotation around the center axis called phi.
 
 ## forceController.cpp
-Implements indivisual PID control for each valve.
+Implements an individual PID control for each valve of the FESTO valve array.
 
 example_sinusoidal.cpp and example_forceController.cpp is a demo of this library. The former sends out sinusoidal signals to each compartment.
 
