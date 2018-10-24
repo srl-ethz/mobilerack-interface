@@ -23,6 +23,12 @@ create *robot.urdf.xacro* with contents;
   <xacro:PCC id="1" parent="middle" child="end_link" length = "0.5" mass="1000" />
   <xacro:empty_link name="end_link"/>
 </robot>
-
 ```
+Note: the arm library can automatically generate *robot.urdf.xacro* using the length and mass parameters set in the code. This is done in *create_urdf.cpp*.
+
 convert to URDF with `./create_urdf.sh`
+
+view with
+`roslaunch rviz.launch`
+
+![](rviz.png)

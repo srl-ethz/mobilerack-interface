@@ -1,16 +1,20 @@
 #ifndef ARMPCC_H
 #define ARMPCC_H
 
-#define ARM_ELEMENTS 3
+#define NUM_ELEMENTS 3
 
+#include <rbdl/rbdl.h>
 #ifndef RBDL_BUILD_ADDON_URDFREADER
 	#error "Error: RBDL addon URDFReader not enabled."
 #endif
 
 #include <rbdl/addons/urdfreader/urdfreader.h>
-using RigidBodyDynamics;
-using RigidBodyDynamics::Math;
 
+#include <iostream>
+#include <fstream>
+
+using namespace RigidBodyDynamics;
+using namespace RigidBodyDynamics::Math;
 
 class ArmElement{
   // one PCC element in the arm.
@@ -24,8 +28,16 @@ public:
 class Arm{
   // the PCC Arm itself.
 private:
-  ArmElement* armElements[ARM_ELEMENTS];
+  ArmElement* armElements[NUM_ELEMENTS];
+  std::vector<double> lengths;
+  std::vector<double> masses;
+  Model* rbdl_model;
+  void create_rbdl_model();
+  void create_actual_model();
 public:
-  Arm();
+  Arm(bool create_urdf=false);
+  void create_urdf(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
+  void actuate();
+  void setTargetForces();
 };
 #endif
