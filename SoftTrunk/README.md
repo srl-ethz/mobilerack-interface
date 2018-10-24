@@ -24,9 +24,19 @@ cmake ../NatNetLinux
 make
 sudo make install
 ```
+## Eigen3
+[Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), unzip, navigate into the unzipped folder, and install:
+```
+mkdir build
+cd build/
+cmake ..
+make
+sudo make install
+```
+
 ## RBDL
 This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html) for calculating the dynamics of the rigid bodies of the augmented robot model.
-Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon;
+Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon, see below:
 ```
 mkdir build
 cd build/
@@ -34,11 +44,7 @@ cmake -D RBDL_BUILD_ADDON_URDFREADER=ON CMAKE_BUILD_TYPE=Release ../
 make
 sudo make install
 ```
-May also need to install Eigen3, as described.
-
-## Eigen
-[Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), and install(make build directory, `cmake ..`, `make`, `sudo make install`).
-
+You need to install Eigen3 before, as described above.
 
 # Libraries
 each library usually has a demo program, just compile the library with `cmake .; make`.
