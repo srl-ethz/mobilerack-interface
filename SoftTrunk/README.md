@@ -10,8 +10,13 @@ sudo apt install libmodbus-dev
 ```
 
 ## NatNetLinux
-This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies.
-In the /3rd directory, NatNetLinux is added as a submodule. After fetching the submodule with `git submodule update`, compile and install:
+This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies. Ensure you install the [Prerequisites](https://github.com/rocketman768/NatNetLinux) for NatNetLinux.
+In the /3rd directory, NatNetLinux is added as a submodule. After fetching the submodule with:
+```
+git submodule init
+git submodule update
+```
+compile and install NatNetLinux:
 ```
 mkdir build
 cd build
