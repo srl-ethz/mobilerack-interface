@@ -2,10 +2,23 @@
 See **Soft Robot Fabrication.md**
 
 # Installing necessary libraries
+
 ## libmodbus
+Communication to FESTO valve array via mod bus 
 `sudo apt install libmodbus-dev`
+
+## NatNetLinux
+This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies.
+In the /3rd directory, NatNetLinux is added as a submodule. After fetching the submodule with `git submodule update`, compile and install:
+```
+mkdir build
+cd build
+cmake ../NatNetLinux
+make
+sudo make install
+```
 ## RBDL
-This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html).
+This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html) for calculating the dynamics of the rigid bodies of the augmented robot model.
 Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon;
 ```
 mkdir build
@@ -16,15 +29,6 @@ sudo make install
 ```
 May also need to install Eigen3, as described.
 
-## NatNetLinux
-In the /3rd directory, NatNetLinux is added as a submodule. After fetching the submodule with `git submodule update`, compile and install:
-```
-mkdir build
-cd build
-cmake ../NatNetLinux
-make
-sudo make install
-```
 ## Eigen
 [Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), and install(make build directory, `cmake ..`, `make`, `sudo make install`).
 
