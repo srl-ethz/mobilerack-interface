@@ -1,5 +1,5 @@
-#include "../../include/modbus/modbus-tcp.h"
-#include "../../include/mpa/mpa.h"
+#include "modbus-tcp.h"
+#include "mpa.h"
 #include <stdexcept>
 
 
