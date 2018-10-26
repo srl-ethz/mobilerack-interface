@@ -35,7 +35,8 @@ int main (int argc, char* argv[]) {
 	VectorNd Tau = VectorNd::Zero (model->dof_count);
 	VectorNd QDDot = VectorNd::Zero (model->dof_count);
 
- 	ForwardDynamics (*model, Q, QDot, Tau, QDDot);
+	ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+// 	InverseDynamics (*model, Q, QDot, Tau, QDDot);
 
 	std::cout << Q.transpose() << std::endl;
 	std::cout << QDDot.transpose() << std::endl;
