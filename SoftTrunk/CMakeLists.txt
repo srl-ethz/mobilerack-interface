@@ -28,7 +28,7 @@ target_link_libraries(test_valve ${PC_LIBMODBUS_LIBRARIES} )
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 add_library(ForceController SHARED src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(ForceController PRIVATE ${PC_LIBMODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(ForceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(ForceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(example_ForceController src/example_ForceController.cpp)
 target_link_libraries(example_ForceController ForceController ${PYTHON_LIBRARIES})
@@ -52,16 +52,22 @@ TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
 ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
+add_library(ControllerPCC src/ControllerPCC.cpp)
+target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES})
+
+add_library(SoftTrunkManager src/SoftTrunkManager.cpp)
+target_link_libraries(SoftTrunkManager ${EIGEN3_LIBRARIES})
+
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp)
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/SoftTrunkManager.h include/ControllerPCC.h)
 target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
 target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-add_executable(create_urdf src/create_urdf.cpp)
-target_link_libraries(create_urdf AugmentedRigidArm ${PYTHON_LIBRARIES})
-target_include_directories(create_urdf PRIVATE ${PYTHON_INCLUDE_DIRS})
+add_executable(create_xacro src/create_xacro.cpp)
+target_link_libraries(create_xacro AugmentedRigidArm ${PYTHON_LIBRARIES})
+target_include_directories(create_xacro PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES})

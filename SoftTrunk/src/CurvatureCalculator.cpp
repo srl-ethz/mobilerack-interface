@@ -13,6 +13,8 @@ CurvatureCalculator::CurvatureCalculator(int numOfRigidBodies,
   for (int j = 0; j < numOfRigidBodies; ++j) {
     theta.push_back(0.);
     phi.push_back(0.);
+    d_theta.push_back(0);
+    d_phi.push_back(0);
     rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
   }
 }
@@ -25,6 +27,31 @@ void CurvatureCalculator::setupOptiTrack(std::string localAddress,
     return;
   }
   optiTrackClient = new OptiTrackClient(localAddress, serverAddress);
+}
+
+void CurvatureCalculator::start(){
+    run = true;
+    calculatorThread = std::thread(&CurvatureCalculator::calculatorThreadFunction, this);
+}
+
+void CurvatureCalculator::calculatorThreadFunction(){
+  std::vector<double> prev_theta;
+  std::vector<double> prev_phi;
+  calculateCurvature();
+  prev_theta = theta;
+  prev_phi = phi;
+  while(run){
+    // this loop continuously monitors the current state.
+    calculateCurvature();
+    for (int j = 0; j < numOfRigidBodies; ++j) {
+      // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
+      d_theta[j] = (theta[j] - prev_theta[j])/0.01;
+      d_phi[j] = (phi[j] - prev_phi[j]) / 0.01;
+      prev_theta[j] = theta[j];
+      prev_phi[j] = phi[j];
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
 }
 
 void CurvatureCalculator::setupIntegratedSensor() {
@@ -74,9 +101,10 @@ void CurvatureCalculator::calculateCurvature() {
 }
 
 void CurvatureCalculator::stop() {
+  run = false;
+  calculatorThread.join();
   if (sensorType == USE_OPTITRACK) {
     optiTrackClient->stop();
     delete optiTrackClient;
   }
 }
-int main() { return 1; }

@@ -30,9 +30,9 @@ private:
   void create_rbdl_model(); // create a RBDL model and save it to rbdl_model
   void joint_publish(); // publish joint state to ROS
   void extract_B_G();  // extract inertia matrix and gravity vector.
-public:
-  explicit AugmentedRigidArm(bool is_create_xacro=false); // set is_create_xacro to true if you want to generate the model's
   void create_xacro(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
+public:
+  explicit AugmentedRigidArm(bool is_create_xacro=false); // set is_create_xacro to true if you only want to generate the model's xacro model
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented space
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm; // Jacobian
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm; // time derivative of Jacobian
