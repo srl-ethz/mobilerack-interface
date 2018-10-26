@@ -46,7 +46,7 @@ std::vector<RigidBody> OptiTrackClient::getData() {
   while (!valid) {
     frame = new MocapFrame{frameListener->pop(&valid).first};
   }
-  std::cout << frame << '\n';
+  //std::cout << frame << '\n';
   return frame->rigidBodies();
 }
 int OptiTrackClient::stop() {
