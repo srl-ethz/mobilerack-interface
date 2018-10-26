@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "forceController.h"
+#include "ForceController.h"
 
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
@@ -24,7 +24,7 @@ private:
   double length;
   Model rbdl_model;
 public:
-  ArmElement(double length);
+  explicit ArmElement(double length);
 };
 
 class Arm{
@@ -40,7 +40,7 @@ private:
   void joint_publish();
   void extract_B_G();
 public:
-  Arm(bool create_urdf=false);
+  explicit Arm(bool create_urdf=false);
   void create_urdf(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm;

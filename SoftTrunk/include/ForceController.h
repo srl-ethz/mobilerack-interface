@@ -3,7 +3,7 @@
 
 #include "MiniPID.h"
 #include "matplotlibcpp.h"
-#include "mpa.h"
+#include "MPA.h"
 #include <thread>
 #include <vector>
 

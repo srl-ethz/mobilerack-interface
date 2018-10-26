@@ -1,4 +1,4 @@
-#include "forceController.h"
+#include "ForceController.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
