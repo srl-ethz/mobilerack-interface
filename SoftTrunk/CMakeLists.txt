@@ -18,22 +18,24 @@ LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} )
 FIND_PACKAGE (RBDL COMPONENTS URDFReader REQUIRED)
 INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR})
 
-add_executable(test_valve src/test_valve.cpp src/mpa.cpp src/MiniPID/MiniPID.cpp)
+add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(test_valve ${PYTHON_LIBRARIES})
 target_include_directories(test_valve PRIVATE ${PC_LIBMODBUS_DIRS})
 target_link_libraries(test_valve ${PC_LIBMODBUS_LIBRARIES} )
 
 
-add_executable(example_forceController src/example_forceController.cpp src/forceController.cpp src/mpa.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(example_forceController PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(example_forceController ${PYTHON_LIBRARIES})
-target_link_libraries(example_forceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
-target_include_directories(example_forceController PRIVATE ${PC_LIBMODBUS_DIRS})
-target_link_libraries(example_forceController ${PC_LIBMODBUS_LIBRARIES} )
+add_library(forceController src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+target_include_directories(forceController PRIVATE ${PC_LIBMODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(forceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES})
 
-add_executable(example_sinusoidal src/example_sinusoidal.cpp src/forceController.cpp src/mpa.cpp src/MiniPID/MiniPID.cpp)
+add_executable(example_forceController src/example_ForceController.cpp)
+target_link_libraries(example_forceController forceController ${PYTHON_LIBRARIES})
+target_include_directories(example_forceController PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+
+add_executable(example_sinusoidal src/example_sinusoidal.cpp src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES})
 target_link_libraries(example_sinusoidal -pthread)
@@ -56,8 +58,10 @@ TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(arm SHARED src/arm.cpp src/create_urdf.cpp)
-target_link_libraries(arm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY})
+add_library(arm src/Arm.cpp)
+target_link_libraries(arm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} forceController)
+target_include_directories(arm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(create_urdf src/create_urdf.cpp)
-target_link_libraries(create_urdf arm)
+target_link_libraries(create_urdf arm ${PYTHON_LIBRARIES})
+target_include_directories(create_urdf PRIVATE ${PYTHON_INCLUDE_DIRS})

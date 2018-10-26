@@ -1,11 +1,10 @@
 // Copyright 2018 ...
-#include "arm.h"
-
+#include "Arm.h"
 
 
 Arm::Arm(bool create_urdf) {
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        lengths.push_back(0.3);
+        lengths.push_back(0.2);
         masses.push_back(1000.0);
     }
     if (create_urdf){
@@ -13,8 +12,13 @@ Arm::Arm(bool create_urdf) {
         return;
     }
     forceController = new ForceController{NUM_ELEMENTS*4, 400};
-  Arm::create_rbdl_model();
-  Arm::create_actual_model();
+  create_rbdl_model();
+  create_actual_model();
+  if (USE_ROS){
+//      https://stackoverflow.com/questions/50324348/can-a-ros-node-be-created-outside-a-catkin-workspace
+//      ros::init("", "", "joint_pub");
+//      ros::NodeHandle n;
+  }
 }
 
 void Arm::create_urdf(){
@@ -66,21 +70,73 @@ void Arm::actuate(){
 void Arm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double, NUM_ELEMENTS*2, 1> dq) {
     double phi;
     double theta;
+    double delta_L;
     double L_c;
+    double dL_c;
     // first update xi (augmented model parameters)
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         phi = q(2*i+0);
         theta = q(2*i+1);
-        L_c = lengths[i]*sin(theta/2)/(theta/2);
+        delta_L = lengths[i]*sin(theta/2)/(theta/2);
         xi(8*i+0,0) = phi;
         xi(8*i+1,0) = theta/2;
-        xi(8*i+2,0) = L_c/2;
+        xi(8*i+2,0) = delta_L/2;
         xi(8*i+3,0) = -phi;
         xi(8*i+4,0) = phi;
-        xi(8*i+5,0) = L_c/2;
+        xi(8*i+5,0) = delta_L/2;
         xi(8*i+6,0) = theta/2;
         xi(8*i+7,0) = -phi;
+
+        // next, update the Jacobian Jm
+        L_c = lengths[i] * (theta*cos(theta/2)-2*sin(theta/2)) / (2*theta*theta);
+        // first, make the values in Jm and dJm are all zeros
+        for (int j = 0; j < NUM_ELEMENTS * 2; ++j) {
+            for (int k = 0; k < 8; ++k) {
+                Jm(8*i+k, j) = 0.0;
+                dJm(8*i+k, j) = 0.0;
+            }
+        }
+        Jm(8*i+0,2*i+0) = 1;
+        Jm(8*i+1,2*i+1) = 0.5;
+        Jm(8*i+2,2*i+1) = L_c;
+        Jm(8*i+3,2*i+0) = -1;
+        Jm(8*i+4,2*i+0) = 1;
+        Jm(8*i+5,2*i+1) = L_c;
+        Jm(8*i+6,2*i+1) = 0.5;
+        Jm(8*i+7,2*i+0) = -1;
+
+        // next, update dJm.
+        dL_c = lengths[i] * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
+        dJm(8*i+2, 2*i+1) = dL_c;
+        dJm(8*i+5, 2*i+1) = dL_c;
     }
+
+    extract_B_G();
+}
+
+void Arm::extract_B_G() {
+    // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL
+    
+    // first run ID with dQ and ddQ as zero vectors (gives gravity vector)
+    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
+    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
+    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS*8);
+    InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
+    G_xi = tau;
+    
+    // next, iterate through by making ddQ_zeros a unit vector and get inertia matrix
+    for (int i = 0; i < NUM_ELEMENTS*8; ++i) {
+        for (int j = 0; j < NUM_ELEMENTS * 8; ++j) {
+            ddQ_zeros(j) = 0.0;
+        }
+        ddQ_zeros(i) = 1.0;
+        InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
+        B_xi.col(i) = tau - G_xi;
+    }
+}
+
+void Arm::joint_publish(){
+
 }
 
 ArmElement::ArmElement(double length):length(length) {

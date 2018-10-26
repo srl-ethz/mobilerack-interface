@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "forceController.h"
+#include "ForceController.h"
 #include <iostream>
 #include <thread>
 
@@ -26,7 +26,7 @@ ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressur
 
   for (int i = 0; i < 16; i++) {
     commanded_pressures.push_back(0);
-    pid.push_back(MiniPID(KP, KI, KD));
+    pid.emplace(MiniPID(KP, KI, KD));
     pid[i].setOutputLimits(20);
     // setting a good output limit is important so as not oscillate
   }
@@ -40,7 +40,6 @@ void ForceController::setSinglePressure(int index, int pressure) {
     return;
   }
   commanded_pressures[index] = pressure;
-  return;
 }
 
 void ForceController::controllerThread() {

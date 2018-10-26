@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "forceController.h"
+#include "ForceController.h"
 #include <cmath>
 #include <iostream>
 #include <thread>
@@ -11,7 +11,7 @@ void wait() { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 
 int sinusoid(double t) { return 200 + 200 * sin(t); }
 int main() {
-  ForceController forceController(16);
+  ForceController forceController(16, 1000);
 
   for (int i = 0; i < 10000; i++) {
     for (int j = 0; j < 4; j++) {

@@ -2,6 +2,7 @@
 #define ARMPCC_H
 
 #define NUM_ELEMENTS 3
+#define USE_ROS false
 
 #include <rbdl/rbdl.h>
 #ifndef RBDL_BUILD_ADDON_URDFREADER
@@ -12,8 +13,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "forceController.h"
-#include <Eigen>
+#include "ForceController.h"
 
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
@@ -24,7 +24,7 @@ private:
   double length;
   Model rbdl_model;
 public:
-  ArmElement(double length);
+  explicit ArmElement(double length);
 };
 
 class Arm{
@@ -37,13 +37,16 @@ private:
   void create_rbdl_model();
   void create_actual_model();
   ForceController* forceController;
-  std::vector<double>
+  void joint_publish();
+  void extract_B_G();
 public:
-  Arm(bool create_urdf=false);
+  explicit Arm(bool create_urdf=false);
   void create_urdf(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm;
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm;
+  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*8> B_xi;
+  Eigen::Matrix<double, NUM_ELEMENTS*8, 1> G_xi;
   void update(Eigen::Matrix<double, NUM_ELEMENTS*2, 1>, Eigen::Matrix<double, NUM_ELEMENTS*2, 1>); // update the member variables based on current values
   void actuate();
   void setTargetForces();
