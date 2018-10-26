@@ -8,15 +8,15 @@ FIND_PACKAGE(PkgConfig)
 # https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake
 pkg_check_modules(PC_LIBMODBUS REQUIRED libmodbus)
 
-
-FIND_PACKAGE (Eigen3 REQUIRED NO_MODULE)
-INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
-
 # We need to add the project source path to the CMake module path so that
 # the FindRBDL.cmake script can be found.
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} )
 FIND_PACKAGE (RBDL COMPONENTS URDFReader REQUIRED)
 INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR})
+
+FIND_PACKAGE (Eigen3 REQUIRED)
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
+
 
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
@@ -26,22 +26,19 @@ target_link_libraries(test_valve ${PC_LIBMODBUS_LIBRARIES} )
 
 
 # http://www.kaizou.org/2014/11/typical-cmake-project/
-add_library(forceController src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(forceController PRIVATE ${PC_LIBMODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(forceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES})
+add_library(ForceController SHARED src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+target_include_directories(ForceController PRIVATE ${PC_LIBMODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(ForceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES})
 
-add_executable(example_forceController src/example_ForceController.cpp)
-target_link_libraries(example_forceController forceController ${PYTHON_LIBRARIES})
-target_include_directories(example_forceController PRIVATE ${PYTHON_INCLUDE_DIRS})
+add_executable(example_ForceController src/example_ForceController.cpp)
+target_link_libraries(example_ForceController ForceController ${PYTHON_LIBRARIES})
+target_include_directories(example_ForceController PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 
-add_executable(example_sinusoidal src/example_sinusoidal.cpp src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+add_executable(example_sinusoidal src/example_sinusoidal.cpp)
 target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES})
-target_link_libraries(example_sinusoidal -pthread)
+target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES} ForceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
-target_include_directories(example_sinusoidal PRIVATE ${PC_LIBMODBUS_DIRS})
-target_link_libraries(example_sinusoidal ${PC_LIBMODBUS_LIBRARIES} )
 
 FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
@@ -58,10 +55,14 @@ TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(arm src/Arm.cpp)
-target_link_libraries(arm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} forceController)
-target_include_directories(arm PRIVATE ${PYTHON_INCLUDE_DIRS})
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp)
+target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
+target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(create_urdf src/create_urdf.cpp)
-target_link_libraries(create_urdf arm ${PYTHON_LIBRARIES})
+target_link_libraries(create_urdf AugmentedRigidArm ${PYTHON_LIBRARIES})
 target_include_directories(create_urdf PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
+target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES})
+target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})

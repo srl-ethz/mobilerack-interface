@@ -1,19 +1,18 @@
 // Copyright 2018 ...
-#include "Arm.h"
+#include "AugmentedRigidArm.h"
 
 
-Arm::Arm(bool create_urdf) {
+AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
+    rbdl_check_api_version (RBDL_API_VERSION);
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        lengths.push_back(0.2);
-        masses.push_back(1000.0);
+        lengths.push_back(0.115);
+        masses.push_back(0.15);
     }
-    if (create_urdf){
-        Arm::create_urdf();
+    if (is_create_xacro){
+        create_xacro();
         return;
     }
-    forceController = new ForceController{NUM_ELEMENTS*4, 400};
   create_rbdl_model();
-  create_actual_model();
   if (USE_ROS){
 //      https://stackoverflow.com/questions/50324348/can-a-ros-node-be-created-outside-a-catkin-workspace
 //      ros::init("", "", "joint_pub");
@@ -21,8 +20,8 @@ Arm::Arm(bool create_urdf) {
   }
 }
 
-void Arm::create_urdf(){
-    std::cout << "generating URDF XACRO file robot.urdf.xacro...";
+void AugmentedRigidArm::create_xacro(){
+    std::cout << "generating XACRO file robot.urdf.xacro...";
     std::ofstream xacro_file;
     xacro_file.open("./urdf/robot.urdf.xacro");
 
@@ -42,32 +41,20 @@ void Arm::create_urdf(){
     xacro_file << "</robot>";
 
     xacro_file.close();
+    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.\n";
 }
 
-void Arm::create_rbdl_model() {
-    auto rbdl_model = new RigidBodyDynamics::Model();
-  if (!RigidBodyDynamics::Addons::URDFReadFromFile("./urdf/robot.urdf", rbdl_model, false)) {
-    std::cerr << "Error loading model ../urdf/robot.urdf" << std::endl;
-    abort();
-  }
-  rbdl_model->gravity = Vector3d(0., 0., -9.81);
-
+void AugmentedRigidArm::create_rbdl_model() {
+    rbdl_model = new RigidBodyDynamics::Model();
+    if (!RigidBodyDynamics::Addons::URDFReadFromFile("./urdf/robot.urdf", rbdl_model, false)) {
+        std::cerr << "Error loading model ./urdf/robot.urdf" << std::endl;
+        abort();
+      }
+      rbdl_model->gravity = Vector3d(0., 0., -9.81);
+      std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
 }
 
-void Arm::create_actual_model() {
-  for (int i=0; i < NUM_ELEMENTS; i++) {
-    double length = 0.2;
-    armElements[i]= new ArmElement(length);
-  }
-}
-void Arm::setTargetForces() {
-
-}
-void Arm::actuate(){
-
-}
-
-void Arm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double, NUM_ELEMENTS*2, 1> dq) {
+void AugmentedRigidArm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double, NUM_ELEMENTS*2, 1> dq) {
     double phi;
     double theta;
     double delta_L;
@@ -114,7 +101,7 @@ void Arm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double
     extract_B_G();
 }
 
-void Arm::extract_B_G() {
+void AugmentedRigidArm::extract_B_G() {
     // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL
     
     // first run ID with dQ and ddQ as zero vectors (gives gravity vector)
@@ -135,9 +122,6 @@ void Arm::extract_B_G() {
     }
 }
 
-void Arm::joint_publish(){
+void AugmentedRigidArm::joint_publish(){
 
-}
-
-ArmElement::ArmElement(double length):length(length) {
 }
