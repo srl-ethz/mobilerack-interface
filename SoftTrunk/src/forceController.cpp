@@ -13,10 +13,12 @@
  */
 ForceController::ForceController(int DoF) : DoF(DoF) {
   run = true;
+  std::cout << "Connecting to MPA." << '\n';
   if (!mpa.connect()) {
     std::cout << "Failed to connect to MPA." << '\n';
     return;
   }
+  std::cout << "Successfully connected to MPA." << '\n';
   // Ziegler-Nichols method
   double Ku = 2.6;
   double Tu = 0.14;

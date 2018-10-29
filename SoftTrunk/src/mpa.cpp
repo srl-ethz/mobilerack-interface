@@ -35,12 +35,14 @@ MPA::~MPA() {
 }
 
 bool MPA::connect() {
-	if (modbus_connect(ctx_) != -1) {
-		connected_ = true;
-		return true;
+	if (modbus_connect(ctx_) == -1) {
+        fprintf(stderr, "Connection failed: %s\n", modbus_strerror(errno));
+        modbus_free(ctx_);
+		connected_ = false;
+		return false;
 	}
-
-	return false;
+	connected_ = true;
+	return true;
 }
 
 bool MPA::disconnect() {
