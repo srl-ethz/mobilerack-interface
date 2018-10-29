@@ -72,3 +72,7 @@ target_include_directories(create_xacro PRIVATE ${PYTHON_INCLUDE_DIRS})
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES})
 target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
+target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC ${PYTHON_LIBRARIES})
+target_include_directories(example_ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
