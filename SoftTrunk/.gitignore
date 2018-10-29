@@ -15,3 +15,4 @@ graph.png
 /build/
 /.idea/
 /cmake-build-debug/
+*.so

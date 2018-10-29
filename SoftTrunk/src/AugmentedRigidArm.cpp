@@ -1,6 +1,7 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
 
+//#include <boost/filesystem.hpp>
 
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
@@ -23,6 +24,14 @@ AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
 void AugmentedRigidArm::create_xacro(){
     std::cout << "generating XACRO file robot.urdf.xacro...";
     std::ofstream xacro_file;
+    //std::string pathToUse1 = "./urdf";
+    //boost::filesystem::path dir1(pathToUse1);
+
+
+  //if (!(boost::filesystem::exists(dir1))) {
+  //    std::cout << "ERROR: following path doesn't exist" << std::endl;
+  //    return;
+  //}
     xacro_file.open("./urdf/robot.urdf.xacro");
 
     // write out text to the file

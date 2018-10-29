@@ -16,6 +16,7 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_meas,
                                             const Vector2Nd &dq_ref,
                                             const Vector2Nd &ddq_ref,
                                             Vector2Nd *tau) {
+    //ToDo: check if tau is properly allocated
     ara->update(q_meas, dq_meas);
     B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
     C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
