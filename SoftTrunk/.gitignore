@@ -16,3 +16,4 @@ graph.png
 /.idea/
 /cmake-build-debug/
 *.so
+*.cbp
