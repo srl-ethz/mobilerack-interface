@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "forceController.h"
+#include "ForceController.h"
 #include <iostream>
 #include <thread>
 
@@ -11,7 +11,7 @@
    Runs as a separate thread from the main code, since it continuously does PID
    control.
  */
-ForceController::ForceController(int DoF) : DoF(DoF) {
+ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressure(maxPresure) {
   run = true;
   std::cout << "Connecting to MPA." << '\n';
   if (!mpa.connect()) {
@@ -42,7 +42,6 @@ void ForceController::setSinglePressure(int index, int pressure) {
     return;
   }
   commanded_pressures[index] = pressure;
-  return;
 }
 
 void ForceController::controllerThread() {
@@ -63,6 +62,11 @@ void ForceController::controllerThread() {
       if (output_pressures[i] < 0) {
         // goes haywire when it tries to write negative value
         output_pressures[i] = 0;
+      }
+    }
+    for (int j = 0; j < DoF; ++j) {
+      if (output_pressures[j]>maxPressure){
+        output_pressures[j] = maxPressure;
       }
     }
     if (USE_PID) {

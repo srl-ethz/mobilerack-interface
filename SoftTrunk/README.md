@@ -64,8 +64,8 @@ example_sinusoidal.cpp and example_forceController.cpp is a demo of this library
 Supposed to consolidate all the kinematic & dynamic info about the arm, but still a work in progress.
 
 # programs
-(only libraries and demo for each library has been created, no programs that combine the libraries yet.)
-
+## create_urdf.cpp
+Uses the arm library to generate the *robot.urdf.xacro* file, based on the parameters set inside the arm library, in the urdf/ directory.
 
 # comments in code
 As suggested [here](https://softwareengineering.stackexchange.com/questions/84071/is-it-better-to-document-functions-in-the-header-file-or-the-source-file),

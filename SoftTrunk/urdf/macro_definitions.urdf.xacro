@@ -20,6 +20,7 @@ this file defines the xacro macros that can be used to create PCC augmented mode
       <limit lower="-3.14" upper="3.14" effort="1000" velocity="1000"/>
     </joint>
     <link name="${id}-ball-joint_link">
+      <xacro:default_inertial/>
       <visual>
         <geometry>
           <box size="${length/10} ${length/10} ${length/10}"/>
