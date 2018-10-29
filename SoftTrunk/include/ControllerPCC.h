@@ -10,26 +10,29 @@
 #include <Eigen/Dense>
 #include <AugmentedRigidArm.h>
 
+typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
+typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;
+
 class ControllerPCC{
     /*
      * Implements the PCC controller as described in paper.
      */
 public:
-    ControllerPCC(Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2>, Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2>, AugmentedRigidArm*); // pass on K and D and pointer to AugmentedRigidArm
+    ControllerPCC(Vector2Nd, Vector2Nd, AugmentedRigidArm *); // pass on k and d and pointer to AugmentedRigidArm
     void curvatureDynamicControl(
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> q_meas,
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq_meas,
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> q_ref,
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq_ref,
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> ddq_ref,
-            Eigen::Matrix<double,NUM_ELEMENTS*2,1> &tau); // pass on the measured & reference values, to get tau.
+            const Vector2Nd &q_meas,
+            const Vector2Nd &dq_meas,
+            const Vector2Nd &q_ref,
+            const Vector2Nd &dq_ref,
+            const Vector2Nd &ddq_ref,
+            Vector2Nd *tau); // pass on the measured & reference values, to get tau.
 private:
-    Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2> K;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2> D;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2> B;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, NUM_ELEMENTS*2> C;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, 1> G;
-    AugmentedRigidArm* ara;
+  Vector2Nd k;
+  Vector2Nd d;
+  Matrix2Nd B;
+  Matrix2Nd C;
+  Vector2Nd G;
+  AugmentedRigidArm *ara;
 };
 
 

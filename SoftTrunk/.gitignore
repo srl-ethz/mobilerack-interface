@@ -12,3 +12,6 @@
 CMakeFiles/*
 graph.png
 *.h.gch
+/build/
+/.idea/
+/cmake-build-debug/
