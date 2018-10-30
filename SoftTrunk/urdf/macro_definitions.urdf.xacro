@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+
+<!--
+this file defines the xacro macros that can be used to create PCC augmented models
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot">
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  <xacro:macro name="ball-joint" params="id parent child">
+    <!--creates a ball joint, called from the PCC macro..-->
+    <joint name="${id}-ball-joint_phi_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${id}-ball-joint_link"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-3.14" upper="3.14" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-ball-joint_link">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <box size="${length/10} ${length/10} ${length/10}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+    <joint name="${id}-ball-joint_theta_joint" type="revolute">
+      <parent link="${id}-ball-joint_link"/>
+      <child link="${child}"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-3.14" upper="3.14" effort="1000" velocity="1000"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="rod" params="length">
+    <!--creates a visual of a rod.-->
+    <visual>
+      <geometry>
+        <cylinder radius="${length/50}" length="${length/2}"/>
+      </geometry>
+      <material name="white"/>
+      <origin xyz="0 0 ${-length/4}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="default_inertial">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.01" ixz="0.01" iyy="0.01" iyz="0.01" izz="0.01"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="PCC" params="id parent child length mass">
+    <!--creates a PCC piece-->
+    <xacro:ball-joint id="${id}-base" parent="${parent}" child="${id}-a"/>
+    <link name="${id}-a">
+      <xacro:default_inertial/>
+      <xacro:rod length="${length}"/>
+    </link>
+    <joint name="${id}-a-b_joint" type="prismatic">
+      <parent link="${id}-a"/>
+      <child link="${id}-b"/>
+      <axis xyz="0 0 1"/>
+      <origin xyz="0 0 ${-length/2}"/>
+      <limit lower="0" upper="${length/2}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-b">
+      <xacro:default_inertial/>
+    </link>
+    <joint name="${id}-b_c_joint" type="revolute">
+      <parent link="${id}-b"/>
+      <child link="${id}-c"/>
+      <limit lower="-3.14" upper="3.14" effort="1000" velocity="1000"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+    <link name="${id}-c">
+      <visual>
+        <geometry>
+          <box size="${length/4} ${length/4} ${length/4}"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <inertial>
+        <mass value="${mass}"/>
+        <inertia ixx="1" ixy="1" ixz="1" iyy="1" iyz="1" izz="1"/>
+      </inertial>
+    </link>
+
+    <joint name="${id}-c_d_joint" type="revolute">
+      <parent link="${id}-c"/>
+      <child link="${id}-d"/>
+      <limit lower="-3.14" upper="3.14" effort="1000" velocity="1000"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="${id}-d">
+      <xacro:default_inertial/>
+      <xacro:rod length="${length}"/>
+    </link>
+    <joint name="${id}-d-e_joint" type="prismatic">
+      <parent link="${id}-d"/>
+      <child link="${id}-e"/>
+      <axis xyz="0 0 1"/>
+      <origin xyz="0 0 ${-length/2}"/>
+      <limit lower="0" upper="${length/2}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-e">
+      <xacro:default_inertial/>
+    </link>
+
+    <xacro:ball-joint id="${id}-tip-balljoint" parent="${id}-e" child="${child}"/>
+  </xacro:macro>
+
+  <xacro:macro name="empty_link" params="name">
+    <link name="${name}">
+      <xacro:default_inertial/>
+    </link>
+  </xacro:macro>
+</robot>

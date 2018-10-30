@@ -1,6 +1,24 @@
 Steps to fabricate the soft trunk
-# silicon casting
-1. Assemble mold, if casting the final arm piece
+
+# BoM
+Markers
+* https://optitrack.com/products/motion-capture-markers/
+    * MCP1130 4mm
+
+Rubber
+* https://www.reynoldsam.com/product/dragon-skin/
+
+Tubes etc.
+* https://www.mcmaster.com/
+    * reduced fitting: 5117K56
+    * silicone rod: 1249N11
+    * silicone tubing: 5236K503
+
+Beeswax
+* https://www.amazon.com/Stakich-Pure-White-BEESWAX-Pellets/dp/B0022X1GME/ref=sr_1_1?s=arts-crafts&ie=UTF8&qid=1539636806&sr=1-1&keywords=bleached+beeswax
+
+# silicone casting
+1. First assemble the mold, if casting the final arm piece
     1. make sure the wax mold doesn't have rough edges
     ![](img/IMG_1774.JPG)
     a not-so-clean wax mold
@@ -9,7 +27,10 @@ Steps to fabricate the soft trunk
     assembled mold
     ![](img/IMG_1775.JPG)
     make sure wax pieces form a circle
-1. make mix
+1. make silicone mix
+    1. Silicone to use:
+        * 16 ribs: Dragon Skin 30 (actually, maybe better to switch to 10 if too rigid)
+        * 19 ribs: Dragon Skin 10
     1. stir ingredients well before mixing (obviously, use separate stirrers!)
     1. **degas**
         1. put in vacuum chamber
@@ -38,6 +59,7 @@ Steps to fabricate the soft trunk
     ![](img/IMG_1638.JPG)
 
 # wax casting
+note that the mold for wax should be about 2% larger than what it should be, to account for shrinking
 1. warm stuff up
     1. heat oven to 92 degrees Celcius
     1. generate molten wax from block of wax (break up with hammer if necessary)(place so it won't melt to outside cup)
@@ -69,21 +91,44 @@ Steps to fabricate the soft trunk
     1. make sure the plugs are flush
     1. insert about 1 cm
     1. 12 inches (30cm) of slack for air tubing
+1. Pass tubing through arm
+
+# Glue pieces together
+
 
 # Using 3D printer
 ## Solidworks
 Export STL
+* save as binary, daviation at least 0.0015” or smaller, and 2 degree angle or smaller
 * The mold for wax mold is in ConfigurationManager -> Quad Mold Mold
 
-## Insight
-insert STL -> orient STL
+## Stratasys Insight
+The softwares Insight and Control Center can be installed from `setup-insight11.2.exe` in DropBox
 
-In Modeler setup,
-* part interior style: solid
-* visible surface style: enhanced
-* support style: SMART
-
-then "slice", then check that it looks fine. Finally, "finish" to write out the sliced files.
+1. insert STL -> orient STL
+1. Click on printer column(right column)
+1. pick 0.005" slice height
+1. In Modeler setup,
+    * part interior style: solid
+    * visible surface style: enhanced
+    * support style: SMART
+1. then "slice"(green flag)
+1. then check that it looks fine.("View all layers" button)
+1. Finally, "finish" to write out the sliced files.
 
 ## Control Center
 select printer, insert CMB, build job
+
+
+# Using Optitrack
+1. Insert USB key required to use Motive software
+1. Launch Motive
+1. Realign cameras, face/position cameras based on your volume of interest
+    1. Need at least 4 camers, 5 is good trade-off, 6 is best (as long as the cameras do not interfere too much with each other)
+    1. High as possible LED value, not too low value on EXP    1. Remove/hide as many markers as possible
+    1. toggle between IR/RGB
+1. Calibrate
+1. Capture
+    1. Vertical offset set to 0mm,
+    1. Choose 3 markers to define ground plane
+1. Use NatNet to broadcast position data to computer over network
