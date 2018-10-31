@@ -19,13 +19,12 @@ class SoftTrunkManager{
      */
 public:
     SoftTrunkManager();
-    void curvatureControl(Vector2Nd, Vector2Nd); // does single step curvature control.
+    void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd); // does single step curvature control.
     void characterize();
     SoftArm* softArm;
     ControllerPCC* controllerPCC;
     AugmentedRigidArm* augmentedRigidArm;
-    Vector2Nd k;
-    Vector2Nd d;
+    void stop();
 };
 
 #endif //SOFTTRUNK_MANAGER_H

@@ -4,6 +4,7 @@
 
 #include "AugmentedRigidArm.h"
 #include "ControllerPCC.h"
+#include "SoftArm.h"
 #include <stdio.h>
 
 /*
@@ -12,7 +13,8 @@
  */
 
 int main(){
-  AugmentedRigidArm augmentedRigidArm(false);
+  AugmentedRigidArm augmentedRigidArm{false};
+  SoftArm softArm{};
   Eigen::Matrix<double,NUM_ELEMENTS*2,1> q;
   Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq;
   for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
@@ -36,7 +38,7 @@ int main(){
     }
     std::cout << "\tq:\n" << k << "\n\tD:\n" << d << "\n";
   // ToDo: Make k and d be part of augmentedRigidArm
-  ControllerPCC controllerPCC(&augmentedRigidArm);
+  ControllerPCC controllerPCC(&augmentedRigidArm, &softArm);
 
   Vector2Nd q_meas(q);
   Vector2Nd dq_meas(dq);

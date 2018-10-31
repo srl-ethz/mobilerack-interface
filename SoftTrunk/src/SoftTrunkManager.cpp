@@ -8,16 +8,20 @@ SoftTrunkManager::SoftTrunkManager() {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     //todo: where should the force controller be implemented?? -> in SoftArm class
     softArm = new SoftArm();
+    softArm->start();
     augmentedRigidArm = new AugmentedRigidArm(false);
-    //controllerPCC = new ControllerPCC{augmentedRigidArm};
+    controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
 
 }
 
-void SoftTrunkManager::curvatureControl(Eigen::Matrix<double, NUM_ELEMENTS * 2, 1> q,
-                                        Eigen::Matrix<double, NUM_ELEMENTS * 2, 1> dq) {
-    // get current measured state from CurvatureCalculator
-    // send that to ControllerPCC
+void SoftTrunkManager::curvatureControl(Vector2Nd q,
+                                        Vector2Nd dq,
+                                        Vector2Nd ddq) {
+    // get current measured state from CurvatureCalculator inside SoftArm, send that to ControllerPCC
     // actuate the arm with the tau value.
+    Vector2Nd tau;
+    controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
+    softArm->actuate(tau);
 }
 
 void SoftTrunkManager::characterize() {
@@ -46,5 +50,8 @@ void SoftTrunkManager::characterize() {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIME_STEP));
     }
 
+    softArm->stop();
+}
+void SoftTrunkManager::stop() {
     softArm->stop();
 }

@@ -28,6 +28,7 @@ private:
   void calculateCurvature(); // calculate current theta and phi values
   void calculatorThreadFunction();
   bool run;
+  Vector2Nd prev_q = Vector2Nd::Zero();
 
 public:
   explicit CurvatureCalculator(int numOfRigidBodies, int sensorType);
@@ -45,10 +46,8 @@ public:
   void start(); //calling this starts a thread that continuously calculates theta, phi, and their time derivatives.
   void stop(); // stops the thread, disconnects.
 
-  std::vector<double> theta; // offset angle from x axis
-  std::vector<double> phi;   // degree of curvature
-  std::vector<double> d_theta; // time derivative
-  std::vector<double> d_phi; // time derivative
+  Vector2Nd q = Vector2Nd::Zero(); // [phi0, theta0, phi1, theta1, ...]
+  Vector2Nd dq = Vector2Nd::Zero(); // derivative of dq
 };
 
 #endif // SOFTTRUNK_INCLUDE_CurvatureCalculator_H_
