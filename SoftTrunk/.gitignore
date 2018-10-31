@@ -1,0 +1,21 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+*CMakeCache.txt
+*cmake_install.cmake
+CMakeFiles/*
+graph.png
+
+*.DS_Store
+
+*.h.gch
+/build/
+/.idea/
+/cmake-build-debug/
+
