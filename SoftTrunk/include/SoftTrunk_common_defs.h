@@ -17,7 +17,8 @@
 #define LOCAL_ADDRESS "192.168.1.194"
 #define MOTIVE_ADDRESS "192.168.1.105"
 #define VALVE_ADDRESS "192.168.1.101"
-#define PRESSURE_OFFSET 100 // baseline pressure of arm.
+#define PRESSURE_OFFSET 0 // baseline pressure of arm.
+#define USE_PID_CURVATURE_CONTROL true
 
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;

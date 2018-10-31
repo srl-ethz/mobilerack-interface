@@ -39,6 +39,6 @@ public:
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm; // time derivative of Jacobian
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*8> B_xi; // inertia matrix
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> G_xi; //gravity vector
-  void update(Eigen::Matrix<double, NUM_ELEMENTS*2, 1>, Eigen::Matrix<double, NUM_ELEMENTS*2, 1>); // update the member variables based on current values
+  void update(Vector2Nd, Vector2Nd); // update the member variables based on current values
 };
 #endif

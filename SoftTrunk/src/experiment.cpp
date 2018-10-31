@@ -15,15 +15,17 @@ int main(){
     Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS> dq = Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS>::Zero();
     Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS> ddq = Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS>::Zero();
     double seconds;
+/*
     for (int i = 0; i < STEPS; ++i) {
         seconds = i*STEP_TIME;
-        //q(0, i) = seconds;
-        //dq(0,i) = 1;
-        //ddq(0,i) = 0;
-        q(1, i) = 0.1*sin(seconds);
+        q(0, i) = seconds;
+        dq(0,i) = 1;
+        ddq(0,i) = 0;
+        q(1, i) = 0.5;//0.1*sin(seconds);
         dq(1,i) = 0.1*cos(seconds);
         dq(1,i) = -0.1*cos(seconds);
     }
+    */
     for (int j = 0; j < STEPS; ++j) {
         stm.curvatureControl(q.col(j), dq.col(j), ddq.col(j));
         std::this_thread::sleep_for(std::chrono::milliseconds(int(STEP_TIME*1000)));

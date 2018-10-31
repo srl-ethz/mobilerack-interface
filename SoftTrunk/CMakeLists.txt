@@ -53,7 +53,7 @@ ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
 add_library(ControllerPCC SHARED src/ControllerPCC.cpp)
-target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_library(SoftTrunkManager SHARED src/SoftTrunkManager.cpp)
