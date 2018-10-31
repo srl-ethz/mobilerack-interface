@@ -1,10 +1,11 @@
 #ifndef ARMPCC_H
 #define ARMPCC_H
 
-#define NUM_ELEMENTS 3  // how many PCC segments there are
 #define USE_ROS false  // do you want to publish joint states to ROS
 
 #include <rbdl/rbdl.h>
+#include "SoftTrunk_common_defs.h"
+
 #ifndef RBDL_BUILD_ADDON_URDFREADER
 	#error "Error: RBDL addon URDFReader not enabled."
 #endif

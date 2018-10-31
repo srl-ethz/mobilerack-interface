@@ -20,6 +20,8 @@ OptiTrackClient::OptiTrackClient(std::string localAddress,
   sdCommand = NatNet::createCommandSocket(_localAddress);
   sdData = NatNet::createDataSocket(_localAddress);
 
+  std::cout<<"Trying to connect to Motive at address "<<MOTIVE_ADDRESS <<"\n";
+
   // start the CommandListener in a new thread
   commandListener = new CommandListener(sdCommand);
   commandListener->start();

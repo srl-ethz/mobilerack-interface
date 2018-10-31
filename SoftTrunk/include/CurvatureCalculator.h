@@ -5,6 +5,7 @@
 #define USE_INTEGRATEDSENSOR 1
 
 #include "OptiTrackClient.h"
+#include "SoftTrunk_common_defs.h"
 
 #include <Eigen/Geometry>
 #include <cmath>

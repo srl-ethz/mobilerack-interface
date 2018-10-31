@@ -6,6 +6,10 @@
 #include "MPA.h"
 #include <thread>
 #include <vector>
+#include <iostream>
+#include <thread>
+#include "SoftTrunk_common_defs.h"
+
 
 class ForceController {
 private:
@@ -14,7 +18,7 @@ private:
   std::vector<int> commanded_pressures;
   int DoF;
   std::vector<MiniPID> pid;
-  MPA mpa{"192.168.1.101", "502"};
+  MPA mpa{VALVE_ADDRESS, "502"};
   std::thread controller_thread;
   std::vector<double> x;
   std::vector<double> pressure_log;

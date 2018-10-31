@@ -36,7 +36,7 @@ int main(){
     }
     std::cout << "\tq:\n" << k << "\n\tD:\n" << d << "\n";
   // ToDo: Make k and d be part of augmentedRigidArm
-  ControllerPCC controllerPCC(k,d,&augmentedRigidArm);
+  ControllerPCC controllerPCC(&augmentedRigidArm);
 
   Vector2Nd q_meas(q);
   Vector2Nd dq_meas(dq);

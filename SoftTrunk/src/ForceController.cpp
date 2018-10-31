@@ -1,7 +1,6 @@
 // Copyright 2018 ...
 #include "ForceController.h"
-#include <iostream>
-#include <thread>
+
 
 #define USE_PID true
 #define PLOT true

@@ -4,10 +4,9 @@
 
 #include "ControllerPCC.h"
 
-ControllerPCC::ControllerPCC(Vector2Nd k,
-                             Vector2Nd d,
-                             AugmentedRigidArm* augmentedRigidArm) : k(k), d(d), ara(augmentedRigidArm){
-
+ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm) : ara(augmentedRigidArm){
+    k=Vector2Nd::Zero();
+    d=Vector2Nd::Zero();
 }
 
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_meas,

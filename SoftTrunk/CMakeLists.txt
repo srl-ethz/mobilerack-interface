@@ -55,15 +55,20 @@ TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES
 add_library(ControllerPCC src/ControllerPCC.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES})
 
-add_library(SoftTrunkManager src/SoftTrunkManager.cpp)
-target_link_libraries(SoftTrunkManager ${EIGEN3_LIBRARIES})
+add_library(SoftTrunkManager SHARED src/SoftTrunkManager.cpp)
+target_link_libraries(SoftTrunkManager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
+target_include_directories(SoftTrunkManager PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/SoftTrunkManager.h include/ControllerPCC.h)
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/SoftTrunkManager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
 target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
 target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+add_library(SoftArm SHARED src/SoftArm.cpp)
+target_link_libraries(SoftArm ForceController CurvatureCalculator ${PYTHON_LIBRARIES})
+target_include_directories(SoftArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(create_xacro src/create_xacro.cpp)
 target_link_libraries(create_xacro AugmentedRigidArm ${PYTHON_LIBRARIES})
@@ -76,3 +81,7 @@ target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DI
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
 target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC ${PYTHON_LIBRARIES})
 target_include_directories(example_ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+add_executable(characterize src/characterize.cpp)
+target_link_libraries(characterize SoftTrunkManager ${PYTHON_LIBRARIES})
+target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})

@@ -5,11 +5,13 @@
 #ifndef SOFTTRUNK_MANAGER_H
 #define SOFTTRUNK_MANAGER_H
 
-#include "CurvatureCalculator.h"
 #include "AugmentedRigidArm.h"
 #include "ControllerPCC.h"
+#include "SoftArm.h"
 #include <Eigen/Dense>
-#define NUM_ELEMENTS 3
+#include "SoftTrunk_common_defs.h"
+#include <thread>
+#include <stdio.h>
 
 class SoftTrunkManager{
     /*
@@ -17,7 +19,13 @@ class SoftTrunkManager{
      */
 public:
     SoftTrunkManager();
-    void curvatureControl(Eigen::Matrix<double, NUM_ELEMENTS*2, 1>, Eigen::Matrix<double, NUM_ELEMENTS*2, 1>); // does single step curvature control.
+    void curvatureControl(Vector2Nd, Vector2Nd); // does single step curvature control.
+    void characterize();
+    SoftArm* softArm;
+    ControllerPCC* controllerPCC;
+    AugmentedRigidArm* augmentedRigidArm;
+    Vector2Nd k;
+    Vector2Nd d;
 };
 
 #endif //SOFTTRUNK_MANAGER_H

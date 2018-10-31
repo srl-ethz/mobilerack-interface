@@ -1,6 +1,19 @@
 # Fabrication of Physical Soft Robot
 See **Soft Robot Fabrication.md**
 
+# How to set up software for new arm
+1. set parameters
+    1. Modify AugmentedRigidArm.cpp to match the length and mass of each PCC element with the physical arm.
+    1. The number of PCC segments can be changed in the header files (AugmentedRigidArm.h and ControllerPCC.h)
+1. create URDF files
+    1. build directory
+    1. run ./create_xacro to create the URDF XACRO(URDF but with macros) files for robot, *robot.urdf.xacro*
+    1. run ./create_urdf.sh in /urdf directory to create the URDF file robot.urdf (which combines robot.urdf.xacro and macro_definitions.urdf.xacro). 
+    This requires the [ROS XACRO](http://wiki.ros.org/xacro) package. (This package should be included in a standard [ROS installation](http://wiki.ros.org/kinetic/Installation/Ubuntu). If not, set up the ).
+    1. The generated URDF file can be previewed with `roslaunch rviz.launch` in the /urdf directory
+        1. how to actually view robot (add RobotModel, choose base frame)
+1. run experiment
+
 # Installing necessary libraries
 
 ## libmodbus
@@ -64,7 +77,7 @@ example_sinusoidal.cpp and example_forceController.cpp is a demo of this library
 Supposed to consolidate all the kinematic & dynamic info about the arm, but still a work in progress.
 
 # programs
-## create_urdf.cpp
+## create_xacro.cpp
 Uses the arm library to generate the *robot.urdf.xacro* file, based on the parameters set inside the arm library, in the urdf/ directory.
 
 # comments in code
