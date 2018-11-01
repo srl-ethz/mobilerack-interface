@@ -11,10 +11,6 @@ CurvatureCalculator::CurvatureCalculator(int numOfRigidBodies,
     abs_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
   }
   for (int j = 0; j < numOfRigidBodies; ++j) {
-    theta.push_back(0.);
-    phi.push_back(0.);
-    d_theta.push_back(0);
-    d_phi.push_back(0);
     rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
   }
 }
@@ -35,21 +31,12 @@ void CurvatureCalculator::start(){
 }
 
 void CurvatureCalculator::calculatorThreadFunction(){
-  std::vector<double> prev_theta;
-  std::vector<double> prev_phi;
-  calculateCurvature();
-  prev_theta = theta;
-  prev_phi = phi;
   while(run){
     // this loop continuously monitors the current state.
     calculateCurvature();
-    for (int j = 0; j < numOfRigidBodies; ++j) {
-      // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
-      d_theta[j] = (theta[j] - prev_theta[j])/0.01;
-      d_phi[j] = (phi[j] - prev_phi[j]) / 0.01;
-      prev_theta[j] = theta[j];
-      prev_phi[j] = phi[j];
-    }
+    // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
+    dq = (q- prev_q)/ 0.05;
+    prev_q = Vector2Nd(q);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 }
@@ -91,12 +78,12 @@ void CurvatureCalculator::calculateCurvature() {
 
 
   // next, calculate the curvature (theta and phi)
-  for (int i = 0; i < numOfRigidBodies; i++) {
+  for (int i = 0; i < NUM_ELEMENTS; i++) {
     rel_transforms[i] = abs_transforms[i+1] * abs_transforms[i].inverse();
 
     Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
-    phi[i] = atan(matrix(1,3)/matrix(0,3));
-    theta[i] = sign(matrix(0,3)) * (asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
+    q(i*2) = atan(matrix(1,3)/matrix(0,3));
+    q(i*2+1) = sign(matrix(0,3)) * (asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
   }
 }
 

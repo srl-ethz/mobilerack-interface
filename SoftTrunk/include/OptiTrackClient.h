@@ -25,6 +25,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <time.h>
+#include "SoftTrunk_common_defs.h"
 
 class OptiTrackClient {
   /*
