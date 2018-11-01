@@ -1,10 +1,11 @@
 #ifndef ARMPCC_H
 #define ARMPCC_H
 
-#define NUM_ELEMENTS 3  // how many PCC segments there are
 #define USE_ROS false  // do you want to publish joint states to ROS
 
 #include <rbdl/rbdl.h>
+#include "SoftTrunk_common_defs.h"
+
 #ifndef RBDL_BUILD_ADDON_URDFREADER
 	#error "Error: RBDL addon URDFReader not enabled."
 #endif
@@ -38,6 +39,6 @@ public:
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm; // time derivative of Jacobian
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*8> B_xi; // inertia matrix
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> G_xi; //gravity vector
-  void update(Eigen::Matrix<double, NUM_ELEMENTS*2, 1>, Eigen::Matrix<double, NUM_ELEMENTS*2, 1>); // update the member variables based on current values
+  void update(Vector2Nd, Vector2Nd); // update the member variables based on current values
 };
 #endif

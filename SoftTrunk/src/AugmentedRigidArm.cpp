@@ -59,7 +59,7 @@ void AugmentedRigidArm::create_rbdl_model() {
         std::cerr << "Error loading model ./urdf/robot.urdf" << std::endl;
         abort();
       }
-      rbdl_model->gravity = Vector3d(0., 0., -9.81);
+      rbdl_model->gravity = Vector3d(0., 0., 9.81);
       std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
 }
 
