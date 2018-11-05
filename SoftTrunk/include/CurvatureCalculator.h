@@ -17,15 +17,13 @@ class CurvatureCalculator {
   handles the calculation of curvature. Gets the current pose of the robot, then
   converts it to a list of curvatures (theta and phi).
   */
-private:
-  void extractPositionData(); // convert current position data from OptiTrack to theta and phi values
   int numOfRigidBodies;
   int sensorType;
   OptiTrackClient *optiTrackClient;
   std::vector<Eigen::Transform<double, 3, Eigen::Affine>> abs_transforms;
   std::vector<Eigen::Transform<double, 3, Eigen::Affine>> rel_transforms;
   std::thread calculatorThread;
-  void calculateCurvature(); // calculate current theta and phi values
+  void calculateCurvature(); // calculate current phi and theta values
   void calculatorThreadFunction();
   bool run;
   Vector2Nd prev_q = Vector2Nd::Zero();

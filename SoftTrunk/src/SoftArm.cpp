@@ -5,7 +5,7 @@
 #include "SoftArm.h"
 
 SoftArm::SoftArm() {
-    forceController= new ForceController(16, 800);
+    forceController= new ForceController(16, 1300);
     for (int i = 0; i < NUM_ELEMENTS*4; ++i) {
         outputPressures.push_back(0.0);
     }
@@ -18,6 +18,7 @@ SoftArm::SoftArm() {
     }
 }
 void SoftArm::start(){
+    std::cout << "Starting SoftArm...\n";
     curvatureCalculator = new CurvatureCalculator(NUM_ELEMENTS, USE_OPTITRACK);
     curvatureCalculator->setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator->start();
@@ -29,19 +30,24 @@ void SoftArm::stop(){
     forceController->disconnect();
 }
 
-void SoftArm::actuate(Vector2Nd tau_pt) {
+void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
     Eigen::Matrix2d mat;
     Vector2Nd tau_xy;
     Vector2Nd pressures;
     double phi;
     double theta;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        //todo: why is this the way it is?
-        phi = tau_pt(2*i);
-        theta = tau_pt(2*i+1);
-        mat << -cos(phi)*sin(theta), -sin(phi),
-        -sin(phi)*sin(theta), cos(phi);
-        tau_xy.block(i*2,0,2,1) = mat.inverse() * tau_pt.block(i*2,0,2,1);
+        //todo: why is this matrix operation the way it is?
+        phi = ref_q(2*i);
+        theta = ref_q(2*i+1);
+        if (true){//theta < 3.14/36){
+            mat << 0, -sin(phi), 0, cos(phi);
+        }
+        else {
+            mat << -cos(phi) * sin(theta), -sin(phi), -sin(phi)*sin(theta), cos(phi);
+        }
+
+        tau_xy.block(i*2,0,2,1) = mat * tau_pt.block(i*2,0,2,1);
     }
 
     for (int j = 0; j < NUM_ELEMENTS*2; ++j) {

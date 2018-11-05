@@ -68,7 +68,7 @@ TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
 ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
-add_library(ControllerPCC SHARED src/ControllerPCC.cpp)
+add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
@@ -106,3 +106,8 @@ target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})
 add_executable(experiment src/experiment.cpp)
 target_link_libraries(experiment SoftTrunkManager ${PYTHON_LIBRARIES} -pthread)
 target_include_directories(experiment PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+
+add_executable(example_SoftArm src/example_SoftArm.cpp)
+target_link_libraries(example_SoftArm SoftArm ${PYTHON_LIBRARIES} -pthread)
+target_include_directories(example_SoftArm PRIVATE ${PYTHON_INCLUDE_DIRS})
