@@ -6,7 +6,6 @@
 
 SoftTrunkManager::SoftTrunkManager() {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
-    //todo: where should the force controller be implemented?? -> in SoftArm class
     softArm = new SoftArm();
     softArm->start();
     if (USE_PID_CURVATURE_CONTROL){
@@ -27,12 +26,13 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
     if (USE_PID_CURVATURE_CONTROL){
         Vector2Nd output;
         controllerPCC->curvaturePIDControl(q,&output);
-        softArm->actuate(output);
+        //std::cout << output << "\n";
+        softArm->actuate(output, q);
         return;
     }
     Vector2Nd tau;
     controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
-    softArm->actuate(tau);
+    softArm->actuate(tau, q);
 }
 
 void SoftTrunkManager::characterize() {

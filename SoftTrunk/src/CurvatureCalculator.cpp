@@ -26,6 +26,7 @@ void CurvatureCalculator::setupOptiTrack(std::string localAddress,
 }
 
 void CurvatureCalculator::start(){
+  std::cout <<"starting CurvatureCalculator's calculator thread... \n";
     run = true;
     calculatorThread = std::thread(&CurvatureCalculator::calculatorThreadFunction, this);
 }
@@ -56,9 +57,6 @@ void CurvatureCalculator::calculateCurvature() {
     for (int i = 0; i < rigidBodies.size(); i++) {
       int id = rigidBodies[i].id();
       if (0 <= id && id < numOfRigidBodies + 1) {
-        // positions[id]=RigidBodies[i]->location;
-        // quaternions[id] = RigidBodies[i]->orientation;
-
         Point3f position = rigidBodies[i].location();
 
           Quaternion4f quaternion = rigidBodies[i].orientation();
@@ -77,17 +75,22 @@ void CurvatureCalculator::calculateCurvature() {
   }
 
 
-  // next, calculate the curvature (theta and phi)
+  // next, calculate the curvature (phi and theta)
   for (int i = 0; i < NUM_ELEMENTS; i++) {
     rel_transforms[i] = abs_transforms[i+1] * abs_transforms[i].inverse();
 
     Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
-    q(i*2) = atan(matrix(1,3)/matrix(0,3));
+    q(i*2) = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
     q(i*2+1) = sign(matrix(0,3)) * (asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
+    if (q(i*2) < 0){
+      q(i*2+1) = -q(i*2+1);
+      q(i*2) += 3.1415;
+    }
   }
 }
 
 void CurvatureCalculator::stop() {
+  std::cout<<"stopping CurvatureCalculator's calculator thread...\n";
   run = false;
   calculatorThread.join();
   if (sensorType == USE_OPTITRACK) {

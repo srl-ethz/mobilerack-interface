@@ -4,30 +4,26 @@
 
 #include "SoftTrunkManager.h"
 #include <Eigen/Dense>
-#define STEPS 1000
-#define STEP_TIME 0.01
+#define STEPS 5000
+#define STEP_TIME 0.005
 
 #include "SoftTrunk_common_defs.h"
 
 int main(){
     SoftTrunkManager stm{};
-    Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS> q = Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS>::Zero();
-    Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS> dq = Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS>::Zero();
-    Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS> ddq = Eigen::Matrix<double, NUM_ELEMENTS*2, STEPS>::Zero();
+    Vector2Nd q = Vector2Nd::Zero();
+    Vector2Nd dq = Vector2Nd::Zero();
+    Vector2Nd ddq = Vector2Nd::Zero();
     double seconds;
-/*
-    for (int i = 0; i < STEPS; ++i) {
-        seconds = i*STEP_TIME;
-        q(0, i) = seconds;
-        dq(0,i) = 1;
-        ddq(0,i) = 0;
-        q(1, i) = 0.5;//0.1*sin(seconds);
-        dq(1,i) = 0.1*cos(seconds);
-        dq(1,i) = -0.1*cos(seconds);
-    }
-    */
+
     for (int j = 0; j < STEPS; ++j) {
-        stm.curvatureControl(q.col(j), dq.col(j), ddq.col(j));
+        seconds += STEP_TIME;
+        if (j % 200 == 0) std::cout<<"200 steps\n";
+        //q(0) = seconds;
+        //q(1) = 0.5*sin(seconds);
+        q(4) = seconds/2;
+        q(5) = 0.5;//*sin(seconds);
+        stm.curvatureControl(q, dq, ddq);
         std::this_thread::sleep_for(std::chrono::milliseconds(int(STEP_TIME*1000)));
     }
 
