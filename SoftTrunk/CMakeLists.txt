@@ -5,8 +5,24 @@ include_directories(include src/matplotlib-cpp src/MiniPID include/modbus)
 
 find_package(PythonLibs 2.7)
 FIND_PACKAGE(PkgConfig)
+
 # https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake
-pkg_check_modules(PC_LIBMODBUS REQUIRED libmodbus)
+pkg_check_modules(PC_MODBUS QUIET libmodbus)
+set(MODBUS_DEFINITIONS ${PC_LIBMODBUS_CFLAGS_OTHER})
+
+find_path(MODBUS_INCLUDE_DIRS modbus/modbus.h
+          HINTS ${PC_LIBMODBUS_INCLUDEDIR} ${PC_LIBMODBUS_INCLUDE_DIRS}
+          PATH_SUFFIXES modbus )
+
+find_library(MODBUS_LIBRARIES NAMES modbus libmodbus
+             HINTS ${PC_LIBMODBUS_LIBDIR} ${PC_LIBMODBUS_LIBRARY_DIRS} )
+
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set MODBUS_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRARIES MODBUS_INCLUDE_DIRS)
+
+
 
 # We need to add the project source path to the CMake module path so that
 # the FindRBDL.cmake script can be found.
@@ -21,14 +37,14 @@ INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(test_valve ${PYTHON_LIBRARIES})
-target_include_directories(test_valve PRIVATE ${PC_LIBMODBUS_DIRS})
-target_link_libraries(test_valve ${PC_LIBMODBUS_LIBRARIES} )
+target_include_directories(test_valve PRIVATE ${MODBUS_DIRS})
+target_link_libraries(test_valve ${MODBUS_LIBRARIES} )
 
 
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 add_library(ForceController SHARED src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(ForceController PRIVATE ${PC_LIBMODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(ForceController -pthread ${PC_LIBMODBUS_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+target_include_directories(ForceController PRIVATE ${MODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(ForceController -pthread ${MODBUS_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(example_ForceController src/example_ForceController.cpp)
 target_link_libraries(example_ForceController ForceController ${PYTHON_LIBRARIES})
@@ -52,7 +68,7 @@ TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
 ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
-add_library(ControllerPCC SHARED src/ControllerPCC.cpp)
+add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
@@ -90,3 +106,8 @@ target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})
 add_executable(experiment src/experiment.cpp)
 target_link_libraries(experiment SoftTrunkManager ${PYTHON_LIBRARIES} -pthread)
 target_include_directories(experiment PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+
+add_executable(example_SoftArm src/example_SoftArm.cpp)
+target_link_libraries(example_SoftArm SoftArm ${PYTHON_LIBRARIES} -pthread)
+target_include_directories(example_SoftArm PRIVATE ${PYTHON_INCLUDE_DIRS})

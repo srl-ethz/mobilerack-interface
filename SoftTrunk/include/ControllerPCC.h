@@ -9,6 +9,7 @@
 #include <Eigen/Dense>
 #include <AugmentedRigidArm.h>
 #include "SoftArm.h"
+#include "MiniPID.h"
 
 
 
@@ -42,6 +43,7 @@ private:
   Vector2Nd G;
   AugmentedRigidArm *ara;
   SoftArm *sa;
+  std::vector<MiniPID> miniPIDs;
 };
 
 
