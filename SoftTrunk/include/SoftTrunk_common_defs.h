@@ -14,11 +14,12 @@
 #define NUM_ELEMENTS 3 // how many PCC elements there are
 #define CHARACTERIZE_STEPS 20 // Used in characterization- how many time steps to spend on each bend
 #define TIME_STEP 100 // milliseconds of each time step
-#define LOCAL_ADDRESS "192.168.1.194"
+#define LOCAL_ADDRESS "192.168.1.111"
 #define MOTIVE_ADDRESS "192.168.1.105"
 #define VALVE_ADDRESS "192.168.1.101"
-#define PRESSURE_OFFSET 800 // baseline pressure of arm.
+#define PRESSURE_OFFSET 700 // baseline pressure of arm.
 #define USE_PID_CURVATURE_CONTROL true
+#define PI 3.141592
 
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;

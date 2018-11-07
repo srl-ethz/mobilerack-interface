@@ -82,9 +82,12 @@ void CurvatureCalculator::calculateCurvature() {
     Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
     q(i*2) = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
     q(i*2+1) = sign(matrix(0,3)) * (asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
-    if (q(i*2) < 0){
+    if (q(i*2+1)<0){
       q(i*2+1) = -q(i*2+1);
-      q(i*2) += 3.1415;
+      q(i*2) += 3.14;
+    }
+    if (q(i*2) < 0){
+      q(i*2) += 2 * 3.1415;
     }
   }
 }

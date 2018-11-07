@@ -38,9 +38,16 @@ void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
     double theta;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         //todo: why is this matrix operation the way it is?
-        phi = ref_q(2*i);
-        theta = ref_q(2*i+1);
-        if (true){//theta < 3.14/36){
+        theta = curvatureCalculator->q(2*i+1);
+        if (true){//(theta < 0.1){
+            // sensor reading for phi is unstable when theta is small
+            phi = ref_q(2*i);
+        }
+        else{
+            phi = curvatureCalculator->q(2*i);
+        }
+
+        if (true){//(theta < 0.1){
             mat << 0, -sin(phi), 0, cos(phi);
         }
         else {

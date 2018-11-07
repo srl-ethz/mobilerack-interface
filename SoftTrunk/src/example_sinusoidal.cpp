@@ -3,13 +3,12 @@
 #include <cmath>
 #include <iostream>
 #include <thread>
-#define PI 3.141592
 /*
 sends a sinusoidal wave to 4 actuators, and each phase is offset by PI/2.
 */
 void wait() { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 
-int sinusoid(double t) { return 200 + 200 * sin(t); }
+int sinusoid(double t) { return 700 + 500 * sin(t); }
 int main() {
   ForceController forceController(16, 1000);
 
