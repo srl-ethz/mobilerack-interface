@@ -5,22 +5,16 @@
 #include "ControllerPCC.h"
 
 ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* softArm) : ara(augmentedRigidArm), sa(softArm){
-
+    if (USE_PID_CURVATURE_CONTROL){
+        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+    }
 }
 
-ControllerPCC::ControllerPCC(SoftArm* softArm) : sa(softArm){
-//    for (int i = 0; i < NUM_ELEMENTS; ++i) {
-//        miniPIDs.push_back(MiniPID(0,0,0)); // PID for phi
-//        miniPIDs.push_back(MiniPID(150,0,0)); // PID for theta
-//    }
-    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
-    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
-    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
-
-}
 
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
                                             const Vector2Nd &dq_ref,
