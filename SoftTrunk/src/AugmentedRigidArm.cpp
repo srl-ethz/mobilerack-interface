@@ -25,7 +25,7 @@ void AugmentedRigidArm::create_xacro(){
     std::ofstream xacro_file;
     xacro_file.open("./urdf/robot.urdf.xacro");
 
-    // write out text to the file
+    // write outlog text to the file
     xacro_file << "<?xml version='1.0'?><robot xmlns:xacro='http://www.ros.org/wiki/xacro' name='robot'>"<<
     "<xacro:include filename='macro_definitions.urdf.xacro' /><xacro:empty_link name='base_link'/>";
 

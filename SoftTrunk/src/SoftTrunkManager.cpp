@@ -4,7 +4,7 @@
 
 #include "SoftTrunkManager.h"
 
-SoftTrunkManager::SoftTrunkManager() {
+SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm();
     softArm->start();
@@ -12,10 +12,11 @@ SoftTrunkManager::SoftTrunkManager() {
         controllerPCC = new ControllerPCC{softArm};
     }
     else {
-        augmentedRigidArm = new AugmentedRigidArm(false);
+        augmentedRigidArm = new AugmentedRigidArm{};
         controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
     }
-
+    if (logMode)
+        logBeginTime = std::chrono::high_resolution_clock::now();
 }
 
 void SoftTrunkManager::curvatureControl(Vector2Nd q,
@@ -39,11 +40,21 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
         controllerPCC->curvaturePIDControl(q,&output);
         //std::cout << output << "\n";
         softArm->actuate(output, q);
-        return;
     }
-    Vector2Nd tau;
-    controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
-    softArm->actuate(tau, q);
+    else {
+        Vector2Nd tau;
+        controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
+        softArm->actuate(tau, q);
+    }
+    if(logMode)
+        log(softArm->curvatureCalculator->q, q);
+}
+
+void SoftTrunkManager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
+    log_q_meas.push_back(q_meas);
+    log_q_ref.push_back(q_ref);
+    log_time.push_back(std::chrono::high_resolution_clock::now() - logBeginTime);
+    logNum++;
 }
 
 void SoftTrunkManager::characterize() {
@@ -74,6 +85,39 @@ void SoftTrunkManager::characterize() {
 
     softArm->stop();
 }
+
 void SoftTrunkManager::stop() {
     softArm->stop();
+    if (logMode)
+        outputLog();
+
+}
+void SoftTrunkManager::outputLog() {
+    std::cout << "Outputting log to log.csv...\n";
+    std::ofstream log_file;
+    log_file.open("log.csv");
+
+    // first the header row
+    log_file << "time(millis)";
+    for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+        log_file << ", q_ref[" << k << "]";
+    }
+    for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+        log_file << ", q_meas[" << k << "]";
+    }
+    log_file << "\n";
+
+    // log actual data
+    for (int j = 0; j < logNum; ++j) {
+        log_file << std::chrono::duration_cast<std::chrono::milliseconds>(log_time[j]).count();
+        for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+            log_file << ", " <<log_q_ref[j](k);
+        }
+        for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+            log_file << ", " <<log_q_meas[j](k);
+        }
+        log_file << "\n";
+    }
+    log_file.close();
+    std::cout<<"log output complete.\n";
 }
