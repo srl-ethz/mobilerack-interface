@@ -9,10 +9,17 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* soft
 }
 
 ControllerPCC::ControllerPCC(SoftArm* softArm) : sa(softArm){
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        miniPIDs.push_back(MiniPID(0,0,0)); // PID for phi
-        miniPIDs.push_back(MiniPID(150,0.2,0)); // PID for theta
-    }
+//    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+//        miniPIDs.push_back(MiniPID(0,0,0)); // PID for phi
+//        miniPIDs.push_back(MiniPID(150,0,0)); // PID for theta
+//    }
+    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+    miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
+    miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+
 }
 
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
@@ -38,6 +45,6 @@ void ControllerPCC::curvatureDynamicControl(
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *output) {
     for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {
-        (*output)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref[i]);
+        (*output)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref(i));
     }
 }

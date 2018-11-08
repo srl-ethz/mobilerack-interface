@@ -11,7 +11,7 @@
  */
 
 int main(){
-    AugmentedRigidArm augmentedRigidArm(false);
+    AugmentedRigidArm augmentedRigidArm{};
     Eigen::Matrix<double,NUM_ELEMENTS*2,1> q;
     Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq;
     for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
