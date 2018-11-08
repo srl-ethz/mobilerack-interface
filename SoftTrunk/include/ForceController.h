@@ -3,9 +3,14 @@
 
 #include "MiniPID.h"
 #include "matplotlibcpp.h"
-#include "mpa.h"
+#include "MPA.h"
 #include <thread>
 #include <vector>
+#include <iostream>
+#include <thread>
+#include "SoftTrunk_common_defs.h"
+#include <chrono>
+
 
 class ForceController {
 private:
@@ -14,15 +19,17 @@ private:
   std::vector<int> commanded_pressures;
   int DoF;
   std::vector<MiniPID> pid;
-  MPA mpa{"192.168.1.101", "502"};
+  MPA mpa{VALVE_ADDRESS, "502"};
   std::thread controller_thread;
-  std::vector<double> x;
+  std::vector<double> seconds_log;
   std::vector<double> pressure_log;
   std::vector<double> commandpressure_log;
+  int maxPressure;
+  std::chrono::high_resolution_clock::time_point logBeginTime;
 
 public:
   void setSinglePressure(int, int);
-  explicit ForceController(int);
+  explicit ForceController(int, int);
   void disconnect();
 };
 #endif

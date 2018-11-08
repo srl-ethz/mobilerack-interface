@@ -11,4 +11,11 @@
 *cmake_install.cmake
 CMakeFiles/*
 graph.png
+
 *.DS_Store
+
+*.h.gch
+/build/
+/.idea/
+/cmake-build-debug/
+
