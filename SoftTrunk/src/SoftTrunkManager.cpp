@@ -10,8 +10,8 @@ SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
     softArm->start();
     augmentedRigidArm = new AugmentedRigidArm{};
     controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
-    if (logMode)
-        logBeginTime = std::chrono::high_resolution_clock::now();
+
+    logBeginTime = std::chrono::high_resolution_clock::now();
 }
 
 void SoftTrunkManager::curvatureControl(Vector2Nd q,
@@ -54,8 +54,12 @@ void SoftTrunkManager::characterize() {
     std::cout << "SoftTrunkManager.characterize called. Computing characteristics of the SoftTrunk...\n";
 
     // first, specify the pressures to send to arm.
+    // the pressure profile has CHARACTERIZE_STEPS*NUM_ELEMENTS*4 steps, and is structured as
+    // { actuate +x of first element for CHARACTERIZE_STEPS steps,
+    // actuate -x of first element for CHARACTERIZE_STEPS steps,
+    // actuate +y of first element for CHARACTERIZE_STEPS steps,
+    // actuate -y of first element for CHARACTERIZE_STEPS steps, ...}
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4>::Zero();
-
     for (int i = 0; i < NUM_ELEMENTS*4; ++i) {
         for (int j = 0; j < CHARACTERIZE_STEPS; ++j) {
             if (i%2 == 0){
@@ -67,23 +71,31 @@ void SoftTrunkManager::characterize() {
         }
     }
 
-    //std::cout<<"created pressure profile \n"<<pressures <<"\n";
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4> q_history;
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4> dq_history;
 
-    // send that to arm and log the results.
+    // also log the output as well, for reference
+    logMode = true;
+    Vector2Nd empty_vec = Vector2Nd::Zero();
 
+
+    // send that to arm and save the results.
     for (int l = 0; l < CHARACTERIZE_STEPS*NUM_ELEMENTS*4; ++l) {
         softArm->actuatePressure(pressures.col(l));
         std::this_thread::sleep_for(std::chrono::milliseconds(TIME_STEP));
+        q_history.col(l) = softArm->curvatureCalculator->q;
+        dq_history.col(l) = softArm->curvatureCalculator->dq;
+        log(softArm->curvatureCalculator->q, empty_vec);
     }
 
-    softArm->stop();
+    // convert q_history to dq_history to matrix that's
+    // http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
 }
 
-void SoftTrunkManager::stop() {
+SoftTrunkManager::~SoftTrunkManager() {
     softArm->stop();
     if (logMode)
         outputLog();
-
 }
 void SoftTrunkManager::outputLog() {
     std::cout << "Outputting log to log.csv...\n";

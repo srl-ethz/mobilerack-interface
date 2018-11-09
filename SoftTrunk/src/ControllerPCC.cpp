@@ -4,14 +4,23 @@
 
 #include "ControllerPCC.h"
 
+MiniPID ZieglerNichols(double Ku, double period){
+    // https://en.wikipedia.org/wiki/Ziegler–Nichols_method
+    double Kp = 0.33 * Ku;
+    double controlPeriod = 0.002;
+    double Ki = Kp/ (period / 2.0) * CONTROL_PERIOD;
+    double Kd = Kp * period/3 / CONTROL_PERIOD;
+    return MiniPID(Kp, Ki, Kd);
+}
+
 ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* softArm) : ara(augmentedRigidArm), sa(softArm){
     if (USE_PID_CURVATURE_CONTROL){
-        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
-        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
-        miniPIDs.push_back(MiniPID(100,0,0)); // PID for phi
-        miniPIDs.push_back(MiniPID(300,0,0)); // PID for theta
+        miniPIDs.push_back(MiniPID(700,0,0));// PID for phi. Z-N doesn't seem to work very well, so just doing P control...
+        miniPIDs.push_back(ZieglerNichols(500, 0.6)); // PID for theta
+        miniPIDs.push_back(MiniPID(0,0,0)); // PID for phi
+        miniPIDs.push_back(MiniPID(0,0,0)); // PID for theta
+        miniPIDs.push_back(MiniPID(0,0,0)); // PID for phi
+        miniPIDs.push_back(MiniPID(0,0,0)); // PID for theta
     }
 }
 

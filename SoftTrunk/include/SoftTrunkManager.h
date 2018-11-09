@@ -26,7 +26,7 @@ public:
     SoftArm* softArm;
     ControllerPCC* controllerPCC;
     AugmentedRigidArm* augmentedRigidArm;
-    void stop();
+    ~SoftTrunkManager();
 private:
     // variables and functions used to save the log of q
     bool logMode;
