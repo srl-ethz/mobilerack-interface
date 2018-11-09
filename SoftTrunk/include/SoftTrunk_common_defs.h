@@ -20,6 +20,7 @@
 #define PRESSURE_OFFSET 700 // baseline pressure of arm.
 #define USE_PID_CURVATURE_CONTROL true
 #define PI 3.141592
+#define CONTROL_PERIOD 0.002 // period of one control step, in seconds.
 
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;
