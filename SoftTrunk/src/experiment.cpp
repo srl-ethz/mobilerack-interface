@@ -19,8 +19,8 @@ int main(){
     for (int j = 0; j < STEPS; ++j) {
         seconds += CONTROL_PERIOD;
 
-        q(0) = PI + 2*sin(seconds/2);
-        q(1) = 0.5 * fmin(1, seconds/3);
+        q(0) = 0.5 * ceil(seconds/3);//PI + 1*sin(seconds/2);
+        q(1) = 0.5 * fmin(1, seconds/1);
 
         stm.curvatureControl(q, dq, ddq);
         std::this_thread::sleep_for(std::chrono::milliseconds(int(CONTROL_PERIOD*1000)));

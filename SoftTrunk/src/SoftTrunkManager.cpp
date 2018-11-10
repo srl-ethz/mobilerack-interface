@@ -4,6 +4,29 @@
 
 #include "SoftTrunkManager.h"
 
+// taken from https://gist.github.com/javidcf/25066cf85e71105d57b6
+template <class MatT>
+Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime>
+pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4}) // choose appropriately
+{
+    typedef typename MatT::Scalar Scalar;
+    auto svd = mat.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
+    const auto &singularValues = svd.singularValues();
+    Eigen::Matrix<Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> singularValuesInv(mat.cols(), mat.rows());
+    singularValuesInv.setZero();
+    for (unsigned int i = 0; i < singularValues.size(); ++i) {
+        if (singularValues(i) > tolerance)
+        {
+            singularValuesInv(i, i) = Scalar{1} / singularValues(i);
+        }
+        else
+        {
+            singularValuesInv(i, i) = Scalar{0};
+        }
+    }
+    return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
+}
+
 SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
@@ -55,41 +78,69 @@ void SoftTrunkManager::characterize() {
 
     // first, specify the pressures to send to arm.
     // the pressure profile has CHARACTERIZE_STEPS*NUM_ELEMENTS*4 steps, and is structured as
-    // { actuate +x of first element for CHARACTERIZE_STEPS steps,
-    // actuate -x of first element for CHARACTERIZE_STEPS steps,
-    // actuate +y of first element for CHARACTERIZE_STEPS steps,
-    // actuate -y of first element for CHARACTERIZE_STEPS steps, ...}
-    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4>::Zero();
-    for (int i = 0; i < NUM_ELEMENTS*4; ++i) {
-        for (int j = 0; j < CHARACTERIZE_STEPS; ++j) {
-            if (i%2 == 0){
-                pressures(i/2, i*CHARACTERIZE_STEPS + j) = 300;
-            }
-            else{
-                pressures(i/2, i*CHARACTERIZE_STEPS + j) = -300;
-            }
+    // { actuate +x of all elements for CHARACTERIZE_STEPS steps,
+    // actuate -x of all elements for CHARACTERIZE_STEPS steps,
+    // actuate +y of all elements for CHARACTERIZE_STEPS steps,
+    // actuate -y of all elements for CHARACTERIZE_STEPS steps, ...}
+    // todo: this is a very ugly piece of code (mostly because I implemented finePressures later), clean up later
+    const int interpolateSteps = 20;
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4>::Zero();
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4*interpolateSteps>  finePressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4*interpolateSteps>::Zero();
+    double maxPressure  = 500;
+    double pressure;
+    for (int k = 0; k < NUM_ELEMENTS; ++k) {
+        for (int j = 0; j < CHARACTERIZE_STEPS*interpolateSteps; ++j) {
+            pressure= fmin(maxPressure, fmin(maxPressure*((double)j*5/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(5-(double)j*5/(CHARACTERIZE_STEPS*interpolateSteps))));
+            finePressures(2*k, j) = pressure;
+            finePressures(2*k, j+CHARACTERIZE_STEPS*interpolateSteps) = -pressure;
+            finePressures(2*k+1, j+CHARACTERIZE_STEPS*2*interpolateSteps) = pressure;
+            finePressures(2*k+1, j+CHARACTERIZE_STEPS*3*interpolateSteps) = -pressure;
         }
     }
+//    std::cout <<"pressure profile"<< finePressures <<"\n";
+    for (int m = 0; m < CHARACTERIZE_STEPS * 4; ++m) {
+        pressures.col(m) = finePressures.col(m*interpolateSteps);
+    }
 
-    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4> q_history;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*NUM_ELEMENTS*4> dq_history;
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4> q_history;
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*4> dq_history;
+    Eigen::Matrix<double, (CHARACTERIZE_STEPS*4) * (NUM_ELEMENTS*2), 1> f_history;
 
     // also log the output as well, for reference
     logMode = true;
     Vector2Nd empty_vec = Vector2Nd::Zero();
-
+    Vector2Nd placeHolder = Vector2Nd::Zero(); //not used, just necessary to call controllerPCC->curvatureDynamicControl
 
     // send that to arm and save the results.
-    for (int l = 0; l < CHARACTERIZE_STEPS*NUM_ELEMENTS*4; ++l) {
-        softArm->actuatePressure(pressures.col(l));
-        std::this_thread::sleep_for(std::chrono::milliseconds(TIME_STEP));
-        q_history.col(l) = softArm->curvatureCalculator->q;
-        dq_history.col(l) = softArm->curvatureCalculator->dq;
+    for (int l = 0; l < CHARACTERIZE_STEPS*4*interpolateSteps; ++l) {
+        softArm->actuatePressure(finePressures.col(l));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        if (l%interpolateSteps != 0)
+            continue;
+        int log_index = l/interpolateSteps;
+        q_history.col(log_index) = softArm->curvatureCalculator->q;
+        dq_history.col(log_index) = softArm->curvatureCalculator->dq;
+        controllerPCC->curvatureDynamicControl(placeHolder, placeHolder, placeHolder,&placeHolder); // compute B, C, G
+        f_history.block(log_index*2*NUM_ELEMENTS, 0, NUM_ELEMENTS*2, 1) = controllerPCC->B * (softArm->curvatureCalculator->ddq) + controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G;
         log(softArm->curvatureCalculator->q, empty_vec);
+        if (log_index % CHARACTERIZE_STEPS == 0 and l>0) {
+            softArm->actuatePressure(Vector2Nd::Zero());
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        }
     }
 
-    // convert q_history to dq_history to matrix that's
+    // convert pressures, q_history and dq_history to matrix
+    Eigen::Matrix<double, 3, (CHARACTERIZE_STEPS*4) * (NUM_ELEMENTS*2)> history_matrix;
+    for (int l = 0; l < CHARACTERIZE_STEPS*4; ++l) {
+        history_matrix.block(0, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = pressures.col(l).transpose();
+        history_matrix.block(1, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = -q_history.col(l).transpose();
+        history_matrix.block(2, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = -dq_history.col(l).transpose();
+    }
+
     // http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
+    Eigen::Matrix<double, 3,1> characterization = pseudoinverse(history_matrix).transpose() * f_history;
+    std::cout<< "characterization is \n"<< characterization <<"\n";
+
 }
 
 SoftTrunkManager::~SoftTrunkManager() {
