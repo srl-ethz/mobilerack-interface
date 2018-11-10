@@ -28,7 +28,6 @@ private:
 
   void calculatorThreadFunction(); // backgrond process for calculating curvature
   bool run;
-  Vector2Nd prev_q = Vector2Nd::Zero();
   void calculateCurvature(); // calculates phi and theta from the current frame values.
 
 public:
@@ -49,6 +48,7 @@ public:
 
   Vector2Nd q = Vector2Nd::Zero(); // [phi0, theta0, phi1, theta1, ...]
   Vector2Nd dq = Vector2Nd::Zero(); // derivative of dq
+  Vector2Nd ddq = Vector2Nd::Zero(); // derivative of dq
 };
 
 #endif // SOFTTRUNK_INCLUDE_CurvatureCalculator_H_

@@ -36,7 +36,7 @@ with open('log.csv') as csvfile:
 for key in values:
     print("column found :",key)
     if key != "time(millis)":
-        plt.plot(values["time(millis)"], values[key], label=key)
+        plt.plot(values["time(millis)"], values[key], ".-", label=key)
 plt.xlabel('time(millis)')
 plt.legend()
 plt.show()

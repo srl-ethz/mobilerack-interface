@@ -32,13 +32,18 @@ void CurvatureCalculator::start(){
 }
 
 void CurvatureCalculator::calculatorThreadFunction(){
+    Vector2Nd prev_q = Vector2Nd::Zero();
+    Vector2Nd prev_dq = Vector2Nd::Zero();
+    double interval = 0.005; // loop interval
     while(run){
         // this loop continuously monitors the current state.
         calculateCurvature();
         // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
-        dq = (q- prev_q)/ 0.005;
+        dq = (q- prev_q)/ interval;
+        ddq = (dq - prev_dq) / interval;
         prev_q = Vector2Nd(q);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        prev_dq = Vector2Nd(dq);
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(interval*1000)));
     }
 }
 

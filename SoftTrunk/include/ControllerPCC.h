@@ -36,10 +36,10 @@ public:
             const Vector2Nd &q_ref,
             Vector2Nd *output
             );
+    Matrix2Nd B;
+    Matrix2Nd C;
+    Vector2Nd G;
 private:
-  Matrix2Nd B;
-  Matrix2Nd C;
-  Vector2Nd G;
   AugmentedRigidArm *ara;
   SoftArm *sa;
   std::vector<MiniPID> miniPIDs;
