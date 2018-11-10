@@ -4,7 +4,7 @@
 
 #define USE_PID true
 #define PLOT true
-#define VALVE_TO_PLOT 15
+#define VALVE_TO_PLOT 14
 /*
    This is a class that acts as a PID controller for the Festo valves.
    It sends out target pressures to the Festo valves.

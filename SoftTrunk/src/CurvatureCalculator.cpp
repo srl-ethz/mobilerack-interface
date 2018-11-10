@@ -39,8 +39,10 @@ void CurvatureCalculator::calculatorThreadFunction(){
         // this loop continuously monitors the current state.
         calculateCurvature();
         // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
-        dq = (q- prev_q)/ interval;
-        ddq = (dq - prev_dq) / interval;
+        presmooth_dq = (q- prev_q)/ interval;
+        dq = (1-0.2) * presmooth_dq + 0.2 * dq;
+        presmooth_ddq = (dq - prev_dq) / interval;
+        ddq = (1-0.2) * presmooth_ddq + 0.2 * ddq;
         prev_q = Vector2Nd(q);
         prev_dq = Vector2Nd(dq);
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(interval*1000)));
@@ -85,18 +87,19 @@ void CurvatureCalculator::calculateCurvature() {
         rel_transforms[i] = abs_transforms[i+1] * abs_transforms[i].inverse();
 
         Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
-        q(i*2) = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
-        q(i*2+1) = sign(matrix(0,3)) * abs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
+        presmooth_q(i*2) = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
+        presmooth_q(i*2+1) = sign(matrix(0,3)) * abs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
 
         // sanitize values: phi's range is 0 ~ 2*PI, theta's range is 0 ~
-        if (q(i*2+1)<0){
-            q(i*2+1) = -q(i*2+1);
-            q(i*2) += PI;
+        if (presmooth_q(i*2+1)<0){
+            presmooth_q(i*2+1) = -presmooth_q(i*2+1);
+            presmooth_q(i*2) += PI;
         }
-        if (q(i*2) < 0){
-            q(i*2) += 2 * PI;
+        if (presmooth_q(i*2) < 0){
+            presmooth_q(i*2) += 2 * PI;
         }
     }
+    q = (1-0.2) * presmooth_q + 0.2 * q;
 }
 
 void CurvatureCalculator::stop() {

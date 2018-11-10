@@ -54,7 +54,7 @@ void AugmentedRigidArm::create_rbdl_model() {
       std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
 }
 
-void AugmentedRigidArm::update(Eigen::Matrix<double, NUM_ELEMENTS*2,1> q, Eigen::Matrix<double, NUM_ELEMENTS*2, 1> dq) {
+void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
     double phi;
     double theta;
     double delta_L;

@@ -29,6 +29,9 @@ private:
   void calculatorThreadFunction(); // backgrond process for calculating curvature
   bool run;
   void calculateCurvature(); // calculates phi and theta from the current frame values.
+  Vector2Nd presmooth_q = Vector2Nd::Zero();
+  Vector2Nd presmooth_dq = Vector2Nd::Zero();
+  Vector2Nd presmooth_ddq = Vector2Nd::Zero();
 
 public:
   explicit CurvatureCalculator(int numOfRigidBodies, int sensorType);
