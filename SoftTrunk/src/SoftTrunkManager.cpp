@@ -105,8 +105,8 @@ void SoftTrunkManager::characterize() {
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < CHARACTERIZE_STEPS*interpolateSteps; ++j) {
             pressure= fmin(maxPressure, fmin(maxPressure*((double)j*5/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(5-(double)j*5/(CHARACTERIZE_STEPS*interpolateSteps))));
-            finePressures(2*k, j) = pressure;
-            finePressures(2*k, j+CHARACTERIZE_STEPS*interpolateSteps) = -pressure;
+            finePressures(2*k+1, j) = pressure;
+            finePressures(2*k+1, j+CHARACTERIZE_STEPS*interpolateSteps) = -pressure;
         }
     }
 //    std::cout <<"pressure profile"<< finePressures <<"\n";
@@ -150,6 +150,10 @@ void SoftTrunkManager::characterize() {
         history_matrix.block(1, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -q_theta_history.col(l).transpose();
         history_matrix.block(2, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -dq_theta_history.col(l).transpose();
     }
+    std::cout << "first row of history matrix is \n" << history_matrix.row(0) << "\n";
+    std::cout << "second row of history matrix is \n" << history_matrix.row(1) << "\n";
+    std::cout << "third row of history matrix is \n" << history_matrix.row(2) << "\n";
+    std::cout << "f_theta_history is \n" << f_theta_history << "\n";
 
     // http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
     Eigen::Matrix<double, 3,1> characterization = pseudoinverse(history_matrix).transpose() * f_theta_history;
