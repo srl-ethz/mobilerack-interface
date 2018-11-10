@@ -50,8 +50,8 @@ this file defines the xacro macros that can be used to create PCC augmented mode
   <xacro:macro name="default_inertial">
     <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
     <inertial>
-      <mass value="0.01"/>
-      <inertia ixx="0.01" ixy="0.01" ixz="0.01" iyy="0.01" iyz="0.01" izz="0.01"/>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.00001" ixz="0.00001" iyy="0.00001" iyz="0.00001" izz="0.00001"/>
     </inertial>
   </xacro:macro>
 

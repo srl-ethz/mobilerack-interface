@@ -15,8 +15,8 @@ SoftArm::SoftArm() {
     alpha = Vector2Nd::Zero();
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
         alpha(j) = 0.604;
-        k(j) = 763;
-        d(j) = -608;
+//        k(j) = 763;
+//        d(j) = -608;
     }
 }
 void SoftArm::start(){
