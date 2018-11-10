@@ -7,7 +7,6 @@
 MiniPID ZieglerNichols(double Ku, double period){
     // https://en.wikipedia.org/wiki/Ziegler–Nichols_method
     double Kp = 0.33 * Ku;
-    double controlPeriod = 0.002;
     double Ki = Kp/ (period / 2.0) * CONTROL_PERIOD;
     double Kd = Kp * period/3 / CONTROL_PERIOD;
     return MiniPID(Kp, Ki, Kd);

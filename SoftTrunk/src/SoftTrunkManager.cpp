@@ -66,6 +66,7 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
     else {
         Vector2Nd tau;
         controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
+//        std::cout << "tau:\n" <<tau << "\n";
         softArm->actuate(tau, q);
     }
     if(logMode)
@@ -98,25 +99,25 @@ void SoftTrunkManager::characterize() {
     // actuate -y of all elements for CHARACTERIZE_STEPS steps, ...}
     // todo: this is a very ugly piece of code (mostly because I implemented finePressures later), clean up later
     const int interpolateSteps = 20;
-    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*2>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*2>::Zero();
-    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*2*interpolateSteps>  finePressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*2*interpolateSteps>::Zero();
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>::Zero();
+    Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>  finePressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>::Zero();
     double maxPressure  = 500;
     double pressure;
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < CHARACTERIZE_STEPS*interpolateSteps; ++j) {
-            pressure= fmin(maxPressure, fmin(maxPressure*((double)j*5/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(5-(double)j*5/(CHARACTERIZE_STEPS*interpolateSteps))));
+            pressure= fmin(maxPressure, fmin(maxPressure*((double)j*2/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(2-(double)j*2/(CHARACTERIZE_STEPS*interpolateSteps))));
             finePressures(2*k+1, j) = pressure;
-            finePressures(2*k+1, j+CHARACTERIZE_STEPS*interpolateSteps) = -pressure;
+//            finePressures(2*k+1, j+CHARACTERIZE_STEPS*interpolateSteps) = pressure;
         }
     }
 //    std::cout <<"pressure profile"<< finePressures <<"\n";
-    for (int m = 0; m < CHARACTERIZE_STEPS * 2; ++m) {
+    for (int m = 0; m < CHARACTERIZE_STEPS ; ++m) {
         pressures.col(m) = finePressures.col(m*interpolateSteps);
     }
 
-    Eigen::Matrix<double, NUM_ELEMENTS, CHARACTERIZE_STEPS*4> q_theta_history; // history of just theta
-    Eigen::Matrix<double, NUM_ELEMENTS, CHARACTERIZE_STEPS*4> dq_theta_history;
-    Eigen::Matrix<double, (CHARACTERIZE_STEPS*2) * NUM_ELEMENTS, 1> f_theta_history;
+    Eigen::Matrix<double, NUM_ELEMENTS, CHARACTERIZE_STEPS> q_theta_history; // history of just theta
+    Eigen::Matrix<double, NUM_ELEMENTS, CHARACTERIZE_STEPS> dq_theta_history;
+    Eigen::Matrix<double, (CHARACTERIZE_STEPS) * NUM_ELEMENTS, 1> f_theta_history;
 
     // also log the output as well, for reference
     logMode = true;
@@ -124,15 +125,15 @@ void SoftTrunkManager::characterize() {
     Vector2Nd placeHolder = Vector2Nd::Zero(); //not used, just necessary to call controllerPCC->curvatureDynamicControl
 
     // send that to arm and save the results.
-    for (int l = 0; l < CHARACTERIZE_STEPS*2*interpolateSteps; ++l) {
+    for (int l = 0; l < CHARACTERIZE_STEPS*interpolateSteps; ++l) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
         softArm->actuatePressure(finePressures.col(l));
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         if (l%interpolateSteps != 0)
             continue;
         int log_index = l/interpolateSteps;
         q_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->q);
         dq_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->dq);
-        controllerPCC->curvatureDynamicControl(placeHolder, placeHolder, placeHolder,&placeHolder); // compute B, C, G
+        controllerPCC->curvatureDynamicControl(empty_vec, empty_vec, empty_vec,&placeHolder); // compute B, C, G
         Vector2Nd f=controllerPCC->B * (softArm->curvatureCalculator->ddq) + controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G;
         f_theta_history.block(log_index*NUM_ELEMENTS, 0, NUM_ELEMENTS, 1) = isolateTheta(f);
         log(softArm->curvatureCalculator->q, empty_vec);
@@ -143,8 +144,8 @@ void SoftTrunkManager::characterize() {
     }
 
     // convert pressures, q_theta_history and dq_theta_history to matrix
-    Eigen::Matrix<double, 3, (CHARACTERIZE_STEPS*2) * (NUM_ELEMENTS)> history_matrix;
-    for (int l = 0; l < CHARACTERIZE_STEPS*2; ++l) {
+    Eigen::Matrix<double, 3, (CHARACTERIZE_STEPS) * (NUM_ELEMENTS)> history_matrix;
+    for (int l = 0; l < CHARACTERIZE_STEPS; ++l) {
         Vector2Nd pressure=  pressures.col(l);
         history_matrix.block(0, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = isolateTheta(pressure).transpose();
         history_matrix.block(1, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -q_theta_history.col(l).transpose();
@@ -156,7 +157,8 @@ void SoftTrunkManager::characterize() {
     std::cout << "f_theta_history is \n" << f_theta_history << "\n";
 
     // http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
-    Eigen::Matrix<double, 3,1> characterization = pseudoinverse(history_matrix).transpose() * f_theta_history;
+    //try ignoring the first series of data, see how it goes
+    Eigen::Matrix<double, 3,1> characterization = pseudoinverse(history_matrix.block(0,2*NUM_ELEMENTS, 3, (CHARACTERIZE_STEPS-2)* NUM_ELEMENTS)).transpose() * f_theta_history.block(2*NUM_ELEMENTS,0, NUM_ELEMENTS*(CHARACTERIZE_STEPS-2), 1);
     std::cout<< "characterization is \n"<< characterization <<"\n";
 
 }

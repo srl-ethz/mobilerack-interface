@@ -13,10 +13,13 @@ SoftArm::SoftArm() {
     k = Vector2Nd::Zero();
     d= Vector2Nd::Zero();
     alpha = Vector2Nd::Zero();
+    // just inputting random values for now
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-        alpha(j) = 0.604;
-//        k(j) = 763;
-//        d(j) = -608;
+        alpha(j) = 0.01;
+    }
+    for (int l = 0; l < NUM_ELEMENTS; ++l) {
+        k(2*l) =500;
+        d(2*l) = 50;
     }
 }
 void SoftArm::start(){
