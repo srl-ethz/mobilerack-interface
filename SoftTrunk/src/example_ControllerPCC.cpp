@@ -14,45 +14,22 @@
 
 int main(){
   AugmentedRigidArm augmentedRigidArm{false};
-  SoftArm softArm{};
-  Eigen::Matrix<double,NUM_ELEMENTS*2,1> q;
-  Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq;
-  for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
-    q(i,0) = 0.1*i+0.1;
-    dq(i,0) = 0.1*i+0.1;
-  }
-  std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
-  augmentedRigidArm.update(q, dq);
-  std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";
-  std::cout << "\tJm:\n" << augmentedRigidArm.Jm << "\n";
-  std::cout << "\tdJm:\n" << augmentedRigidArm.dJm << "\n";
-  std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
-  std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
-
-
-  Vector2Nd k;
-  Vector2Nd d;
-  for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
-        k(i,0) = 0.1*i+1;
-        d(i,0) = 0.01*i+0.1;
-    }
-    std::cout << "\tq:\n" << k << "\n\tD:\n" << d << "\n";
-  // ToDo: Make k and d be part of augmentedRigidArm
+  SoftArm softArm{true};
   ControllerPCC controllerPCC(&augmentedRigidArm, &softArm);
 
-  Vector2Nd q_meas(q);
-  Vector2Nd dq_meas(dq);
+  Vector2Nd q_ref = Vector2Nd::Zero();
+  Vector2Nd dq_ref = Vector2Nd::Zero();
+  Vector2Nd ddq_ref = Vector2Nd::Zero();
 
-  Vector2Nd q_ref;
-  Vector2Nd dq_ref;
-  Vector2Nd ddq_ref;
-  for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
-    q_ref(i) = 0.1*i+0.1;
-    dq_ref(i) = 0.1*i+0.1;
-    ddq_ref(i) = 0.1*i+0.1;
-  }
-  Vector2Nd tau;
-  controllerPCC.curvatureDynamicControl(q_meas, dq_meas, q_ref,dq_ref, ddq_ref, &tau);
-  std::cout << "\ttau:\n" << tau << "\n";
+  Vector2Nd q_meas = Vector2Nd::Zero();
+  Vector2Nd dq_meas = Vector2Nd::Zero();
+
+  q_ref(1) = 0.5;
+  q_meas(1) = 0.5;
+
+  Vector2Nd tau_pt;
+  controllerPCC.curvatureDynamicControl(q_meas, dq_meas, q_ref,dq_ref, ddq_ref, &tau_pt);
+  std::cout << "\ttau_pt:\n" << tau_pt << "\n";
+  softArm.actuate(tau_pt, q_ref);
   return 1;
 }
