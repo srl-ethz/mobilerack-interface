@@ -43,7 +43,7 @@ void ControllerPCC::curvatureDynamicControl(
     B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
     C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
     G = ara->Jm.transpose() * ara->G_xi;
-    *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G;// + C*dq_ref + B*ddq_ref;
+    *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G + C*dq_ref + B*ddq_ref;
 }
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *output) {
