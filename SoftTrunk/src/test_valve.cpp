@@ -1,6 +1,6 @@
 #include "MiniPID.h"
 #include "matplotlibcpp.h"
-#include "mpa.h"
+#include "MPA.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
