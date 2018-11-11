@@ -28,6 +28,7 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
                                             const Vector2Nd &dq_ref,
                                             const Vector2Nd &ddq_ref,
                                             Vector2Nd *tau) {
+
     curvatureDynamicControl(sa->curvatureCalculator->q, sa->curvatureCalculator->dq, q_ref, dq_ref, ddq_ref, tau);
 }
 
