@@ -36,7 +36,6 @@ Derived dampedPinv(const Eigen::MatrixBase<Derived>& a, double rho = 1e-4) {
 SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
-    softArm->start();
     augmentedRigidArm = new AugmentedRigidArm{};
     controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
 

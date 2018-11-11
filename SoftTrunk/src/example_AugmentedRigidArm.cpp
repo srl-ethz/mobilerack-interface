@@ -12,12 +12,14 @@
 
 int main(){
     AugmentedRigidArm augmentedRigidArm{};
-    Eigen::Matrix<double,NUM_ELEMENTS*2,1> q;
-    Eigen::Matrix<double,NUM_ELEMENTS*2,1> dq;
-    for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
+    Vector2Nd q = Vector2Nd::Zero();
+    Vector2Nd dq = Vector2Nd::Zero();
+    q(0) = PI;
+    q(1) = 0.5;
+    /*for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
         q(i,0) = 0.1*i+0.1;
         dq(i,0) = 0.1*i+0.1;
-    }
+        }*/
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
     std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";

@@ -20,8 +20,7 @@ private:
 
 
 public:
-    SoftArm();
-    void start();
+    SoftArm(bool sim=false); // sim=true if simulation (does not try to connect to actual arm)
     void actuate(Vector2Nd, Vector2Nd); // input tau in phi-theta coordinates
     void actuatePressure(Vector2Nd); // actuate using pressures
     CurvatureCalculator* curvatureCalculator;
@@ -30,6 +29,7 @@ public:
     Vector2Nd k;
     Vector2Nd d;
     Vector2Nd alpha;
+    bool simulate;
 };
 
 #endif //SOFTTRUNK_SOFTARM_H

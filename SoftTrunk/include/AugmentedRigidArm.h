@@ -35,8 +35,8 @@ private:
 public:
   explicit AugmentedRigidArm(bool is_create_xacro=false); // set is_create_xacro to true if you only want to generate the model's xacro model
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented space
-  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm; // Jacobian
-  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm; // time derivative of Jacobian
+  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm=Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2>::Zero(); // Jacobian
+  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm=Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2>::Zero(); // time derivative of Jacobian
   Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*8> B_xi; // inertia matrix
   Eigen::Matrix<double, NUM_ELEMENTS*8, 1> G_xi; //gravity vector
   void update(Vector2Nd, Vector2Nd); // update the member variables based on current values
