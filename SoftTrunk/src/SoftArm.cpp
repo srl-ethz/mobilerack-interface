@@ -14,7 +14,7 @@ SoftArm::SoftArm(bool simulate):simulate(simulate) {
     alpha = Vector2Nd::Zero();
     // just inputting random values for now
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-      alpha(j) = 0.00005;
+      alpha(j) = 0.0005;
     }
     for (int l = 0; l < NUM_ELEMENTS; ++l) {
       //k(2*l) =500;

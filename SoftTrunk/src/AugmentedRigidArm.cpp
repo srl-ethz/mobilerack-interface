@@ -66,49 +66,52 @@ void AugmentedRigidArm::create_rbdl_model() {
 void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
     double phi;
     double theta;
-    double delta_L;
-    double L_c;
-    double dL_c;
+    double L;
+    double shrunk_L;
+    double dshrunk_L;
+    double ddshrunk_L;
     // first update xi (augmented model parameters)
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
       // sanitize values to the defined range
         phi = q(2*i+0);
         theta = q(2*i+1);
+        L= lengths[i];
         if (theta < 0){
           phi += PI;
           theta = -theta;
         }
         phi = fmod(phi, PI*2);
         // problems when theta is too close to zero?
-        if (theta < 0.01)
-          theta = 0.01;
+        if (theta < 0.001)
+          theta = 0.001;
+       
 
         // construct the configuration(that is consistent with URDF/XACRO) for rigid arm
-        delta_L = lengths[i]*sin(theta/2)/(theta/2);
+        shrunk_L = L*sin(theta/2)/(theta/2);
         xi(8*i+0,0) = phi;
         xi(8*i+1,0) = theta/2;
-        xi(8*i+2,0) = delta_L/2;
+        xi(8*i+2,0) = (L-shrunk_L)/2;
         xi(8*i+3,0) = -phi;
         xi(8*i+4,0) = phi;
-        xi(8*i+5,0) = delta_L/2;
-        xi(8*i+6,0) = -phi;
-        xi(8*i+7,0) = theta/2;
+        xi(8*i+5,0) = (L-shrunk_L)/2;
+        xi(8*i+6,0) = theta/2;
+        xi(8*i+7,0) = -phi;
 
         // next, update the Jacobian Jm
-        L_c = lengths[i] * (theta*cos(theta/2)-2*sin(theta/2)) / (2*theta*theta);        
+        dshrunk_L = L * (theta*cos(theta/2)-2*sin(theta/2)) / (theta*theta);        
         Jm(8*i+0,2*i+0) = 1;
         Jm(8*i+1,2*i+1) = 0.5;
-        Jm(8*i+2,2*i+1) = L_c;
+        Jm(8*i+2,2*i+1) = -dshrunk_L/2;
         Jm(8*i+3,2*i+0) = -1;
         Jm(8*i+4,2*i+0) = 1;
-        Jm(8*i+5,2*i+1) = L_c;
-        Jm(8*i+6,2*i+1) = -1;
-        Jm(8*i+7,2*i+0) = 0.5;
+        Jm(8*i+5,2*i+1) = -dshrunk_L/2;
+        Jm(8*i+6,2*i+1) = 0.5;
+        Jm(8*i+7,2*i+0) = -1;
 
         // next, update dJm.
-        dL_c = lengths[i] * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
-        dJm(8*i+2, 2*i+1) = dL_c;
-        dJm(8*i+5, 2*i+1) = dL_c;
+        ddshrunk_L = L * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
+        dJm(8*i+2, 2*i+1) = -ddshrunk_L/2;
+        dJm(8*i+5, 2*i+1) = -ddshrunk_L/2;
     }
 
     extract_B_G();

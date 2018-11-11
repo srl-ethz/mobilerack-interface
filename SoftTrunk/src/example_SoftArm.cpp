@@ -8,7 +8,6 @@
 
 int main(){
     SoftArm softArm = SoftArm{};
-    softArm.start();
     Vector2Nd tau_xy = Vector2Nd::Zero();
     std::vector<std::string> names = {"X", "Y"};
 

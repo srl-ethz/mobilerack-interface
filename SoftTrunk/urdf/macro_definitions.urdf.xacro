@@ -37,6 +37,34 @@ this file defines the xacro macros that can be used to create PCC augmented mode
     </joint>
   </xacro:macro>
 
+
+  <!-- todo: more elegant solution to accomodate two types of ball joints? -->
+    <xacro:macro name="ball-joint-below" params="id parent child">
+    <!--creates a ball joint, called from the PCC macro..-->
+    <joint name="${id}-ball-joint_theta_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${id}-ball-joint_link"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="0" upper="${PI}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-ball-joint_link">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <box size="${length/10} ${length/10} ${length/10}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+    <joint name="${id}-ball-joint_phi_joint" type="revolute">
+      <parent link="${id}-ball-joint_link"/>
+      <child link="${child}"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-PI*2}" upper="${PI*2}" effort="1000" velocity="1000"/>
+    </joint>
+  </xacro:macro>
+
+
   <xacro:macro name="rod" params="length">
     <!--creates a visual of a rod.-->
     <visual>
@@ -114,7 +142,7 @@ this file defines the xacro macros that can be used to create PCC augmented mode
       <xacro:default_inertial/>
     </link>
 
-    <xacro:ball-joint id="${id}-tip-balljoint" parent="${id}-e" child="${child}"/>
+    <xacro:ball-joint-below id="${id}-tip-balljoint" parent="${id}-e" child="${child}"/>
   </xacro:macro>
 
   <xacro:macro name="empty_link" params="name">
