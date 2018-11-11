@@ -14,11 +14,11 @@ SoftArm::SoftArm(bool simulate):simulate(simulate) {
     alpha = Vector2Nd::Zero();
     // just inputting random values for now
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-      alpha(j) = 0.0005;
+      alpha(j) = 0.000839;
     }
     for (int l = 0; l < NUM_ELEMENTS; ++l) {
-      //k(2*l) =500;
-      //d(2*l) = 50;
+      k(2*l) = 0.626;
+      d(2*l) = 0.285;
     }
 
     std::cout << "Starting SoftArm...\n";
@@ -82,6 +82,7 @@ void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
 
 
 void SoftArm::actuatePressure(Vector2Nd pressures) {
+    std::cout << pressures << "\n";
     for (int i = 0; i < NUM_ELEMENTS * 2; ++i) {
         forceController->setSinglePressure(valve_map[2*i], PRESSURE_OFFSET + pressures(i));
         forceController->setSinglePressure(valve_map[2*i+1], PRESSURE_OFFSET - pressures(i));

@@ -133,7 +133,7 @@ void SoftTrunkManager::characterize() {
         q_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->q);
         dq_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->dq);
         controllerPCC->curvatureDynamicControl(empty_vec, empty_vec, empty_vec,&placeHolder); // compute B, C, G
-        Vector2Nd f=controllerPCC->B * (softArm->curvatureCalculator->ddq) + controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G;
+        Vector2Nd f=/*controllerPCC->B * (softArm->curvatureCalculator->ddq) + */controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G;
         f_theta_history.block(log_index*NUM_ELEMENTS, 0, NUM_ELEMENTS, 1) = isolateTheta(f);
         log(softArm->curvatureCalculator->q, empty_vec);
         if (log_index % CHARACTERIZE_STEPS == 0 and l>0) {
