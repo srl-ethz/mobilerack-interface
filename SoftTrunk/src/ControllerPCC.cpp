@@ -13,8 +13,6 @@ MiniPID ZieglerNichols(double Ku, double period){
 }
 
 ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* softArm) : ara(augmentedRigidArm), sa(softArm){
-    std::cout << "PID control mode is "<< USE_PID_CURVATURE_CONTROL << "\n";
-    std::cout << "Feedforward mode is "<< USE_FEEDFORWARD_CONTROL << "\n";
     if (USE_PID_CURVATURE_CONTROL){
         miniPIDs.push_back(MiniPID(700,0,0));// PID for phi. Z-N doesn't seem to work very well, so just doing P control...
         miniPIDs.push_back(ZieglerNichols(500, 0.6)); // PID for theta
@@ -42,8 +40,6 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
 Vector2Nd ControllerPCC::phi_PD_control(Vector2Nd q_ref){
     //todo: what does this do?? It outputs PD control for phi which is imperative in doing control of arm
     Vector2Nd result = Vector2Nd::Zero();
-    if(USE_FEEDFORWARD_CONTROL)
-        return result; // feedforward mode is not concerned with PID control
     for (int j = 0; j < NUM_ELEMENTS; ++j) {
         result(2*j) = miniPIDs[j].getOutput(sa->curvatureCalculator->q(2*j), q_ref(2*j));
         if (q_ref(2*j+1) < 0.1) // no point in doing phi_PD_control if theta is small
@@ -60,11 +56,7 @@ void ControllerPCC::curvatureDynamicControl(
         const Vector2Nd &dq_ref,
         const Vector2Nd &ddq_ref,
         Vector2Nd *tau) {
-    if (USE_FEEDFORWARD_CONTROL)
-        ara->update(q_ref, dq_ref);
-    else{
-        ara->update(q_meas, dq_meas);
-    }
+    ara->update(q_meas, dq_meas);
     B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
     C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
     G = ara->Jm.transpose() * ara->G_xi;
