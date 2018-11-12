@@ -20,7 +20,7 @@
 #define MAX_PRESSURE 1300
 #define USE_PID_CURVATURE_CONTROL false
 #define PI 3.141592
-#define CONTROL_PERIOD 0.002 // period of one control step, in seconds.
+#define CONTROL_PERIOD 0.0005 // period of one control step, in seconds.
 
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;

@@ -43,6 +43,7 @@ private:
   AugmentedRigidArm *ara;
   SoftArm *sa;
   std::vector<MiniPID> miniPIDs;
+  Vector2Nd phi_PD_control(Vector2Nd);
 
 };
 

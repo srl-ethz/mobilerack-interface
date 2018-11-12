@@ -52,6 +52,7 @@ void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
             theta = ref_q(2 * i + 1);
         else
             theta = curvatureCalculator->q(2 * i + 1);
+        d(2*i) = d(2*i+1)*theta*theta;
         if (theta < PI / 36 or simulate) {
             // sensor reading for phi is unstable when theta is small. In those cases, use the reference value for phi.
             phi = ref_q(2 * i);

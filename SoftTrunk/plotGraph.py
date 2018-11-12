@@ -15,7 +15,7 @@ with open('log.csv') as csvfile:
     for row in reader:
         # first, if there were arguments, remove the columns supposed to be removed
         newDict = dict(row)
-        if len(sys.argv)>0:
+        if len(sys.argv)>1:
             for key in row:
                 if not (key.replace(" ", "") in sys.argv[1:] or key == 'time(millis)'):
                     del newDict[key]

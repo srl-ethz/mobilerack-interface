@@ -4,7 +4,7 @@
 
 #include "SoftTrunkManager.h"
 #include <Eigen/Dense>
-#define STEPS 10000
+#define DURATION 20
 
 #include "SoftTrunk_common_defs.h"
 
@@ -13,19 +13,33 @@ int main(){
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
     Vector2Nd ddq = Vector2Nd::Zero();
-    std::cout << q <<"\n";
     double seconds;
 
-    for (int j = 0; j < STEPS; ++j) {
-        seconds += CONTROL_PERIOD;
+    for (double seconds  = 0; seconds < DURATION; seconds+=CONTROL_PERIOD) {
 
-        int a=4;
-        q(0) = 0;
-        q(1) = 0.25 + 0.25 * sin(a*seconds);
-        dq(1) = 0.25 * a* cos(a*seconds);
-        ddq(1) = -0.25 * a*a* sin(a*seconds);
+        // first set the commands
+        // make sure phi are not near 0 (problems when crossing over 0)
+        //todo: having phi go over phi=0 without hitch with PID controller
+        int a=2;
+        q(0) = PI + 1 * cos(a*seconds);
+        dq(0) = -1 * a* sin(a*seconds);
+        ddq(0) = -1 * a*a* cos(a*seconds);
+        double startUpTime = 1;
+        double maxTheta = 0.3;
+        if (seconds < startUpTime){
+            q(1) = maxTheta/2 - maxTheta/2 * cos(seconds*(PI/startUpTime));
+            dq(1) = -maxTheta/2 * sin(seconds*(PI/startUpTime)) * (PI/startUpTime);
+            ddq(1) = -maxTheta/2 * cos(seconds*(PI/startUpTime))* (PI*PI/(startUpTime*startUpTime));
+        }
+        else
+            q(1) = maxTheta;
+        q(2) = PI;
+        q(3) = 0.2;
+
+        q(4) = PI;
+        q(5) = 0.2;
 
         stm.curvatureControl(q, dq, ddq);
-        std::this_thread::sleep_for(std::chrono::milliseconds(int(CONTROL_PERIOD*1000)));
+        std::this_thread::sleep_for(std::chrono::microseconds(int(CONTROL_PERIOD*1000000)));
     }
 }

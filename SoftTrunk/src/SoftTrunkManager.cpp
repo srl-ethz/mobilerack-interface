@@ -53,6 +53,8 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
         if (q(2*j+1) < 0){
             q(2*j) += 3.1415;
             q(2*j+1) = -q(2*j+1);
+            dq(2*j+1) = - dq(2*j+1);
+            ddq(2*j+1) = -ddq(2*j+1);
         }
         q(2*j) = fmod(q(2*j), 3.1415*2);
     }
