@@ -13,11 +13,11 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     d = Vector2Nd::Zero();
     alpha = Vector2Nd::Zero();
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-        alpha(j) = 0.000839;
+        alpha(j) = 0.000641;
     }
     for (int l = 0; l < NUM_ELEMENTS; ++l) {
-        k(2 * l + 1) = 0.626;
-        d(2 * l + 1) = 0.285;
+        k(2 * l + 1) = 0.396;
+        d(2 * l + 1) = 0.0162;
     }
 
     std::cout << "Starting SoftArm...\n";
@@ -47,12 +47,12 @@ void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
     double theta;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         //todo: why is this matrix operation the way it is?
-        if (simulate)
+        if (simulate or USE_FEEDFORWARD_CONTROL)
             theta = ref_q(2 * i + 1);
         else
             theta = curvatureCalculator->q(2 * i + 1);
         d(2*i) = d(2*i+1)*theta*theta;
-        if (theta < PI / 36 or simulate) {
+        if (theta < PI / 36 or simulate or USE_FEEDFORWARD_CONTROL) {
             // sensor reading for phi is unstable when theta is small. In those cases, use the reference value for phi.
             phi = ref_q(2 * i);
         } else {

@@ -19,7 +19,7 @@
 #define PRESSURE_OFFSET 700 // baseline pressure of arm.
 #define MAX_PRESSURE 1300
 #define USE_PID_CURVATURE_CONTROL false
-#define USE_FEEDFORWARD_CONTROL true
+#define USE_FEEDFORWARD_CONTROL false // broken now
 #define PI 3.141592
 #define CONTROL_PERIOD 0.005 // period of one control step, in seconds. must be above 0.002??(verify) because that's how long a control loop takes
 

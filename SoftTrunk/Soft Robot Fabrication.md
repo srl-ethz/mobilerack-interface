@@ -21,12 +21,12 @@ Beeswax
 1. First assemble the mold, if casting the final arm piece
     1. make sure the wax mold doesn't have rough edges
     ![](img/IMG_1774.JPG)
-    a not-so-clean wax mold
+    above is a picture of a not-so-clean wax mold
     1. assemble them to make final structure (will probably need to shave off fraction of mm into the holes of wax to make them fit)
     ![](img/IMG_1635.JPG)
     assembled mold
     ![](img/IMG_1775.JPG)
-    make sure wax pieces form a circle
+    make sure wax pieces form a circle- each piece aligns with the next. They won't align if the wax pieces are deformed.
 1. make silicone mix
     1. Silicone to use:
         * 16 ribs: Dragon Skin 30 (actually, maybe better to switch to 10 if too rigid)
@@ -59,7 +59,7 @@ Beeswax
     ![](img/IMG_1638.JPG)
 
 # wax casting
-note that the mold for wax should be about 2% larger than what it should be, to account for shrinking
+note that the mold for wax should be about 2%(testing with 1%) larger than what it should be, to account for shrinking
 1. warm stuff up
     1. heat oven to 92 degrees Celcius
     1. generate molten wax from block of wax (break up with hammer if necessary)(place so it won't melt to outside cup)
@@ -73,7 +73,6 @@ note that the mold for wax should be about 2% larger than what it should be, to 
 1. make flush
     1. after 10 minutes, use blade to cut wax flush with top surface of mold
     ![image of blade cutting wax](img/IMG_1773.JPG)
-1. should be cooled down in about 30 minutes
 1. carefully take them out(once it's not warm anymore, which is about 40 minutes? **Don't wait till they're too cold**- they'll become too brittle and break easily) and handle with care
 1. If there's some deforming (twists, bends), try to correct it...
 

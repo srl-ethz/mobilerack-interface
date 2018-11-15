@@ -16,8 +16,14 @@ int main() {
     forceController.setSinglePressure((i) % 12+4, 0);
     //forceController.setSinglePressure(i % 12, 0);
     //forceController.setSinglePressure((i + 2) % 12, 0);
-  }
-  wait();
+    }
+//  for ( int i=0; i<10; i++){
+//  forceController.setSinglePressure(14, 2000);
+//  wait();
+//  forceController.setSinglePressure(14, 0);
+//  wait();
+//  }
+//  wait();
   forceController.disconnect();
 
   return 1;
