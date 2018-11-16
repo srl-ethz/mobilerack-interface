@@ -12,7 +12,7 @@
 
 #include <Eigen/Dense>
 #define NUM_ELEMENTS 3 // how many PCC elements there are
-#define CHARACTERIZE_STEPS 25 // Used in characterization- how many time steps to spend on each bend
+#define CHARACTERIZE_STEPS 20 // Used in characterization- how many time steps to spend on each bend
 #define LOCAL_ADDRESS "192.168.1.111"
 #define MOTIVE_ADDRESS "192.168.1.105"
 #define VALVE_ADDRESS "192.168.1.101"

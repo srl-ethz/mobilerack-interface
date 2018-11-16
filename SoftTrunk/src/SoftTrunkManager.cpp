@@ -101,11 +101,11 @@ void SoftTrunkManager::characterize() {
     const int interpolateSteps = 20;
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>::Zero();
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>  finePressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>::Zero();
-    double maxPressure  = 500;
+    double maxPressure  = 500; // do not let the pressure saturate
     double pressure;
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < CHARACTERIZE_STEPS*interpolateSteps; ++j) {
-            pressure= fmin(maxPressure, fmin(maxPressure*((double)j*2/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(2-(double)j*2/(CHARACTERIZE_STEPS*interpolateSteps))));
+            pressure= -fmin(maxPressure, fmin(maxPressure*((double)j*2/(CHARACTERIZE_STEPS*interpolateSteps)), maxPressure*(2-(double)j*2/(CHARACTERIZE_STEPS*interpolateSteps))));
             finePressures(2*k+1, j) = pressure;
 //            finePressures(2*k+1, j+CHARACTERIZE_STEPS*interpolateSteps) = pressure;
         }
@@ -119,46 +119,49 @@ void SoftTrunkManager::characterize() {
     Eigen::Matrix<double, NUM_ELEMENTS, CHARACTERIZE_STEPS> dq_theta_history;
     Eigen::Matrix<double, (CHARACTERIZE_STEPS) * NUM_ELEMENTS, 1> f_theta_history;
 
+
     // also log the output as well, for reference
     logMode = true;
     Vector2Nd empty_vec = Vector2Nd::Zero();
     Vector2Nd placeHolder = Vector2Nd::Zero(); //not used, just necessary to call controllerPCC->curvatureDynamicControl
+    std::chrono::high_resolution_clock::time_point lastTime;
+    int duration;
 
     // send that to arm and save the results.
     for (int l = 0; l < CHARACTERIZE_STEPS*interpolateSteps; ++l) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        lastTime = std::chrono::high_resolution_clock::now();
+
         softArm->actuatePressure(finePressures.col(l));
-        if (l%interpolateSteps != 0)
-            continue;
-        int log_index = l/interpolateSteps;
-        q_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->q);
-        dq_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->dq);
-        controllerPCC->curvatureDynamicControl(empty_vec, empty_vec, empty_vec,&placeHolder); // compute B, C, G
-        Vector2Nd f=/*controllerPCC->B * (softArm->curvatureCalculator->ddq) + */controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G; // todo: reincorporate measured ddq to this equation.
-        f_theta_history.block(log_index*NUM_ELEMENTS, 0, NUM_ELEMENTS, 1) = isolateTheta(f);
-        log(softArm->curvatureCalculator->q, empty_vec);
-        if (log_index % CHARACTERIZE_STEPS == 0 and l>0) {
-            softArm->actuatePressure(Vector2Nd::Zero());
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        if (l%interpolateSteps == 0) {
+            int log_index = l / interpolateSteps;
+            q_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->q);
+            dq_theta_history.col(log_index) = isolateTheta(softArm->curvatureCalculator->dq);
+            controllerPCC->curvatureDynamicControl(empty_vec, empty_vec, empty_vec, &placeHolder); // compute B, C, G
+            Vector2Nd f =/*controllerPCC->B * (softArm->curvatureCalculator->ddq) + */controllerPCC->C * softArm->curvatureCalculator->dq + controllerPCC->G; // todo: reincorporate measured ddq to this equation.
+            f_theta_history.block(log_index * NUM_ELEMENTS, 0, NUM_ELEMENTS, 1) = isolateTheta(f);
+            log(softArm->curvatureCalculator->q, empty_vec);
         }
+
+        // control the loop speed here
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count();
+        std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(20000 - duration - 500, 0))));
     }
 
-    // convert pressures, q_theta_history and dq_theta_history to matrix
-    Eigen::Matrix<double, 3, (CHARACTERIZE_STEPS) * (NUM_ELEMENTS)> history_matrix;
+    // convert pressures, q_theta_history and dq_theta_history to matrix, for each segment
+    Eigen::Matrix<double, 2*NUM_ELEMENTS+1, CHARACTERIZE_STEPS*NUM_ELEMENTS> history_matrix;
     for (int l = 0; l < CHARACTERIZE_STEPS; ++l) {
         Vector2Nd pressure=  pressures.col(l);
-        history_matrix.block(0, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = isolateTheta(pressure).transpose();
-        history_matrix.block(1, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -q_theta_history.col(l).transpose();
-        history_matrix.block(2, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -dq_theta_history.col(l).transpose();
+        for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
+            pressure(j) = std::abs(pressure(j));
+        }
+        history_matrix.block(0, l*NUM_ELEMENTS, NUM_ELEMENTS, NUM_ELEMENTS) = isolateTheta(pressure).asDiagonal();
+        history_matrix.block(NUM_ELEMENTS, l*NUM_ELEMENTS, NUM_ELEMENTS, NUM_ELEMENTS) = -1* q_theta_history.col(l).asDiagonal();
+        history_matrix.block(2*NUM_ELEMENTS, l*NUM_ELEMENTS, 1, NUM_ELEMENTS) = -1* dq_theta_history.col(l).transpose();
     }
-    std::cout << "first row of history matrix is \n" << history_matrix.row(0) << "\n";
-    std::cout << "second row of history matrix is \n" << history_matrix.row(1) << "\n";
-    std::cout << "third row of history matrix is \n" << history_matrix.row(2) << "\n";
-    std::cout << "f_theta_history is \n" << f_theta_history << "\n";
-
+    std::cout<< "history matrix is \n"<<history_matrix<<"\n";
     // http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
     //try ignoring the first series of data, see how it goes
-    Eigen::Matrix<double, 3,1> characterization = pseudoinverse(history_matrix.block(0,2*NUM_ELEMENTS, 3, (CHARACTERIZE_STEPS-2)* NUM_ELEMENTS)).transpose() * f_theta_history.block(2*NUM_ELEMENTS,0, NUM_ELEMENTS*(CHARACTERIZE_STEPS-2), 1);
+    Eigen::Matrix<double, 2*NUM_ELEMENTS+1,1> characterization = pseudoinverse(history_matrix.block(0, NUM_ELEMENTS, 2*NUM_ELEMENTS+1, (CHARACTERIZE_STEPS-1)*NUM_ELEMENTS)).transpose() * f_theta_history.block(NUM_ELEMENTS,0, (CHARACTERIZE_STEPS-1)*NUM_ELEMENTS, 1);
     std::cout<< "characterization is \n"<< characterization <<"\n";
 
 }

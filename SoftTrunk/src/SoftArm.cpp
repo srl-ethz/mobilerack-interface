@@ -12,8 +12,10 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     k = Vector2Nd::Zero();
     d = Vector2Nd::Zero();
     alpha = Vector2Nd::Zero();
-    for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-        alpha(j) = 0.000641;
+    for (int j = 0; j < 2; ++j) {
+        alpha(j) = 0.0006;
+        alpha(j+2) = 0.0004;
+        alpha(j+4) = 0.0004;
     }
     for (int l = 0; l < NUM_ELEMENTS; ++l) {
         k(2 * l + 1) = 0.396;

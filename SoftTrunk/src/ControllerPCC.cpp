@@ -22,9 +22,9 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* soft
         miniPIDs.push_back(MiniPID(0,0,0)); // PID for theta
     }
     else{
-        miniPIDs.push_back(MiniPID(1.2,0,0.002/CONTROL_PERIOD)); // PID for phi0
-        miniPIDs.push_back(MiniPID(1.1,0,0.002/CONTROL_PERIOD)); // PID for phi1
-        miniPIDs.push_back(MiniPID(1.0,0,0.002/CONTROL_PERIOD)); // PID for phi2
+        miniPIDs.push_back(MiniPID(0.9,0,0.002/CONTROL_PERIOD)); // PID for phi0
+        miniPIDs.push_back(MiniPID(0.8,0,0.002/CONTROL_PERIOD)); // PID for phi1
+        miniPIDs.push_back(MiniPID(0.7,0,0.002/CONTROL_PERIOD)); // PID for phi2
     }
 }
 
@@ -61,9 +61,9 @@ void ControllerPCC::curvatureDynamicControl(
     C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
     G = ara->Jm.transpose() * ara->G_xi;
 
-
     *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G + C*dq_ref + B*ddq_ref + phi_PD_control(q_ref);
 }
+
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *output) {
     for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {

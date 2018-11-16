@@ -19,8 +19,19 @@ int main(){
     std::chrono::high_resolution_clock::time_point lastTime;
     int duration;
     int i;
-    int experiment_type = 1;
+    int experiment_type = 3;
     long long sum = 0;
+
+    double a = 2;
+    double maxTheta = 0.4;
+    double T=3.0;
+
+    double theta;
+    double dtheta;
+    double ddtheta;
+    double phi;
+    double dphi;
+    double ddphi;
 
     for (double seconds = 0; seconds < DURATION; seconds += CONTROL_PERIOD) {
         i++;
@@ -28,8 +39,7 @@ int main(){
         // first set the commands
         // make sure phi are not near 0 (problems when crossing over 0)
         //todo: having phi go over phi=0 without hitch with PID controller
-        double a = 2;
-        double maxTheta = 0.4;
+
         if (experiment_type == 1) {
             q(0) = PI + 1 * cos(a * seconds);
             dq(0) = -1 * a * sin(a * seconds);
@@ -75,9 +85,34 @@ int main(){
             dq(5) = maxTheta/2 * a * sin(a * seconds + 2*PI/3);
             ddq(5) = maxTheta/2 * a * a * cos(a * seconds + 2*PI/3);
 
-            q(0) = PI;
+            q(0) = PI/2;
             q(2) = PI;
-            q(4) = PI;
+            q(4) = 3*PI/2;
+        }
+        else if (experiment_type==3){
+            // draws something like a circle
+
+            if(seconds< T){
+                theta = 0.2 - 0.2 * cos(seconds * PI / T);
+                dtheta = 0.2 * PI / T *  sin(seconds * PI / T);
+                ddtheta = 0.2 * PI / T * PI / T * cos(seconds * PI / T);
+            }
+            else{
+                theta = 0.25 + 0.15 * cos(seconds*2*PI/T);
+                dtheta = -0.15 * 2*PI/T * sin(seconds*2*PI/T);
+                ddtheta = -0.15 * 2*PI/T * 2*PI/T * cos(seconds*2*PI/T);
+            }
+            phi = PI + PI/5 * sin(seconds * 2*PI/T);
+            dphi = PI/5 * 2*PI/T * cos(seconds * 2*PI/T);
+            ddphi = -PI/5 * 2*PI/T * 2*PI/T * sin(seconds * 2*PI/T);
+            for (int j = 0; j < NUM_ELEMENTS; ++j) {
+                q(2*j) = phi;
+                dq(2*j) = dphi;
+                ddq(2*j) = ddphi;
+                q(2*j+1) = theta;
+                dq(2*j+1) = dtheta;
+                ddq(2*j+1) = ddtheta;
+            }
         }
 
         stm.curvatureControl(q, dq, ddq);
