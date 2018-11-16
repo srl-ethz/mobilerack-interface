@@ -1,4 +1,4 @@
-#include "CurvatureCalculator.h"
+ #include "CurvatureCalculator.h"
 
 /*
 Eigen- getting started: https://eigen.tuxfamily.org/dox/GettingStarted.html

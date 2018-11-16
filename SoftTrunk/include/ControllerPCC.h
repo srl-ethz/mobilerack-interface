@@ -36,6 +36,7 @@ public:
             const Vector2Nd &q_ref,
             Vector2Nd *output
             );
+    void updateBCG(const Vector2Nd &q, const Vector2Nd &dq); // update B(inertia matrix), C and G(gravity vector)
     Matrix2Nd B;
     Matrix2Nd C;
     Vector2Nd G;

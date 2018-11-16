@@ -22,9 +22,11 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* soft
         miniPIDs.push_back(MiniPID(0,0,0)); // PID for theta
     }
     else{
-        miniPIDs.push_back(MiniPID(0.9,0,0.002/CONTROL_PERIOD)); // PID for phi0
-        miniPIDs.push_back(MiniPID(0.8,0,0.002/CONTROL_PERIOD)); // PID for phi1
-        miniPIDs.push_back(MiniPID(0.7,0,0.002/CONTROL_PERIOD)); // PID for phi2
+        // PD controllers for controlling the phi values.
+        // it feels very awkward to have to use PD controllers for just this...
+        miniPIDs.push_back(MiniPID(0*sa->alpha(0),0,0)); // PID for phi0
+        miniPIDs.push_back(MiniPID(0*sa->alpha(2),0,0)); // PID for phi1
+        miniPIDs.push_back(MiniPID(0*sa->alpha(4),0,0)); // PID for phi2
     }
 }
 
@@ -49,6 +51,13 @@ Vector2Nd ControllerPCC::phi_PD_control(Vector2Nd q_ref){
     return result;
 }
 
+void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
+    ara->update(q, dq);
+    B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
+    C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
+    G = ara->Jm.transpose() * ara->G_xi;
+}
+
 void ControllerPCC::curvatureDynamicControl(
         const Vector2Nd &q_meas,
         const Vector2Nd &dq_meas,
@@ -56,12 +65,13 @@ void ControllerPCC::curvatureDynamicControl(
         const Vector2Nd &dq_ref,
         const Vector2Nd &ddq_ref,
         Vector2Nd *tau) {
-    ara->update(q_meas, dq_meas);
-    B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
-    C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
-    G = ara->Jm.transpose() * ara->G_xi;
-
-    *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G + C*dq_ref + B*ddq_ref + phi_PD_control(q_ref);
+    if(USE_FEEDFORWARD_CONTROL)
+        updateBCG(q_ref, dq_ref);
+    else
+        updateBCG(q_meas, dq_meas);
+    *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G + C*dq_ref + B*ddq_ref;
+    if(USE_FEEDFORWARD_CONTROL)
+        *tau += phi_PD_control(q_ref);
 }
 
 

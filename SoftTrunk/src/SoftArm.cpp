@@ -13,13 +13,15 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     d = Vector2Nd::Zero();
     alpha = Vector2Nd::Zero();
     for (int j = 0; j < 2; ++j) {
-        alpha(j) = 0.0006;
-        alpha(j+2) = 0.0004;
-        alpha(j+4) = 0.0004;
+        alpha(j) = 0.00013;
+        alpha(j+2) = 0.0000862;
+        alpha(j+4) = 0.000045;
     }
+    k(1) = -0.74;
+    k(3) = -0.26;
+    k(5) = -0.034;
     for (int l = 0; l < NUM_ELEMENTS; ++l) {
-        k(2 * l + 1) = 0.396;
-        d(2 * l + 1) = 0.0162;
+        d(l*2+1) = 0.00268;
     }
 
     std::cout << "Starting SoftArm...\n";
@@ -61,7 +63,7 @@ void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
             phi = curvatureCalculator->q(2 * i);
         }
 
-        if (theta < PI / 36) {
+        if (theta < PI / 36 or USE_FEEDFORWARD_CONTROL) {
             mat << 0, -sin(phi), 0, cos(phi);
         } else {
             mat << -cos(phi) * sin(theta), -sin(phi), -sin(phi) * sin(theta), cos(phi);

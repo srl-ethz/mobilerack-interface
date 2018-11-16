@@ -9,6 +9,7 @@ The URDF model currently does not accurately reflect the actual augmented model-
 
 # link & joint naming conventions
 ![](naming_convention.jpeg)
+**ATT'N: This is wrong. The URDF is fixed.**
 
 # making PCC robot
 create *robot.urdf.xacro* with contents;

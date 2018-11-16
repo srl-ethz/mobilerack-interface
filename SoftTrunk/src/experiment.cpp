@@ -4,7 +4,7 @@
 
 #include "SoftTrunkManager.h"
 #include <Eigen/Dense>
-#define DURATION 20
+#define DURATION 6
 
 
 #include "SoftTrunk_common_defs.h"
@@ -19,12 +19,12 @@ int main(){
     std::chrono::high_resolution_clock::time_point lastTime;
     int duration;
     int i;
-    int experiment_type = 3;
+    int experiment_type = 4;
     long long sum = 0;
 
     double a = 2;
-    double maxTheta = 0.4;
-    double T=3.0;
+    double maxTheta = 0.3;
+    double T=4.0;
 
     double theta;
     double dtheta;
@@ -98,9 +98,9 @@ int main(){
                 ddtheta = 0.2 * PI / T * PI / T * cos(seconds * PI / T);
             }
             else{
-                theta = 0.25 + 0.15 * cos(seconds*2*PI/T);
-                dtheta = -0.15 * 2*PI/T * sin(seconds*2*PI/T);
-                ddtheta = -0.15 * 2*PI/T * 2*PI/T * cos(seconds*2*PI/T);
+                theta = 0.3 + 0.1 * cos(seconds*2*PI/T);
+                dtheta = -0.1 * 2*PI/T * sin(seconds*2*PI/T);
+                ddtheta = -0.1 * 2*PI/T * 2*PI/T * cos(seconds*2*PI/T);
             }
             phi = PI + PI/5 * sin(seconds * 2*PI/T);
             dphi = PI/5 * 2*PI/T * cos(seconds * 2*PI/T);
@@ -112,6 +112,12 @@ int main(){
                 q(2*j+1) = theta;
                 dq(2*j+1) = dtheta;
                 ddq(2*j+1) = ddtheta;
+            }
+        }
+        else if(experiment_type==4){
+            for (int j = 0; j < NUM_ELEMENTS; ++j) {
+                q(2*j+1) = 0.5;
+                q(2*j) = PI/2;
             }
         }
 
