@@ -6,9 +6,12 @@
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        lengths.push_back(0.115);
-        masses.push_back(0.15);
+        lengths.push_back(0.12);
+        
     }
+    masses.push_back(0.15);
+    masses.push_back(0.14);
+    masses.push_back(0.13);
     if (is_create_xacro){
         create_xacro();
         return;
