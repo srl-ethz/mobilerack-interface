@@ -24,9 +24,9 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* soft
     else{
         // PD controllers for controlling the phi values.
         // it feels very awkward to have to use PD controllers for just this...
-        miniPIDs.push_back(MiniPID(0*sa->alpha(0),0,0)); // PID for phi0
-        miniPIDs.push_back(MiniPID(0*sa->alpha(2),0,0)); // PID for phi1
-        miniPIDs.push_back(MiniPID(0*sa->alpha(4),0,0)); // PID for phi2
+        miniPIDs.push_back(MiniPID(1000*sa->alpha(0),0,0)); // PID for phi0
+        miniPIDs.push_back(MiniPID(1000*sa->alpha(2),0,0)); // PID for phi1
+        miniPIDs.push_back(MiniPID(1000*sa->alpha(4),0,0)); // PID for phi2
     }
 }
 
@@ -70,7 +70,7 @@ void ControllerPCC::curvatureDynamicControl(
     else
         updateBCG(q_meas, dq_meas);
     *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()*dq_ref + G + C*dq_ref + B*ddq_ref;
-    if(USE_FEEDFORWARD_CONTROL)
+    if(!USE_FEEDFORWARD_CONTROL)
         *tau += phi_PD_control(q_ref);
 }
 
