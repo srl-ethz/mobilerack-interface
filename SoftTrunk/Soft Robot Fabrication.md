@@ -46,7 +46,8 @@ Beeswax
 1. Spray Ease-Release on mold
 ![](img/IMG_1642.JPG)
 1. pour silicon onto mold
-    1. pour slowly, a little below top surface (so it won't overflow in vacuum chamber)
+    1. pour slowly, with a constant flow rate & at a single spot. This will help avoid entrapped air. (see Dragon Skin manual for more)
+    1. pour up to a little below top surface (so it won't overflow in vacuum chamber)
     1. degas
         1. if making final arm piece, degas for ~30 minutes to ensure bubbles are gone
     1. place on desk, pour again and go slightly over the top

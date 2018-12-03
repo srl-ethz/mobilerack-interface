@@ -1,6 +1,9 @@
 # Fabrication of Physical Soft Robot
 See **Soft Robot Fabrication.md**
 
+# Bill of materials
+See **Bill of materials.csv**
+
 # How to set up software for new arm
 1. set parameters
     1. Parameters of arm is defined in *SoftTrunk_common_defs.h* in include/ directory.
