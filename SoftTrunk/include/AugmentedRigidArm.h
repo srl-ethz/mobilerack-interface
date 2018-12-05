@@ -25,8 +25,7 @@ class AugmentedRigidArm{
    * this class can calculate the kinematics & dynamics of the augmented arm.
    */
 private:
-  std::vector<double> lengths; // length of each segment (probably meters)
-  std::vector<double> masses; // mass of each segment (probably kg)
+
   Model* rbdl_model; // RBDL model of arm
   void create_rbdl_model(); // create a RBDL model and save it to rbdl_model
   void joint_publish(); // publish joint state to ROS
@@ -34,11 +33,16 @@ private:
   void create_xacro(); //generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
 public:
   explicit AugmentedRigidArm(bool is_create_xacro=false); // set is_create_xacro to true if you only want to generate the model's xacro model
-  Eigen::Matrix<double, NUM_ELEMENTS*8, 1> xi; // map from config to augmented space
-  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> Jm=Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2>::Zero(); // Jacobian
-  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2> dJm=Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*2>::Zero(); // time derivative of Jacobian
-  Eigen::Matrix<double, NUM_ELEMENTS*8, NUM_ELEMENTS*8> B_xi; // inertia matrix
-  Eigen::Matrix<double, NUM_ELEMENTS*8, 1> G_xi; //gravity vector
+  std::vector<double> lengths; // length of each segment (probably meters)
+  std::vector<double> masses; // mass of each segment (probably kg)
+  Eigen::Matrix<double, NUM_ELEMENTS*6, 1> xi; // map from config to augmented space
+  Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2> Jxi=Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2>::Zero(); // Jacobian
+  Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2> dJxi=Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2>::Zero(); // time derivative of Jacobian
+  Eigen::Matrix<double, 3, NUM_ELEMENTS*2> get_J(); // used for inverse kinematics
+
+  Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*6> B_xi; // inertia matrix
+  Eigen::Matrix<double, NUM_ELEMENTS*6, 1> G_xi; //gravity vector
   void update(Vector2Nd, Vector2Nd); // update the member variables based on current values
+  Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> get_xi(double L, double phi,double theta);
 };
 #endif

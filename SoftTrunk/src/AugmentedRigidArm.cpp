@@ -6,10 +6,10 @@
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        lengths.push_back(0.12);
+        lengths.push_back(0.12); // in meters
         
     }
-    masses.push_back(0.15);
+    masses.push_back(0.15); // in kilograms
     masses.push_back(0.14);
     masses.push_back(0.13);
     if (is_create_xacro){
@@ -66,55 +66,45 @@ void AugmentedRigidArm::create_rbdl_model() {
       std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
 }
 
+Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>  AugmentedRigidArm::get_xi(double L, double phi, double theta) {
+    //todo: implement with new parameterization. conditioning based on CHAMBERS is required.
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> return_vec;
+    return return_vec;
+}
+
+Eigen::Matrix<double, 3, NUM_ELEMENTS*2> AugmentedRigidArm::get_J() {
+    // brute force calculate Jacobian lol
+}
+
+
 void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
-    double phi;
-    double theta;
     double L;
-    double shrunk_L;
     double dshrunk_L;
     double ddshrunk_L;
     // first update xi (augmented model parameters)
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-      // sanitize values to the defined range
-        phi = q(2*i+0);
-        theta = q(2*i+1);
-        L= lengths[i];
-        if (theta < 0){
-          phi += PI;
-          theta = -theta;
-        }
-        phi = fmod(phi, PI*2);
-        // problems when theta is too close to zero?
-        if (theta < 0.001)
-          theta = 0.001;
+
+        //todo: update for new configuration
        
 
         // construct the configuration(that is consistent with URDF/XACRO) for rigid arm
-        shrunk_L = L*sin(theta/2)/(theta/2);
-        xi(8*i+0,0) = phi;
-        xi(8*i+1,0) = theta/2;
-        xi(8*i+2,0) = (L-shrunk_L)/2;
-        xi(8*i+3,0) = -phi;
-        xi(8*i+4,0) = phi;
-        xi(8*i+5,0) = (L-shrunk_L)/2;
-        xi(8*i+6,0) = theta/2;
-        xi(8*i+7,0) = -phi;
+//        get_xi();
 
-        // next, update the Jacobian Jm
-        dshrunk_L = L * (theta*cos(theta/2)-2*sin(theta/2)) / (theta*theta);        
-        Jm(8*i+0,2*i+0) = 1;
-        Jm(8*i+1,2*i+1) = 0.5;
-        Jm(8*i+2,2*i+1) = -dshrunk_L/2;
-        Jm(8*i+3,2*i+0) = -1;
-        Jm(8*i+4,2*i+0) = 1;
-        Jm(8*i+5,2*i+1) = -dshrunk_L/2;
-        Jm(8*i+6,2*i+1) = 0.5;
-        Jm(8*i+7,2*i+0) = -1;
+        //todo: actually put in values to Jacobian and its derivative
+        // next, update the Jacobian Jxi
+//        dshrunk_L = L * (theta*cos(theta/2)-2*sin(theta/2)) / (theta*theta);
+//        Jxi(6*i+0,2*i+0) = -10;
+//        Jxi(6*i+1,2*i+1) = -10;
+//        Jxi(6*i+2,2*i+1) = -dshrunk_L/2;
+//        Jxi(6*i+3,2*i+0) = -dshrunk_L/2;
+//        Jxi(6*i+4,2*i+0) = -10;
+//        Jxi(6*i+5,2*i+1) = -10;
 
-        // next, update dJm.
-        ddshrunk_L = L * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
-        dJm(8*i+2, 2*i+1) = -ddshrunk_L/2;
-        dJm(8*i+5, 2*i+1) = -ddshrunk_L/2;
+        // next, update dJxi.
+//        ddshrunk_L = L * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
+//        dJxi(6*i+2, 2*i+1) = -ddshrunk_L/2;
+//        dJxi(6*i+3, 2*i+1) = -ddshrunk_L/2;
+
     }
 
     extract_B_G();
@@ -124,15 +114,15 @@ void AugmentedRigidArm::extract_B_G() {
     // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL
     
     // first run ID with dQ and ddQ as zero vectors (gives gravity vector)
-    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
-    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
-    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS*8);
+    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS*6);
+    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS*6);
+    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS*6);
     InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
     G_xi = tau;
     
     // next, iterate through by making ddQ_zeros a unit vector and get inertia matrix
-    for (int i = 0; i < NUM_ELEMENTS*8; ++i) {
-        for (int j = 0; j < NUM_ELEMENTS * 8; ++j) {
+    for (int i = 0; i < NUM_ELEMENTS*6; ++i) {
+        for (int j = 0; j < NUM_ELEMENTS * 6; ++j) {
             ddQ_zeros(j) = 0.0;
         }
         ddQ_zeros(i) = 1.0;

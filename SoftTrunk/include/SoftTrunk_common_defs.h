@@ -20,8 +20,11 @@
 #define MAX_PRESSURE 1400
 #define USE_PID_CURVATURE_CONTROL false
 #define USE_FEEDFORWARD_CONTROL false
+#define CHAMBERS 4 // 3 or 4 is supported.
+#define TRUNK_RADIUS 0.03 // radius of trunk, in meters
 #define PI 3.141592
 #define CONTROL_PERIOD 0.005 // period of one control step, in seconds. must be above 0.002??(verify) because that's how long a control loop takes
+
 
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;

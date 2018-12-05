@@ -2,7 +2,7 @@
 // Created by yasu on 26/10/18.
 //
 
-#include "SoftTrunkManager.h"
+#include "Manager.h"
 
 // taken from https://gist.github.com/javidcf/25066cf85e71105d57b6
 template <class MatT>
@@ -62,12 +62,12 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
     if (USE_PID_CURVATURE_CONTROL){
         Vector2Nd output;
         controllerPCC->curvaturePIDControl(q,&output);
-        softArm->actuate(output, q);
+        softArm->actuate(output);
     }
     else {
         Vector2Nd tau;
         controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
-        softArm->actuate(tau, q);
+        softArm->actuate(tau);
     }
     if(logMode)
         log(softArm->curvatureCalculator->q, q);
@@ -89,6 +89,7 @@ Eigen::Matrix<double, NUM_ELEMENTS, 1> isolateTheta(Vector2Nd& q){
 }
 
 void SoftTrunkManager::characterize() {
+
     std::cout << "SoftTrunkManager.characterize called. Computing characteristics of the SoftTrunk...\n";
 
     // first, specify the pressures to send to arm.
@@ -98,6 +99,7 @@ void SoftTrunkManager::characterize() {
     // actuate +y of all elements for CHARACTERIZE_STEPS steps,
     // actuate -y of all elements for CHARACTERIZE_STEPS steps, ...}
     // todo: this is a very ugly piece of code (mostly because I implemented finePressures later), clean up later
+    // todo: it also doesn't work at its current state for the new configuration, must fix!
     const int interpolateSteps = 20;
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>::Zero();
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>  finePressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS*interpolateSteps>::Zero();
@@ -128,7 +130,7 @@ void SoftTrunkManager::characterize() {
         lastTime = std::chrono::high_resolution_clock::now();
         log(softArm->curvatureCalculator->q, empty_vec); // hacking the logging mechanism to log dq as well(designed to only log q)
 
-        softArm->actuatePressure(finePressures.col(l));
+//        softArm->actuatePressure(finePressures.col(l));
         if (l%interpolateSteps == 0) {
             int log_index = l / interpolateSteps;
             q = softArm->curvatureCalculator->q;
@@ -164,7 +166,6 @@ void SoftTrunkManager::characterize() {
     //try ignoring the first series of data, see how it goes
     Eigen::Matrix<double, 2*NUM_ELEMENTS+1,1> characterization = pseudoinverse(history_matrix.block(0, NUM_ELEMENTS, 2*NUM_ELEMENTS+1, (CHARACTERIZE_STEPS-1)*NUM_ELEMENTS)).transpose() * f_theta_history.block(NUM_ELEMENTS,0, (CHARACTERIZE_STEPS-1)*NUM_ELEMENTS, 1);
     std::cout<< "characterization is \n"<< characterization <<"\n";
-
 }
 
 SoftTrunkManager::~SoftTrunkManager() {

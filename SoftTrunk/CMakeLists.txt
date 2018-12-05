@@ -72,14 +72,14 @@ add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-add_library(SoftTrunkManager SHARED src/SoftTrunkManager.cpp)
+add_library(SoftTrunkManager SHARED src/Manager.cpp)
 target_link_libraries(SoftTrunkManager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
 target_include_directories(SoftTrunkManager PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/SoftTrunkManager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
 target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
 target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 

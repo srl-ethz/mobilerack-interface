@@ -23,8 +23,8 @@ int main(){
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
     std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";
-    std::cout << "\tJm:\n" << augmentedRigidArm.Jm << "\n";
-    std::cout << "\tdJm:\n" << augmentedRigidArm.dJm << "\n";
+    std::cout << "\tJm:\n" << augmentedRigidArm.Jxi << "\n";
+    std::cout << "\tdJm:\n" << augmentedRigidArm.dJxi << "\n";
     std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
     return 1;

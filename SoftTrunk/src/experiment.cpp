@@ -2,7 +2,7 @@
 // Created by yasu on 31/10/18.
 //
 
-#include "SoftTrunkManager.h"
+#include "Manager.h"
 #include <Eigen/Dense>
 #define DURATION 6
 

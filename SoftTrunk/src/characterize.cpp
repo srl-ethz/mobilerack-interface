@@ -2,7 +2,7 @@
 // Created by yasu on 31/10/18.
 //
 
-#include "SoftTrunkManager.h"
+#include "Manager.h"
 
 int main(){
     SoftTrunkManager softTrunkManager = SoftTrunkManager();

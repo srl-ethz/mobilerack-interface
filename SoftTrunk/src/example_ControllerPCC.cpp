@@ -45,6 +45,6 @@ int main(){
   Vector2Nd tau_pt;
   controllerPCC.curvatureDynamicControl(q_meas, dq_meas, q_ref,dq_ref, ddq_ref, &tau_pt);
   std::cout << "\ttau_pt:\n" << tau_pt << "\n";
-  softArm.actuate(tau_pt, q_ref);
+  softArm.actuate(tau_pt);
   return 1;
 }
