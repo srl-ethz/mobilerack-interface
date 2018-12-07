@@ -29,7 +29,7 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
 
     // set up the forceController and curvatureCalculator, which does the messaging with the physical arm
     forceController = new ForceController(16, MAX_PRESSURE);
-    curvatureCalculator = new CurvatureCalculator(TRUNK_RADIUS, USE_OPTITRACK);
+    curvatureCalculator = new CurvatureCalculator(USE_OPTITRACK);
     curvatureCalculator->setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator->start();
 }

@@ -37,7 +37,7 @@ private:
   double phi; double theta; double beta;// used while calculating. phi, theta is the commonly used parametrization in PCC, and beta is angle between actuators.
 
 public:
-  explicit CurvatureCalculator(double radius, int sensorType);
+  explicit CurvatureCalculator(int sensorType);
   /*
   sensorType: USE_OPTITRACK or USE_INTEGRATEDSENSOR
   */

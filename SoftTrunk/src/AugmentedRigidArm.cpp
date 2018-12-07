@@ -66,46 +66,78 @@ void AugmentedRigidArm::create_rbdl_model() {
       std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
 }
 
-Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>  AugmentedRigidArm::get_xi(double L, double phi, double theta) {
-    //todo: implement with new parameterization. conditioning based on CHAMBERS is required.
-    Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> return_vec;
-    return return_vec;
+void  AugmentedRigidArm::update_xi(Vector2Nd q) {
+    double beta; double theta; double phi; double thetaX; double thetaY; double deltaL;
+    if(CHAMBERS ==3)
+        beta=2*PI/3;
+    else if(CHAMBERS==4)
+        beta=PI/2;
+    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+        // use phi, theta parametrization because it's simpler for calculation
+        if (q(2*i) == 0) {
+            if (q(2 * i + 1) == 0)
+                phi = 0;
+            else
+                phi = PI / 2;
+        }
+        else
+            phi = atan((q(2*i+1)/q(2*i)-cos(beta))/sin(beta));
+
+        if(phi ==PI/2)
+            theta = -q(2*i+1)/(TRUNK_RADIUS*cos(beta-phi));
+        else
+            theta = -q(2*i)/(TRUNK_RADIUS*cos(phi));
+        std::cout<<"phi" <<phi<<"\ntheta"<<theta<<"\n";
+
+        thetaX = atan(tan(theta/2)*sin(phi));
+        thetaY = asin(sin(theta/2)*cos(phi));
+        if (theta==0)
+            deltaL = 0;
+        else
+            deltaL = lengths[i]*sin(theta/2)/theta;
+
+        xi(6*i+0) = thetaX;
+        xi(6*i+1) = thetaY;
+        xi(6*i+2) = deltaL;
+        xi(6*i+3) = deltaL;
+        xi(6*i+4) = thetaX;
+        xi(6*i+5) = thetaY;
+    }
 }
 
-Eigen::Matrix<double, 3, NUM_ELEMENTS*2> AugmentedRigidArm::get_J() {
+void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
     // brute force calculate Jacobian lol
+    //todo: verify that this numerical method is actually okay
+    // this particular method only works because xi of each element is totally independent of other elements
+    Vector2Nd q_deltaX = Vector2Nd(q);
+    Vector2Nd q_deltaY = Vector2Nd(q);
+    double epsilon = 0.01;
+    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+        q_deltaX(2*i) += epsilon;
+        q_deltaY(2*i+1) += epsilon;
+    }
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
+    update_xi(q_deltaX);
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
+    update_xi(q_deltaY);
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_deltaY = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
+    for (int j = 0; j < NUM_ELEMENTS; ++j) {
+        Jxi.block(6*j, 2*j+0, 6, 1) = (xi_deltaX-xi_current).block(6*j,0,6,1)/epsilon;
+        Jxi.block(6*j, 2*j+1, 6, 1) = (xi_deltaY-xi_current).block(6*j,0,6,1)/epsilon;
+    }
+}
+
+void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
+    //todo
 }
 
 
 void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
-    double L;
-    double dshrunk_L;
-    double ddshrunk_L;
+
     // first update xi (augmented model parameters)
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
-
-        //todo: update for new configuration
-       
-
-        // construct the configuration(that is consistent with URDF/XACRO) for rigid arm
-//        get_xi();
-
-        //todo: actually put in values to Jacobian and its derivative
-        // next, update the Jacobian Jxi
-//        dshrunk_L = L * (theta*cos(theta/2)-2*sin(theta/2)) / (theta*theta);
-//        Jxi(6*i+0,2*i+0) = -10;
-//        Jxi(6*i+1,2*i+1) = -10;
-//        Jxi(6*i+2,2*i+1) = -dshrunk_L/2;
-//        Jxi(6*i+3,2*i+0) = -dshrunk_L/2;
-//        Jxi(6*i+4,2*i+0) = -10;
-//        Jxi(6*i+5,2*i+1) = -10;
-
-        // next, update dJxi.
-//        ddshrunk_L = L * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
-//        dJxi(6*i+2, 2*i+1) = -ddshrunk_L/2;
-//        dJxi(6*i+3, 2*i+1) = -ddshrunk_L/2;
-
-    }
+    update_xi(q);
+    update_Jxi(q);
+    update_dJxi(q, dq);
 
     extract_B_G();
 }

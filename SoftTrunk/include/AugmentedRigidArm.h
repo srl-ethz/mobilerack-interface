@@ -38,11 +38,13 @@ public:
   Eigen::Matrix<double, NUM_ELEMENTS*6, 1> xi; // map from config to augmented space
   Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2> Jxi=Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2>::Zero(); // Jacobian
   Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2> dJxi=Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*2>::Zero(); // time derivative of Jacobian
-  Eigen::Matrix<double, 3, NUM_ELEMENTS*2> get_J(); // used for inverse kinematics
+  Eigen::Matrix<double, 3, NUM_ELEMENTS*2> update_J(Vector2Nd q); // used for inverse kinematics
 
   Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*6> B_xi; // inertia matrix
   Eigen::Matrix<double, NUM_ELEMENTS*6, 1> G_xi; //gravity vector
   void update(Vector2Nd, Vector2Nd); // update the member variables based on current values
-  Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> get_xi(double L, double phi,double theta);
+  void update_xi(Vector2Nd);
+  void update_Jxi(Vector2Nd);
+  void update_dJxi(Vector2Nd, Vector2Nd);
 };
 #endif

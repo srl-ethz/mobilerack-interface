@@ -13,7 +13,7 @@
  */
 
 int main(){
-    CurvatureCalculator curvatureCalculator = CurvatureCalculator(3, USE_OPTITRACK);
+    CurvatureCalculator curvatureCalculator = CurvatureCalculator(USE_OPTITRACK);
     curvatureCalculator.setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator.start(); // start the thread that continuously calculates the configuration and its time derivative.
 

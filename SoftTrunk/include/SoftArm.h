@@ -16,7 +16,6 @@ class SoftArm{
      */
 private:
     std::vector<int> valve_map = {7, 5, 4, 6, 11, 9, 8, 10, 15, 13, 12, 14};// Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
-
 public:
     SoftArm(bool sim=false); // sim=true if simulation (does not try to connect to actual arm)
     void actuate(Vector2Nd); // input tau

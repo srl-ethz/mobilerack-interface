@@ -3,8 +3,8 @@
 /*
 Eigen- getting started: https://eigen.tuxfamily.org/dox/GettingStarted.html
 */
-CurvatureCalculator::CurvatureCalculator(double radius, int sensorType = USE_OPTITRACK)
-        : radius(radius), sensorType(sensorType) {
+CurvatureCalculator::CurvatureCalculator(int sensorType)
+        :sensorType(sensorType) {
     // initialize size of arrays that record transforms
     for (int i = 0; i <= NUM_ELEMENTS; i++) {
         abs_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
