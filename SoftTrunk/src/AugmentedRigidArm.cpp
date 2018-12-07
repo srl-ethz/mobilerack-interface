@@ -1,7 +1,6 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
 
-//#include <boost/filesystem.hpp>
 
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
@@ -129,6 +128,7 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 
 void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
     //todo
+    update_xi(q);
 }
 
 

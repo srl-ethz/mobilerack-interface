@@ -66,7 +66,10 @@ sudo make install
 ```
 You need to install Eigen3 before, as described above.
 
-# Libraries
+# Documentation with Doxygen
+Uses Doxygen to generate documentation from inline comments in code.
+(add instructions on how to do this)
+
 each library usually has a demo program, just compile the library with `cmake .; make`.
 ## SoftTrunkManager
 The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm and coordinates them to control the robot. curvatureControl() can be called to do dynamic curvature control on the robot, and characterize() can be called to run experiments to characterize the parameters alpha, k, and d of the soft arm.
