@@ -4,7 +4,9 @@
 #include <vector>
 
 #include "modbus.h"
-
+/**
+ * @brief low-level control for the Festo valve array
+ */
 class MPA {
 public:
   explicit MPA(const char *node, const char *service);

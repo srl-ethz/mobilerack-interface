@@ -6,6 +6,10 @@
 #include "SoftTrunk_common_defs.h"
 #include <string>
 
+/**
+ * @file example_SoftArm.cpp
+ * @brief example demonstrating the SoftArm class. actuates each chamber of the soft arm.
+ */
 int main(){
     SoftArm softArm = SoftArm{};
     Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures;

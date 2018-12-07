@@ -13,11 +13,11 @@
 #include <thread>
 #include <cmath>
 
+/**
+ * @brief Calculates the current configuration(deltaLx, deltaLy of each segment) of each soft arm segment based on the OptiTrack measurements of the base and tip of a segment.
+ * @details The frames have to be set up properly in Motive first. id conventions: base of robot is 0, frame that is between first and second segment is 1, and so on....
+ */
 class CurvatureCalculator {
-  /*
-  handles the calculation of curvature. Gets the current pose of the robot, then
-  converts it to a list of curvatures (theta and phi).
-  */
 private:
   int sensorType;
   OptiTrackClient *optiTrackClient;
@@ -37,10 +37,11 @@ private:
   double phi; double theta; double beta;// used while calculating. phi, theta is the commonly used parametrization in PCC, and beta is angle between actuators.
 
 public:
+    /**
+     *
+     * @param sensorType USE_OPTITRACK or USE_INTEGRATEDSENSOR
+     */
   explicit CurvatureCalculator(int sensorType);
-  /*
-  sensorType: USE_OPTITRACK or USE_INTEGRATEDSENSOR
-  */
 
   void setupOptiTrack(std::string localAddress, std::string serverAddress);
   /*

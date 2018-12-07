@@ -9,6 +9,14 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -45,6 +53,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('class_soft_arm.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -59,7 +84,6 @@ $(function() {
 </iframe>
 </div>
 
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -69,18 +93,20 @@ $(function() {
 <div class="title">SoftArm Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents the physical soft trunk robot.  
+ <a href="class_soft_arm.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_soft_arm_8h_source.html">SoftArm.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aef72f0599cbca300b9e731556b264080"><td class="memItemLeft" align="right" valign="top"><a id="aef72f0599cbca300b9e731556b264080"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SoftArm</b> (bool sim=false)</td></tr>
+<tr class="memitem:aef72f0599cbca300b9e731556b264080"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#aef72f0599cbca300b9e731556b264080">SoftArm</a> (bool sim=false)</td></tr>
 <tr class="separator:aef72f0599cbca300b9e731556b264080"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f9cccdeff9542aa366f4545bd8d4080"><td class="memItemLeft" align="right" valign="top"><a id="a7f9cccdeff9542aa366f4545bd8d4080"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>actuate</b> (Vector2Nd)</td></tr>
-<tr class="separator:a7f9cccdeff9542aa366f4545bd8d4080"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac202a308feb4689123c72399f45d4249"><td class="memItemLeft" align="right" valign="top"><a id="ac202a308feb4689123c72399f45d4249"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>actuatePressure</b> (Eigen::Matrix&lt; double, <a class="el" href="_soft_trunk__common__defs_8h.html#aace45ef90989b1c716603f996516f8b7">NUM_ELEMENTS</a> *<a class="el" href="_soft_trunk__common__defs_8h.html#aa638e1efd8162b933fb1a7f49cfbec4c">CHAMBERS</a>, 1 &gt;)</td></tr>
-<tr class="separator:ac202a308feb4689123c72399f45d4249"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3467668ef8701b6a6396a5682436912"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#ae3467668ef8701b6a6396a5682436912">actuate</a> (Vector2Nd tau)</td></tr>
+<tr class="separator:ae3467668ef8701b6a6396a5682436912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98e3a4fac2a147f4e41fb65f08afd94e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#a98e3a4fac2a147f4e41fb65f08afd94e">actuatePressure</a> (Eigen::Matrix&lt; double, <a class="el" href="_soft_trunk__common__defs_8h.html#aace45ef90989b1c716603f996516f8b7">NUM_ELEMENTS</a> *<a class="el" href="_soft_trunk__common__defs_8h.html#aa638e1efd8162b933fb1a7f49cfbec4c">CHAMBERS</a>, 1 &gt; pressures)</td></tr>
+<tr class="separator:a98e3a4fac2a147f4e41fb65f08afd94e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a699fc0c708dc1dd582ece214a001c05f"><td class="memItemLeft" align="right" valign="top"><a id="a699fc0c708dc1dd582ece214a001c05f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>stop</b> ()</td></tr>
 <tr class="separator:a699fc0c708dc1dd582ece214a001c05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -106,16 +132,96 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>alpha</b></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>simulate</b></td></tr>
 <tr class="separator:a188fb0ccd71113218ab8a2dd13b16498"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents the physical soft trunk robot. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aef72f0599cbca300b9e731556b264080"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef72f0599cbca300b9e731556b264080">&#9670;&nbsp;</a></span>SoftArm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoftArm::SoftArm </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>sim</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sim</td><td>true if running simulation, in which case it does not try to connect to actual arm </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ae3467668ef8701b6a6396a5682436912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3467668ef8701b6a6396a5682436912">&#9670;&nbsp;</a></span>actuate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoftArm::actuate </td>
+          <td>(</td>
+          <td class="paramtype">Vector2Nd&#160;</td>
+          <td class="paramname"><em>tau</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>actuate the arm </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tau</td><td>torque,in q space </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a98e3a4fac2a147f4e41fb65f08afd94e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98e3a4fac2a147f4e41fb65f08afd94e">&#9670;&nbsp;</a></span>actuatePressure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoftArm::actuatePressure </td>
+          <td>(</td>
+          <td class="paramtype">Eigen::Matrix&lt; double, <a class="el" href="_soft_trunk__common__defs_8h.html#aace45ef90989b1c716603f996516f8b7">NUM_ELEMENTS</a> *<a class="el" href="_soft_trunk__common__defs_8h.html#aa638e1efd8162b933fb1a7f49cfbec4c">CHAMBERS</a>, 1 &gt;&#160;</td>
+          <td class="paramname"><em>pressures</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>relays the pressure command to <a class="el" href="class_force_controller.html" title="Implements an individual PID control for each valve of the FESTO valve array. ">ForceController</a>. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pressures</td><td>pressure values for each chamber </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>include/<a class="el" href="_soft_arm_8h_source.html">SoftArm.h</a></li>
 <li>src/SoftArm.cpp</li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.14
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="class_soft_arm.html">SoftArm</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
+  </ul>
+</div>
 </body>
 </html>

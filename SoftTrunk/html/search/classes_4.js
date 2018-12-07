@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mpa',['MPA',['../class_m_p_a.html',1,'']]]
+  ['optitrackclient',['OptiTrackClient',['../class_opti_track_client.html',1,'']]]
 ];

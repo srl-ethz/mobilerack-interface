@@ -2,11 +2,10 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
-/*
-This program shows an example of using the forceController.
-forceController is basically an interface to the Festo valves that also
-implements a PID loop for each valve.
-*/
+/**
+ * @file example_forceController.cpp
+ * @brief This program shows an example usage of the ForceController.
+ */
 void wait() { std::this_thread::sleep_for(std::chrono::milliseconds(2000)); }
 int main() {
   ForceController forceController(16, 1000);

@@ -33,7 +33,7 @@ Derived dampedPinv(const Eigen::MatrixBase<Derived>& a, double rho = 1e-4) {
     return a.transpose() * (a*a.transpose() + rho*rho*Eigen::MatrixBase<Derived>::Identity(a.rows(), a.rows()) ).inverse();
 }
 
-SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
+Manager::Manager(bool logMode): logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
     augmentedRigidArm = new AugmentedRigidArm{};
@@ -42,7 +42,7 @@ SoftTrunkManager::SoftTrunkManager(bool logMode): logMode(logMode) {
     logBeginTime = std::chrono::high_resolution_clock::now();
 }
 
-void SoftTrunkManager::curvatureControl(Vector2Nd q,
+void Manager::curvatureControl(Vector2Nd q,
                                         Vector2Nd dq,
                                         Vector2Nd ddq) {
     // get current measured state from CurvatureCalculator inside SoftArm, send that to ControllerPCC
@@ -73,7 +73,7 @@ void SoftTrunkManager::curvatureControl(Vector2Nd q,
         log(softArm->curvatureCalculator->q, q);
 }
 
-void SoftTrunkManager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
+void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
     log_q_meas.push_back(q_meas);
     log_q_ref.push_back(q_ref);
     log_time.push_back(std::chrono::high_resolution_clock::now() - logBeginTime);
@@ -88,9 +88,9 @@ Eigen::Matrix<double, NUM_ELEMENTS, 1> isolateTheta(Vector2Nd& q){
     return q_theta;
 }
 
-void SoftTrunkManager::characterize() {
+void Manager::characterize() {
 
-    std::cout << "SoftTrunkManager.characterize called. Computing characteristics of the SoftTrunk...\n";
+    std::cout << "Manager.characterize called. Computing characteristics of the SoftTrunk...\n";
 
     // first, specify the pressures to send to arm.
     // the pressure profile has CHARACTERIZE_STEPS*NUM_ELEMENTS*4 steps, and is structured as
@@ -168,12 +168,12 @@ void SoftTrunkManager::characterize() {
     std::cout<< "characterization is \n"<< characterization <<"\n";
 }
 
-SoftTrunkManager::~SoftTrunkManager() {
+Manager::~Manager() {
     softArm->stop();
     if (logMode)
         outputLog();
 }
-void SoftTrunkManager::outputLog() {
+void Manager::outputLog() {
     std::cout << "Outputting log to log.csv...\n";
     std::ofstream log_file;
     log_file.open("log.csv");

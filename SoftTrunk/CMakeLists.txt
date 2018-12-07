@@ -33,6 +33,8 @@ INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR})
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
+FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
 
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
@@ -56,10 +58,6 @@ target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES} ForceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 
-FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
-ADD_EXECUTABLE(example_optitrack src/example_optitrack.cpp)
-TARGET_LINK_LIBRARIES( example_optitrack ${Boost_LIBRARIES} )
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
 ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )

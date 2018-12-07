@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['optitrackclient',['OptiTrackClient',['../class_opti_track_client.html',1,'']]]
+  ['softarm',['SoftArm',['../class_soft_arm.html',1,'']]]
 ];

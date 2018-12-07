@@ -31,11 +31,20 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* soft
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
                                             const Vector2Nd &dq_ref,
                                             const Vector2Nd &ddq_ref,
-                                            Vector2Nd *tau) {
-
-    curvatureDynamicControl(sa->curvatureCalculator->q, sa->curvatureCalculator->dq, q_ref, dq_ref, ddq_ref, tau);
+                                            Vector2Nd *tau, bool simulate) {
+    Vector2Nd q_meas; Vector2Nd dq_meas;
+    if(USE_FEEDFORWARD_CONTROL or simulate) {
+        // don't use the actual values, since it's doing feedforward control.
+        q_meas = Vector2Nd(q_ref);
+        dq_meas = Vector2Nd(dq_ref);
+    }
+    else{
+        q_meas = sa->curvatureCalculator->q;
+        dq_meas = sa->curvatureCalculator->dq;
+    }
+    updateBCG(q_meas, dq_meas);
+    *tau = sa->k*q_ref + sa->d* dq_ref+ G + C*dq_ref + B*ddq_ref;
 }
-
 
 void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
     ara->update(q, dq);
@@ -44,20 +53,6 @@ void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
     G = ara->Jxi.transpose() * ara->G_xi;
 }
 
-void ControllerPCC::curvatureDynamicControl(
-        const Vector2Nd &q_meas,
-        const Vector2Nd &dq_meas,
-        const Vector2Nd &q_ref,
-        const Vector2Nd &dq_ref,
-        const Vector2Nd &ddq_ref,
-        Vector2Nd *tau) {
-    if(USE_FEEDFORWARD_CONTROL)
-        updateBCG(q_ref, dq_ref);
-    else
-        updateBCG(q_meas, dq_meas);
-
-    *tau = sa->k*q_ref + sa->d* dq_ref+ G + C*dq_ref + B*ddq_ref;
-}
 
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *output) {

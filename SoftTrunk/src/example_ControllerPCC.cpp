@@ -7,9 +7,10 @@
 #include "SoftArm.h"
 #include <stdio.h>
 
-/*
- * demo of AugmentedRigidArm class.
- * creates an augmented rigid arm model, then gives it some values (q and dq, the soft robot's configurations) so it can update its internal variables.
+/**
+ * @file example_ControllerPCC.cpp
+ * @brief demo of AugmentedRigidArm class.
+ * creates an AugmentedRigidArm and SoftArm object, and computes the torque required for curvature dynamic control.
  */
 
 int main(){
@@ -43,8 +44,8 @@ int main(){
   
 
   Vector2Nd tau_pt;
-  controllerPCC.curvatureDynamicControl(q_meas, dq_meas, q_ref,dq_ref, ddq_ref, &tau_pt);
-  std::cout << "\ttau_pt:\n" << tau_pt << "\n";
+  controllerPCC.curvatureDynamicControl(q_ref,dq_ref, ddq_ref, &tau_pt, true);
+  std::cout << "\ttau_q:\n" << tau_pt << "\n";
   softArm.actuate(tau_pt);
   return 1;
 }

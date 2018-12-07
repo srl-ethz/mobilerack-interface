@@ -6,11 +6,15 @@
 #include <Eigen/Dense>
 #define DURATION 6
 
+/**
+ * @file experiment.cpp
+ * @brief Topmost code to run experiments on the Soft Trunk system.
+ */
 
 #include "SoftTrunk_common_defs.h"
 
 int main(){
-    SoftTrunkManager stm{true};
+    Manager stm{true};
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
     Vector2Nd ddq = Vector2Nd::Zero();

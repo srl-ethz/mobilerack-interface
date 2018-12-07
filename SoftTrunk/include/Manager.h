@@ -15,18 +15,24 @@
 #include <chrono>
 #include <fstream>
 
-class SoftTrunkManager{
-    /*
-     * topmost class for the Soft Trunk.
-     */
+/**
+ * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm and orchestrates them to control the robot.
+ */
+class Manager{
 public:
-    SoftTrunkManager(bool logMode=false);
-    void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd); // does single step curvature control.
+    Manager(bool logMode=false);
+    /**
+     * @brief do dynamic curvature control on the robot.
+     */
+    void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
+    /**
+     * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm.
+     */
     void characterize();
     SoftArm* softArm;
     ControllerPCC* controllerPCC;
     AugmentedRigidArm* augmentedRigidArm;
-    ~SoftTrunkManager();
+    ~Manager();
 private:
     // variables and functions used to save the log of q
     bool logMode;

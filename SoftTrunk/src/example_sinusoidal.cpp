@@ -3,12 +3,12 @@
 #include <cmath>
 #include <iostream>
 #include <thread>
-/*
-sends a sinusoidal wave to 3 actuators, and each phase is offset by 2*PI/3.
+/**
+ * @file example_sinusoidal.cpp
+ * @brief sends a sinusoidal wave to 3 actuators, and each phase is offset by 2*PI/3.
 */
 #define DURATION 10 //in seconds
 #define WAIT 0.01 // in seconds
-#define PI 3.1415
 void wait() { std::this_thread::sleep_for(std::chrono::milliseconds((int)(WAIT*1000))); }
 std::vector<int> valve_map={0,1,2};
 

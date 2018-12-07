@@ -10,6 +10,9 @@
 #include <Eigen/Dense>
 #include "SoftTrunk_common_defs.h"
 
+/**
+ * @brief Represents the physical soft trunk robot.
+ */
 class SoftArm{
     /*
      * class that acts as interface for I/O of physical soft arm (curvatures, pressures etc.) and combines the soft arm's parameters(like k,d)
@@ -17,9 +20,21 @@ class SoftArm{
 private:
     std::vector<int> valve_map = {7, 5, 4, 6, 11, 9, 8, 10, 15, 13, 12, 14};// Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
 public:
-    SoftArm(bool sim=false); // sim=true if simulation (does not try to connect to actual arm)
-    void actuate(Vector2Nd); // input tau
-    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1>); // actuate using pressures for each chamber
+    /**
+     *
+     * @param sim true if running simulation, in which case it does not try to connect to actual arm
+     */
+    SoftArm(bool sim=false);
+    /**
+     * actuate the arm
+     * @param tau torque,in q space
+     */
+    void actuate(Vector2Nd tau);
+    /**
+     * relays the pressure command to ForceController.
+     * @param pressures pressure values for each chamber
+     */
+    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures); // actuate using pressures for each chamber
     CurvatureCalculator* curvatureCalculator;
     ForceController* forceController;
     void stop();

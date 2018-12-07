@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['globals',['Globals',['../class_globals.html',1,'']]]
+  ['manager',['Manager',['../class_manager.html',1,'']]],
+  ['mpa',['MPA',['../class_m_p_a.html',1,'']]]
 ];
