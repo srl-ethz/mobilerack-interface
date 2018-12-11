@@ -52,13 +52,13 @@ void AugmentedRigidArm::create_xacro(){
     xacro_file << "</robot>";
 
     xacro_file.close();
-    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.\n";
+    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.(requires ROS)\n";
 }
 
 void AugmentedRigidArm::create_rbdl_model() {
     rbdl_model = new RigidBodyDynamics::Model();
     if (!RigidBodyDynamics::Addons::URDFReadFromFile("./urdf/robot.urdf", rbdl_model, false)) {
-        std::cerr << "Error loading model ./urdf/robot.urdf" << std::endl;
+        std::cerr << "Error loading model ./urdf/robot.urdf. Make sure that robot.urdf.xacro is generated with ./create_xacro, and then converted to robot.urdf with ./create_urdf.sh (requires ROS)" << std::endl;
         abort();
       }
       rbdl_model->gravity = Vector3d(0., 0., 9.81);

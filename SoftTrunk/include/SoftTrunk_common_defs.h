@@ -11,7 +11,7 @@
 /**
  * @brief how many PCC elements there are
  */
-#define NUM_ELEMENTS 3
+#define NUM_ELEMENTS 2
 /**
  * @brief Used in characterization- how many time steps to spend on each bend
  */
@@ -31,7 +31,7 @@
 /**
  * @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
  */
-#define PRESSURE_OFFSET 700
+#define PRESSURE_OFFSET 500
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
@@ -39,12 +39,12 @@
 /**
  * @brief arm is moved with PID controller, not the dynamic controller, if true.
  */
-#define USE_PID_CURVATURE_CONTROL false
+#define USE_PID_CURVATURE_CONTROL true
 #define USE_FEEDFORWARD_CONTROL false
 /**
  * @brief number of chambers in a single segment. 3 or 4 is supported.
  */
-#define CHAMBERS 4
+#define CHAMBERS 3
 /**
  * @brief radius of the soft trunk, in meters.
  */

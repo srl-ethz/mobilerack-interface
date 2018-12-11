@@ -52,9 +52,9 @@ void SoftArm::actuate(Vector2Nd tau) {
         }
         else if (CHAMBERS == 4){
             pressures(4*j) = PRESSURE_OFFSET + tau(2*j)/alpha;
-            pressures(4*j+1) = PRESSURE_OFFSET + tau(2*j+1)/alpha;
-            pressures(4*j+2) = 2*PRESSURE_OFFSET - pressures(4*j);
-            pressures(4*j+3) = 2*PRESSURE_OFFSET - pressures(4*j+1);
+            pressures(4*j+1) = 2*PRESSURE_OFFSET - pressures(4*j);
+            pressures(4*j+2) = PRESSURE_OFFSET + tau(2*j+1)/alpha;
+            pressures(4*j+3) = 2*PRESSURE_OFFSET - pressures(4*j+2);
         }
     }
     if (simulate) {

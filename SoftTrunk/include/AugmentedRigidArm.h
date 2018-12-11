@@ -22,7 +22,7 @@ using namespace RigidBodyDynamics::Math;
  * @brief Represents the augmented rigid arm model.
  * @details The rigid arm model  approximates the soft arm. (see paper etc. for more info on how this is so)
  * This class can calculate the kinematics & dynamics of the augmented arm using RBDL.
- * It can also generate XACRO files based on the parameters of the robot.
+ * It can also generate XACRO files based on the parameters of the robot. This should then be converted to URDF with ./create_urdf.sh
  */
 class AugmentedRigidArm{
 private:

@@ -32,8 +32,6 @@ private:
   Vector2Nd presmooth_dq = Vector2Nd::Zero();
   Vector2Nd presmooth_ddq = Vector2Nd::Zero();
 
-  double radius; // radius of soft trunk
-
   double phi; double theta; double beta;// used while calculating. phi, theta is the commonly used parametrization in PCC, and beta is angle between actuators.
 
 public:

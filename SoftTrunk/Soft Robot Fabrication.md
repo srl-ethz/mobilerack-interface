@@ -1,19 +1,7 @@
 Steps to fabricate the soft trunk
 
-# BoM
-Markers
-* https://optitrack.com/products/motion-capture-markers/
-    * MCP1130 4mm
-
-Rubber
-* https://www.reynoldsam.com/product/dragon-skin/
-
-Tubes etc.
-* https://www.mcmaster.com/
-    * reduced fitting: 5117K56
-    * silicone rod: 1249N11
-    * silicone tubing: 5236K503
-
+# Bill of materials
+See **Bill of materials.csv**
 Beeswax
 * https://www.amazon.com/Stakich-Pure-White-BEESWAX-Pellets/dp/B0022X1GME/ref=sr_1_1?s=arts-crafts&ie=UTF8&qid=1539636806&sr=1-1&keywords=bleached+beeswax
 

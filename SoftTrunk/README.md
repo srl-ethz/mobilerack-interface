@@ -1,3 +1,4 @@
+# Soft Trunk repository
 # Fabrication of Physical Soft Robot
 See **Soft Robot Fabrication.md**
 
@@ -22,8 +23,8 @@ Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore
 
 # Documentation with Doxygen
 Uses Doxygen to generate documentation from inline comments in code.
-Install [Doxygen](http://www.doxygen.nl), and run `doxygen` to generate HTML(can be seen with browser at html/index.html) & LATEX output.
-The HTML output is included in git, but please be aware that it may be out of date.
+Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
+The HTML output is included in git for convenience, but please be aware that it may be out of date.
 
 # Installing necessary libraries
 

@@ -4,7 +4,7 @@
 
 #include "Manager.h"
 #include <Eigen/Dense>
-#define DURATION 6
+#define DURATION 10
 
 /**
  * @file experiment.cpp
@@ -28,7 +28,7 @@ int main(){
 
     double a = 2;
     double maxTheta = 0.3;
-    double T=4.0;
+    double T=10.0;
 
     double theta;
     double dtheta;
@@ -120,8 +120,8 @@ int main(){
         }
         else if(experiment_type==4){
             for (int j = 0; j < NUM_ELEMENTS; ++j) {
-                q(2*j+1) = 0.5;
-                q(2*j) = PI/2;
+                q(2*j) = 0.002*sin(seconds * 2*PI/T);
+                q(2*j+1) = 0.002*sin(seconds * 2*PI/T);;
             }
         }
 

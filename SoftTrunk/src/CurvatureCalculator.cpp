@@ -94,8 +94,8 @@ void CurvatureCalculator::calculateCurvature() {
         phi = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
         theta = sign(matrix(0,3)) * abs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
 
-        q(2*i) = -radius * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
-        q(2*i+1) = -radius * cos(beta-phi) * theta; // deltaLb
+        q(2*i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
+        q(2*i+1) = -TRUNK_RADIUS * cos(beta-phi) * theta; // deltaLb
     }
     q = (1-0.2) * presmooth_q + 0.2 * q;
 }

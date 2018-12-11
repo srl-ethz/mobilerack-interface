@@ -48,17 +48,6 @@ void Manager::curvatureControl(Vector2Nd q,
     // get current measured state from CurvatureCalculator inside SoftArm, send that to ControllerPCC
     // actuate the arm with the tau value.
 
-    // sanitize q before sending to controller
-    for (int j = 0; j < NUM_ELEMENTS; ++j) {
-        if (q(2*j+1) < 0){
-            q(2*j) += PI;
-            q(2*j+1) = -q(2*j+1);
-            dq(2*j+1) = - dq(2*j+1);
-            ddq(2*j+1) = -ddq(2*j+1);
-        }
-        q(2*j) = fmod(q(2*j), PI*2);
-    }
-
     if (USE_PID_CURVATURE_CONTROL){
         Vector2Nd output;
         controllerPCC->curvaturePIDControl(q,&output);
