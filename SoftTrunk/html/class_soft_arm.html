@@ -98,12 +98,21 @@ $(document).ready(function(){initNavTree('class_soft_arm.html','');});
  <a href="class_soft_arm.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_soft_arm_8h_source.html">SoftArm.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for SoftArm:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_soft_arm__coll__graph.png" border="0" usemap="#_soft_arm_coll__map" alt="Collaboration graph"/></div>
+<map name="_soft_arm_coll__map" id="_soft_arm_coll__map">
+<area shape="rect" id="node2" href="class_curvature_calculator.html" title="Calculates the current configuration(deltaLx, deltaLy of each segment) of each soft arm segment based..." alt="" coords="5,5,145,31"/>
+<area shape="rect" id="node3" href="class_force_controller.html" title="Implements an individual PID control for each valve of the FESTO valve array. " alt="" coords="169,5,283,31"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aef72f0599cbca300b9e731556b264080"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#aef72f0599cbca300b9e731556b264080">SoftArm</a> (bool sim=false)</td></tr>
 <tr class="separator:aef72f0599cbca300b9e731556b264080"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3467668ef8701b6a6396a5682436912"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#ae3467668ef8701b6a6396a5682436912">actuate</a> (Vector2Nd tau)</td></tr>
+<tr class="memitem:ae3467668ef8701b6a6396a5682436912"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#ae3467668ef8701b6a6396a5682436912">actuate</a> (<a class="el" href="_soft_trunk__common__defs_8h.html#a13f2dc18eba246b801dc7e2fd19892c6">Vector2Nd</a> tau)</td></tr>
 <tr class="separator:ae3467668ef8701b6a6396a5682436912"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98e3a4fac2a147f4e41fb65f08afd94e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_soft_arm.html#a98e3a4fac2a147f4e41fb65f08afd94e">actuatePressure</a> (Eigen::Matrix&lt; double, <a class="el" href="_soft_trunk__common__defs_8h.html#aace45ef90989b1c716603f996516f8b7">NUM_ELEMENTS</a> *<a class="el" href="_soft_trunk__common__defs_8h.html#aa638e1efd8162b933fb1a7f49cfbec4c">CHAMBERS</a>, 1 &gt; pressures)</td></tr>
 <tr class="separator:a98e3a4fac2a147f4e41fb65f08afd94e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,7 +178,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>simulate</b></td></tr
         <tr>
           <td class="memname">void SoftArm::actuate </td>
           <td>(</td>
-          <td class="paramtype">Vector2Nd&#160;</td>
+          <td class="paramtype"><a class="el" href="_soft_trunk__common__defs_8h.html#a13f2dc18eba246b801dc7e2fd19892c6">Vector2Nd</a>&#160;</td>
           <td class="paramname"><em>tau</em></td><td>)</td>
           <td></td>
         </tr>
@@ -181,6 +190,22 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>simulate</b></td></tr
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_soft_arm_ae3467668ef8701b6a6396a5682436912_cgraph.png" border="0" usemap="#class_soft_arm_ae3467668ef8701b6a6396a5682436912_cgraph" alt=""/></div>
+<map name="class_soft_arm_ae3467668ef8701b6a6396a5682436912_cgraph" id="class_soft_arm_ae3467668ef8701b6a6396a5682436912_cgraph">
+<area shape="rect" id="node2" href="class_soft_arm.html#a98e3a4fac2a147f4e41fb65f08afd94e" title="SoftArm::actuatePressure" alt="" coords="174,5,348,31"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_soft_arm_ae3467668ef8701b6a6396a5682436912_icgraph.png" border="0" usemap="#class_soft_arm_ae3467668ef8701b6a6396a5682436912_icgraph" alt=""/></div>
+<map name="class_soft_arm_ae3467668ef8701b6a6396a5682436912_icgraph" id="class_soft_arm_ae3467668ef8701b6a6396a5682436912_icgraph">
+<area shape="rect" id="node2" href="class_manager.html#a389c6b90d81596b14d5dff35763d4796" title="do dynamic curvature control on the robot. " alt="" coords="174,5,354,31"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -205,6 +230,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>simulate</b></td></tr
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="class_soft_arm_a98e3a4fac2a147f4e41fb65f08afd94e_icgraph.png" border="0" usemap="#class_soft_arm_a98e3a4fac2a147f4e41fb65f08afd94e_icgraph" alt=""/></div>
+<map name="class_soft_arm_a98e3a4fac2a147f4e41fb65f08afd94e_icgraph" id="class_soft_arm_a98e3a4fac2a147f4e41fb65f08afd94e_icgraph">
+<area shape="rect" id="node2" href="class_soft_arm.html#ae3467668ef8701b6a6396a5682436912" title="SoftArm::actuate" alt="" coords="227,5,348,31"/>
+<area shape="rect" id="node3" href="class_manager.html#a389c6b90d81596b14d5dff35763d4796" title="do dynamic curvature control on the robot. " alt="" coords="396,5,576,31"/>
+</map>
+</div>
 
 </div>
 </div>

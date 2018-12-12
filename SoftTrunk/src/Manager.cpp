@@ -87,7 +87,7 @@ void Manager::characterize() {
     // actuate -x of all elements for CHARACTERIZE_STEPS steps,
     // actuate +y of all elements for CHARACTERIZE_STEPS steps,
     // actuate -y of all elements for CHARACTERIZE_STEPS steps, ...}
-    // todo: this is a very ugly piece of code (mostly because I implemented finePressures later), clean up later
+    // todo: this is a very ugly piece of code (mostly because I implemented finePressures later), clean up!
     // todo: it also doesn't work at its current state for the new configuration, must fix!
     const int interpolateSteps = 20;
     Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>  pressures = Eigen::Matrix<double, NUM_ELEMENTS*2, CHARACTERIZE_STEPS>::Zero();

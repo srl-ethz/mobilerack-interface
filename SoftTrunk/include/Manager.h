@@ -17,16 +17,26 @@
 
 /**
  * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm and orchestrates them to control the robot.
+ * ## When setting up a new arm configuration
+ * * update SoftTrunk_common_defs.h with information of new configuration. This file contains constants that are used throughout the code.
+ * * run create_xacro.cpp to generate new robot.urdf.xacro
+ * * run create_urdf.sh in urdf/ to generate new robot.urdf
+ * * run the characterization sequence, and update values as needed (todo: more documentation about this)
+ * * run experiment.cpp
  */
 class Manager{
 public:
+    /**
+     * constructor for Manager class.
+     * @param logMode if true, outputs log.csv which logs the reference and measured values of the arm.
+     */
     Manager(bool logMode=false);
     /**
      * @brief do dynamic curvature control on the robot.
      */
     void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
     /**
-     * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm.
+     * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm. Then, edit the code manually to change these values.
      */
     void characterize();
     SoftArm* softArm;

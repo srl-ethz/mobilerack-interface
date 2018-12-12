@@ -55,8 +55,8 @@ void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
 
 
 
-void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *output) {
+void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *tau) {
     for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {
-        (*output)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref(i));
+        (*tau)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref(i));
     }
 }

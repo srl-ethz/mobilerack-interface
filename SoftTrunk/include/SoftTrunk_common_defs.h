@@ -6,8 +6,8 @@
 #ifndef SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
 #define SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
 
-
 #include <Eigen/Dense>
+
 /**
  * @brief how many PCC elements there are
  */
@@ -46,16 +46,35 @@
  */
 #define CHAMBERS 3
 /**
+ * @brief mass of each segment, in kg
+ */
+#define MASSES {0.15, 0.14, 0.13}
+/**
+ * @brief length of each segment, in m
+ */
+#define LENGTHS {0.12, 0.12, 0.12}
+/**
  * @brief radius of the soft trunk, in meters.
  */
 #define TRUNK_RADIUS 0.03
+/**
+ * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
+ */
+#define VALVE_MAP {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14}
+
 #define PI 3.141592
 /**
- * @brief period of one control step, in seconds. must be above 0.002??(verify) because that's how long a control loop takes
+ * @brief period of one control step, in seconds. must be a value longer than the control loop.
  */
 #define CONTROL_PERIOD 0.005
 
+/**
+ * @brief defines a matrix of size (NUM_ELEMENTS*2,1), for convenience
+ */
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
+/**
+ * @brief defines a matrix of size (NUM_ELEMENTS*2,NUM_ELEMENTS*2), for convenience
+ */
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;
 
 

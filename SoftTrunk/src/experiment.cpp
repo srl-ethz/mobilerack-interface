@@ -11,7 +11,6 @@
  * @brief Topmost code to run experiments on the Soft Trunk system.
  */
 
-#include "SoftTrunk_common_defs.h"
 
 int main(){
     Manager stm{true};
@@ -41,8 +40,6 @@ int main(){
         i++;
         lastTime = std::chrono::high_resolution_clock::now();
         // first set the commands
-        // make sure phi are not near 0 (problems when crossing over 0)
-        //todo: having phi go over phi=0 without hitch with PID controller
 
         if (experiment_type == 1) {
             q(0) = PI + 1 * cos(a * seconds);

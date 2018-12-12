@@ -4,8 +4,8 @@
 
 #include "CurvatureCalculator.h"
 #include <chrono>
-#include <thread>
-#include <iostream>
+//#include <thread>
+//#include <iostream>
 
 /**
  * @file example_CurvatureCalculator.cpp

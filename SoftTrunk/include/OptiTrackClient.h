@@ -3,25 +3,25 @@
 #define SOFTTRUNK_INCLUDE_OPTITRACKCLIENT_H_
 
 
-#include <signal.h>
+//#include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <stdlib.h>
+//#include <string.h>
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+//#include <arpa/inet.h>
+//#include <errno.h>
+//#include <netdb.h>
+//#include <netinet/in.h>
+//#include <sys/socket.h>
+//#include <sys/types.h>
+//#include <unistd.h>
 
 #include <NatNetLinux/CommandListener.h>
 #include <NatNetLinux/FrameListener.h>
 #include <NatNetLinux/NatNet.h>
-#include <boost/program_options.hpp>
-#include <iostream>
-#include <time.h>
+//#include <boost/program_options.hpp>
+//#include <iostream>
+//#include <time.h>
 #include "SoftTrunk_common_defs.h"
 /**
  * @brief receives transform data for each frame from the OptiTrack system, which can then be used to calculate the current pose of the robot.

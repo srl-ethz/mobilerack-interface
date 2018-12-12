@@ -19,13 +19,18 @@
  */
 class ControllerPCC{
 public:
-    ControllerPCC(AugmentedRigidArm *, SoftArm *);
     /**
      *
+     * @param augmentedRigidArm pointer to instance of AugmentedRigidArm.
+     * @param softArm pointer to instance of SoftArm.
+     */
+    ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm);
+    /**
+     * compute the torque required to actuate the arm.
      * @param q_ref
      * @param dq_ref
      * @param ddq_ref
-     * @param tau
+     * @param tau pointer to where you want the torque value to be saved.
      */
     void curvatureDynamicControl(
             const Vector2Nd &q_ref,
@@ -34,9 +39,14 @@ public:
             Vector2Nd *tau,
             bool simulate=false);
 
+    /**
+     * compute the torque for good old PID control.
+     * @param q_ref
+     * @param tau pointer to where you want the torque value to be saved.
+     */
     void curvaturePIDControl(
             const Vector2Nd &q_ref,
-            Vector2Nd *output
+            Vector2Nd *tau
             );
     /**
      * @brief update B(inertia matrix), C and G(gravity vector) in q space

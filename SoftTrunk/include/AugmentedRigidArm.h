@@ -48,14 +48,8 @@ public:
      * @param is_create_xacro set to true if you only want to generate the model's xacro model
      */
   explicit AugmentedRigidArm(bool is_create_xacro=false);
-  /**
-   * @brief length of each segment, in meters
-   */
-  std::vector<double> lengths;
-  /**
-   * @brief mass of each segment, in kg
-   */
-  std::vector<double> masses;
+  std::vector<double> lengths=LENGTHS;
+  std::vector<double> masses=MASSES;
   Eigen::Matrix<double, NUM_ELEMENTS*6, 1> xi;
   /**
    * @brief the Jacobian that maps from q to xi

@@ -18,7 +18,7 @@ class SoftArm{
      * class that acts as interface for I/O of physical soft arm (curvatures, pressures etc.) and combines the soft arm's parameters(like k,d)
      */
 private:
-    std::vector<int> valve_map = {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14};// Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
+    std::vector<int> valve_map = VALVE_MAP;
 public:
     /**
      *
