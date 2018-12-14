@@ -80,7 +80,7 @@ void  AugmentedRigidArm::update_xi(Vector2Nd q) {
             theta = -q(2*i+1)/(TRUNK_RADIUS*cos(beta-phi));
         else
             theta = -q(2*i)/(TRUNK_RADIUS*cos(phi));
-        std::cout<<"phi" <<phi<<"\ntheta"<<theta<<"\n";
+        //std::cout<<"phi" <<phi<<"\ntheta"<<theta<<"\n";
 
         thetaX = atan(tan(theta/2)*sin(phi));
         thetaY = asin(sin(theta/2)*cos(phi));

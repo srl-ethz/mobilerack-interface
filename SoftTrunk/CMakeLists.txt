@@ -70,9 +70,9 @@ add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-add_library(SoftTrunkManager SHARED src/Manager.cpp)
-target_link_libraries(SoftTrunkManager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
-target_include_directories(SoftTrunkManager PRIVATE ${PYTHON_INCLUDE_DIRS})
+add_library(Manager SHARED src/Manager.cpp)
+target_link_libraries(Manager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
+target_include_directories(Manager PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
@@ -98,11 +98,11 @@ target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC ${PY
 target_include_directories(example_ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(characterize src/characterize.cpp)
-target_link_libraries(characterize SoftTrunkManager ${PYTHON_LIBRARIES})
+target_link_libraries(characterize Manager ${PYTHON_LIBRARIES})
 target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(experiment src/experiment.cpp)
-target_link_libraries(experiment SoftTrunkManager ${PYTHON_LIBRARIES} -pthread)
+target_link_libraries(experiment Manager ${PYTHON_LIBRARIES} -pthread)
 target_include_directories(experiment PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 

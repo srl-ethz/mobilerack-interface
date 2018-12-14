@@ -13,13 +13,9 @@
  */
 #define NUM_ELEMENTS 2
 /**
- * @brief Used in characterization- how many time steps to spend on each bend
- */
-#define CHARACTERIZE_STEPS 20
-/**
  * @brief IP address of this computer
  */
-#define LOCAL_ADDRESS "192.168.1.111"
+#define LOCAL_ADDRESS "192.168.1.194"
 /**
  * @brief IP address of computer running Motive
  */
@@ -58,7 +54,7 @@
  */
 #define TRUNK_RADIUS 0.03
 /**
- * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
+ * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage x positive -> root stage y positive -> root stage x negative -> ...}
  */
 #define VALVE_MAP {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14}
 
