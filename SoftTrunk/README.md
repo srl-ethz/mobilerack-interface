@@ -33,14 +33,24 @@ This is the "collaboration diagram" for the Manager class(topmost class for cont
 A good starting point is experiment.cpp, the Manager class, and SoftTrunk_common_defs.h
 
 # Installing necessary libraries
+## boost
+boost extends C++ features. On Ubuntu, install from [boost](https://www.boost.org/), on macOS, do `brew install boost`
+
+## pkg-config
+helps manage libraries or something. On macOS,
+```
+brew install pkg-config
+```
 
 ## libmodbus
-Used for communication to FESTO valve array via mod bus 
+Used for communication to FESTO valve array via modbus. For Ubuntu, 
 ```
+echo "for Ubuntu"
 sudo apt install libmodbus-dev
-```
 
-On a Mac, install libmodbus [from source](https://libmodbus.org/download/).
+echo "for macOS"
+brew install libmodbus
+```
 
 ## NatNetLinux
 This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies. Ensure you install the [Prerequisites](https://github.com/rocketman768/NatNetLinux) for NatNetLinux.
@@ -49,7 +59,7 @@ In the /3rd directory(which is in the root of this repository), NatNetLinux is a
 git submodule init
 git submodule update
 ```
-compile and install NatNetLinux:
+compile and install NatNetLinux. In the /build directory of the repository, run:
 ```
 mkdir build
 cd build
@@ -68,7 +78,7 @@ sudo make install
 
 ## RBDL
 This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html) for calculating the dynamics of the rigid bodies of the augmented robot model.
-Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon. See below:
+Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon. Run in rbdl's directory:
 ```
 mkdir build
 cd build/
