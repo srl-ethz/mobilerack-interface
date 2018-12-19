@@ -56,7 +56,7 @@ void AugmentedRigidArm::create_rbdl_model() {
         abort();
       }
       rbdl_model->gravity = Vector3d(0., 0., 9.81);
-      std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
+      std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << rbdl_model->dof_count/6 <<"-segment arm.\n";
 }
 
 void  AugmentedRigidArm::update_xi(Vector2Nd q) {
@@ -121,8 +121,14 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 }
 
 void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
-    //todo
-    update_xi(q);
+    //todo: verify this numerical method too
+    double epsilon=0.01;
+    Vector2Nd q_delta = q + dq*epsilon;
+    update_Jxi(q);
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
+    update_Jxi(q_delta);
+    Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_delta = Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
+    dJxi = Jxi_delta - Jxi_current;
 }
 
 
@@ -133,6 +139,7 @@ void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
     update_Jxi(q);
     update_dJxi(q, dq);
 
+    update_xi(q);
     extract_B_G();
 }
 
@@ -148,12 +155,10 @@ void AugmentedRigidArm::extract_B_G() {
     
     // next, iterate through by making ddQ_zeros a unit vector and get inertia matrix
     for (int i = 0; i < NUM_ELEMENTS*6; ++i) {
-        for (int j = 0; j < NUM_ELEMENTS * 6; ++j) {
-            ddQ_zeros(j) = 0.0;
-        }
-        ddQ_zeros(i) = 1.0;
+        ddQ_zeros(i) = 0.1;
         InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
-        B_xi.col(i) = tau - G_xi;
+        B_xi.col(i) = (tau - G_xi)/ddQ_zeros(i);
+        ddQ_zeros(i) = 0;
     }
 }
 

@@ -79,7 +79,7 @@ void Manager::characterize() {
     Eigen::MatrixXd pressures; pressures.resize(NUM_ELEMENTS*CHAMBERS, steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
     const double max_output = (MAX_PRESSURE - PRESSURE_OFFSET)*0.8;
 
-    // create pressure profile to send to arm. Pressure is onotonically increased then decreased.
+    // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
             pressures(k*CHAMBERS+0, j) = PRESSURE_OFFSET + fmin(max_output, fmin(max_output*((double)j*2/steps), max_output*(2-(double)j*2/steps)));
@@ -103,14 +103,15 @@ void Manager::characterize() {
         lastTime = std::chrono::high_resolution_clock::now();
         log(softArm->curvatureCalculator->q, softArm->curvatureCalculator->dq); // hacking the logging mechanism to log dq as well(designed to log commanded q and measured q)
         softArm->actuatePressure(pressures.col(l));
-        if (l%(int)((double)steps/historySize)==0) {
+        if (l%(steps/historySize)==1) {
             // log the current state once in a while (to get historySize samples)
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 // only the first two pressures of each segment is used.
-                pressure_log.block(2*i, log_index, 2, 1) = pressures.block(CHAMBERS*i, l, 2, 1);
+                pressure_log(2*i+0, log_index) = pressures(CHAMBERS*i+0, l)-PRESSURE_OFFSET;
+                pressure_log(2*i+1, log_index) = pressures(CHAMBERS*i+1, l)-PRESSURE_OFFSET;
             }
-            q_log.col(log_index) = softArm->curvatureCalculator->q;
-            dq_log.col(log_index) = softArm->curvatureCalculator->dq;
+            q_log.col(log_index) = -1*softArm->curvatureCalculator->q;
+            dq_log.col(log_index) = -1*softArm->curvatureCalculator->dq;
             log_index ++;
         }
         // control the loop speed here
@@ -118,27 +119,26 @@ void Manager::characterize() {
         std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD*1000000 - loop_time - 500, 0))));
     }
 
-    std::cout<<"pressure_log is "<< pressure_log <<"\n";
-    std::cout<<"q_log is "<<q_log<<"\n";
-    std::cout<<"dq_log is "<<dq_log<<"\n";
+    std::cout<<"pressure_log is \n"<< pressure_log <<"\n";
+    std::cout<<"q_log is \n"<<q_log<<"\n";
+    std::cout<<"dq_log is \n"<<dq_log<<"\n";
 
     // convert the recorded data to matrix
-    Eigen::MatrixXd log_matrix;log_matrix.resize(3, steps*NUM_ELEMENTS*2);
+    Eigen::MatrixXd log_matrix;log_matrix.resize(3, historySize*NUM_ELEMENTS*2);
     // also compute the f for each sample
-    Eigen::MatrixXd log_f;log_f.resize(steps*NUM_ELEMENTS*2, 1);
+    Eigen::MatrixXd log_f;log_f.resize(historySize*NUM_ELEMENTS*2, 1);
 
     for (int l = 0; l < historySize; ++l) {
         log_matrix.block(0, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = pressure_log.col(l).transpose();
         log_matrix.block(1, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = -1* q_log.col(l).transpose();
         log_matrix.block(2, l*NUM_ELEMENTS*2, 1, NUM_ELEMENTS*2) = -1* dq_log.col(l).transpose();
         controllerPCC->updateBCG(q_log.col(l), dq_log.col(l));
-        log_f.block(l*NUM_ELEMENTS*2,0,NUM_ELEMENTS*2,1) =(controllerPCC->C*dq_log.col(l) + controllerPCC->G).transpose();
+        log_f.block(l*NUM_ELEMENTS*2,0,NUM_ELEMENTS*2,1) =controllerPCC->C*dq_log.col(l) + controllerPCC->G;
     }
     // outputting to CSV format
     const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", "\n");
-    std::cout<< "f_history is \n"<<log_f.format(CSVFormat)<<"\n";
-    std::cout<< "history matrix is \n"<<log_matrix.format(CSVFormat)<<"\n";
-
+    //std::cout<< "f_history is \n"<<log_f.format(CSVFormat)<<"\n";
+    //std::cout<< "history matrix is \n"<<log_matrix.format(CSVFormat)<<"\n";
 
     Eigen::Matrix<double, 3,1> characterization = pseudoinverse(log_matrix).transpose() * log_f;
     std::cout<< "characterization is \n"<< characterization <<"\n";

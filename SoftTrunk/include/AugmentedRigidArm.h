@@ -64,11 +64,11 @@ public:
   /**
    * @brief inertia matrix
    */
-  Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*6> B_xi;
+  Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*6> B_xi=Eigen::Matrix<double, NUM_ELEMENTS*6, NUM_ELEMENTS*6>::Zero();
   /**
    * @brief the gravity vector, i.e. the force at each joint when the arm is completely stationary at its current configuration.
    */
-  Eigen::Matrix<double, NUM_ELEMENTS*6, 1> G_xi;
+  Eigen::Matrix<double, NUM_ELEMENTS*6, 1> G_xi = Eigen::Matrix<double, NUM_ELEMENTS*6, 1>::Zero();
   /**
    * @brief update the member variables based on current values
    */
