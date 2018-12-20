@@ -60,34 +60,30 @@ void AugmentedRigidArm::create_rbdl_model() {
 }
 
 void  AugmentedRigidArm::update_xi(Vector2Nd q) {
-    double beta; double theta; double phi; double thetaX; double thetaY; double deltaL;
-    if(CHAMBERS ==3)
-        beta=2*PI/3;
-    else if(CHAMBERS==4)
-        beta=PI/2;
+    double theta; double phi; double thetaX; double thetaY; double deltaL;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         // use phi, theta parametrization because it's simpler for calculation
         if (q(2*i) == 0) {
-            if (q(2 * i + 1) == 0)
+            if (q(2*i + 1) == 0)
                 phi = 0;
             else
                 phi = PI / 2;
         }
         else
-            phi = atan((q(2*i+1)/q(2*i)-cos(beta))/sin(beta));
-
-        if(phi ==PI/2)
-            theta = -q(2*i+1)/(TRUNK_RADIUS*cos(beta-phi));
+            phi = atan(q(2*i+1)/q(2*i)-cos(PI/2) /sin(PI/2);
+        if(q(2*i) == 0)
+            theta = -q(2*i+1)/(TRUNK_RADIUS*cos(PI/2-phi));
         else
             theta = -q(2*i)/(TRUNK_RADIUS*cos(phi));
-        //std::cout<<"phi" <<phi<<"\ntheta"<<theta<<"\n";
+//        std::cout<<"q[2i]\t"<<q(2*i)<<"\nq[2i+1]\t"<<q(2*i+1)<<"\nphi\t" <<phi<<"\ntheta\t"<<theta<<"\n";
 
-        thetaX = atan(tan(theta/2)*sin(phi));
+        thetaX = -atan(tan(theta/2)*sin(phi));
         thetaY = asin(sin(theta/2)*cos(phi));
+//        std::cout<<"thetaX\t"<<thetaX<<"\nthetaY\t"<<thetaY<<"\n";
         if (theta==0)
             deltaL = 0;
         else
-            deltaL = lengths[i]*sin(theta/2)/theta;
+            deltaL = lengths[i]/2 - lengths[i]*sin(theta/2)/theta;
 
         xi(6*i+0) = thetaX;
         xi(6*i+1) = thetaY;
@@ -104,16 +100,20 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
     // this particular method only works because xi of each element is totally independent of other elements
     Vector2Nd q_deltaX = Vector2Nd(q);
     Vector2Nd q_deltaY = Vector2Nd(q);
-    double epsilon = 0.01;
+    double epsilon = 0.0001;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         q_deltaX(2*i) += epsilon;
         q_deltaY(2*i+1) += epsilon;
     }
+
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
     update_xi(q_deltaX);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
     update_xi(q_deltaY);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_deltaY = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
+//    std::cout<<"xi_current"<<xi_current<<"\n";
+//    std::cout<<"xi_deltaX"<<xi_deltaX<<"\n";
+//    std::cout<<"xi_deltaY"<<xi_deltaY<<"\n";
     for (int j = 0; j < NUM_ELEMENTS; ++j) {
         Jxi.block(6*j, 2*j+0, 6, 1) = (xi_deltaX-xi_current).block(6*j,0,6,1)/epsilon;
         Jxi.block(6*j, 2*j+1, 6, 1) = (xi_deltaY-xi_current).block(6*j,0,6,1)/epsilon;
@@ -122,13 +122,15 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 
 void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
     //todo: verify this numerical method too
+    //todo: actually this messes up Jxi so not using this for now...
     double epsilon=0.01;
     Vector2Nd q_delta = q + dq*epsilon;
+    std::cout<<q_delta<<"\n";
     update_Jxi(q);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
     update_Jxi(q_delta);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_delta = Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
-    dJxi = Jxi_delta - Jxi_current;
+    dJxi = (Jxi_delta - Jxi_current)/epsilon;
 }
 
 
@@ -137,7 +139,7 @@ void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
     // first update xi (augmented model parameters)
     update_xi(q);
     update_Jxi(q);
-    update_dJxi(q, dq);
+//    update_dJxi(q, dq);
 
     update_xi(q);
     extract_B_G();

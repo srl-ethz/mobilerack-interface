@@ -13,10 +13,6 @@ CurvatureCalculator::CurvatureCalculator(int sensorType)
         rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
 
-    if(CHAMBERS==3)
-        beta = 2*PI/3;
-    else if (CHAMBERS==4)
-        beta = PI/2;
 }
 
 void CurvatureCalculator::setupOptiTrack(std::string localAddress,
@@ -95,7 +91,7 @@ void CurvatureCalculator::calculateCurvature() {
         theta = sign(matrix(0,3)) * fabs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
 
         q(2*i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
-        q(2*i+1) = -TRUNK_RADIUS * cos(beta-phi) * theta; // deltaLb
+        q(2*i+1) = -TRUNK_RADIUS * cos(PI/2-phi) * theta; // deltaLb
     }
     q = (1-0.2) * presmooth_q + 0.2 * q;
 }

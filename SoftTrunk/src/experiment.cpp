@@ -117,8 +117,10 @@ int main(){
         }
         else if(experiment_type==4){
             for (int j = 0; j < NUM_ELEMENTS; ++j) {
-                q(2*j) = 0.002*sin(seconds * 2*PI/T);
-                q(2*j+1) = 0.002*sin(seconds * 2*PI/T);;
+                q(2*j+1) = 0.002*sin(seconds * 2*PI/T);
+                dq(2*j+1) = 0.002*cos(seconds * 2*PI/T)* 2*PI/T;
+                ddq(2*j+1) = -0.002*sin(seconds * 2*PI/T)* 2*PI/T * 2*PI/T;
+                //q(2*j+1) = 0.002*sin(seconds * 2*PI/T);;
             }
         }
 

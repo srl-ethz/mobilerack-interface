@@ -19,6 +19,10 @@ class SoftArm{
      */
 private:
     std::vector<int> valve_map = VALVE_MAP;
+    /**
+     * @brief used for 3-chamber arm. Provides a map from force expressed in La, Lb to the same force expressed with 3 chambers.
+     */
+    Eigen::Matrix<double, 3, 2> force_map_matrix;
 public:
     /**
      *

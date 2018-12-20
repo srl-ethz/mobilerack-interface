@@ -15,7 +15,7 @@
 /**
  * @brief IP address of this computer
  */
-#define LOCAL_ADDRESS "192.168.1.194"
+#define LOCAL_ADDRESS "192.168.1.111"
 /**
  * @brief IP address of computer running Motive
  */
@@ -31,12 +31,12 @@
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
-#define MAX_PRESSURE 1400
+#define MAX_PRESSURE 1300
 /**
  * @brief arm is moved with PID controller, not the dynamic controller, if true.
  */
-#define USE_PID_CURVATURE_CONTROL true
-#define USE_FEEDFORWARD_CONTROL false
+#define USE_PID_CURVATURE_CONTROL false
+#define USE_FEEDFORWARD_CONTROL true
 /**
  * @brief number of chambers in a single segment. 3 or 4 is supported.
  */
@@ -54,7 +54,7 @@
  */
 #define TRUNK_RADIUS 0.03
 /**
- * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage x positive -> root stage y positive -> root stage x negative -> ...}
+ * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
  */
 #define VALVE_MAP {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14}
 
