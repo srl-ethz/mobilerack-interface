@@ -70,7 +70,7 @@ void  AugmentedRigidArm::update_xi(Vector2Nd q) {
                 phi = PI / 2;
         }
         else
-            phi = atan(q(2*i+1)/q(2*i)-cos(PI/2) /sin(PI/2);
+            phi = atan(q(2*i+1)/q(2*i)-cos(PI/2) /sin(PI/2));
         if(q(2*i) == 0)
             theta = -q(2*i+1)/(TRUNK_RADIUS*cos(PI/2-phi));
         else
