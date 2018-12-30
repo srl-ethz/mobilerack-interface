@@ -7,20 +7,15 @@
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
 
     // set up the impedance parameters (k&d), and actuation coefficient(alpha).
-    k = 23.7;
-    d = 0.27;
-    alpha = 0.000026;
-//    k = Vector2Nd::Zero();
-//    d = Vector2Nd::Zero();
-//    alpha = Vector2Nd::Zero();
-//    for (int j = 0; j < NUM_ELEMENTS; ++j) {
-//        alpha(2*j) = 0.00013;
-//        alpha(2*j+1) = 0.00013;
-//        k(2*j) = 0;
-//        k(2*j+1) = 0;
-//        d(2*j) = 0;
-//        d(2*j+1) = 0;
-//    }
+    k(0) = -213.208;
+    k(1) = k(0);
+    k(2) = -38.2404;
+    k(3) = k(2);
+    alpha(0) = 0.001;
+    alpha(1) = alpha(0);
+    alpha(2) = 0.001;
+    alpha(3) = alpha(2);
+    d = Vector2Nd::Zero();
 
     std::cout << "Starting SoftArm...\n";
 
@@ -48,32 +43,38 @@ void SoftArm::stop() {
 }
 
 void SoftArm::actuate(Vector2Nd tau) {
-    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures;
-    for (int j = 0; j < NUM_ELEMENTS; ++j) {
-        if (CHAMBERS == 3){
-            pressures.block(3*j,0,3,1) =  (force_map_matrix*tau.block(2*j,0,2,1))/alpha;
-            pressures(3*j+0)+=PRESSURE_OFFSET;
-            pressures(3*j+1)+=PRESSURE_OFFSET;
-            pressures(3*j+2)+=PRESSURE_OFFSET;
-        }
-        else if (CHAMBERS == 4){
-            pressures(4*j) = PRESSURE_OFFSET + tau(2*j)/alpha;
-            pressures(4*j+1) = PRESSURE_OFFSET + tau(2*j+1)/alpha;
-            pressures(4*j+2) = 2*PRESSURE_OFFSET - pressures(4*j);
-            pressures(4*j+3) = 2*PRESSURE_OFFSET - pressures(4*j+2);
-        }
-    }
-    if (simulate) {
-        std::cout << "In simulation mode; outputting pressure\n";
-        std::cout << "\n" << pressures << "\n";
-        return;
+    Vector2Nd pressures;
+    for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
+        pressures(j) = tau(j)/alpha(j);
     }
     actuatePressure(pressures);
 }
 
 
-void SoftArm::actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures) {
+void SoftArm::actuatePressure(Vector2Nd pressures) {
+    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> mappedPressure;
+    if (CHAMBERS==3){
+        for (int j = 0; j < NUM_ELEMENTS; ++j) {
+            mappedPressure.block(3*j,0,3,1) =  (force_map_matrix*pressures.block(2*j,0,2,1));
+        }
+    }
+    else if (CHAMBERS==4){
+        for (int j = 0; j < NUM_ELEMENTS; ++j) {
+            mappedPressure(4 * j + 0) = pressures(2*j+0);
+            mappedPressure(4 * j + 1) = pressures(2*j+1);
+            mappedPressure(4 * j + 2) = mappedPressure(4 * j + 0);
+            mappedPressure(4 * j + 3) = mappedPressure(4 * j + 1);
+        }
+    }
+    for (int m = 0; m < NUM_ELEMENTS*CHAMBERS; ++m) {
+        mappedPressure(m) += PRESSURE_OFFSET;
+    }
+    if (simulate) {
+        std::cout << "In simulation mode; outputting pressure\n";
+        std::cout << "\n" << mappedPressure << "\n";
+        return;
+    }
     for (int l = 0; l < NUM_ELEMENTS * CHAMBERS; ++l) {
-        forceController->setSinglePressure(valve_map[l], pressures(l));
+        forceController->setSinglePressure(valve_map[l], mappedPressure(l));
     }
 }

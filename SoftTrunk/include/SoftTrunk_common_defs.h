@@ -27,11 +27,11 @@
 /**
  * @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
  */
-#define PRESSURE_OFFSET 500
+#define PRESSURE_OFFSET 800
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
-#define MAX_PRESSURE 1300
+#define MAX_PRESSURE 1400
 /**
  * @brief arm is moved with PID controller, not the dynamic controller, if true.
  */
@@ -44,7 +44,7 @@
 /**
  * @brief mass of each segment, in kg
  */
-#define MASSES {0.15, 0.14, 0.13}
+#define MASSES {0.14, 0.14, 0.14}
 /**
  * @brief length of each segment, in m
  */

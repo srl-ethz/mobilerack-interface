@@ -6,21 +6,21 @@
 
 MiniPID ZieglerNichols(double Ku, double period){
     // https://en.wikipedia.org/wiki/Ziegler–Nichols_method
-    double Kp = 0.6 * Ku;
+    double Kp = 0.2 * Ku;
     double Ki = Kp/ (period / 2.0) * CONTROL_PERIOD;
-    double Kd = Kp * period/8 / CONTROL_PERIOD;
+    double Kd = Kp * period/3.0 / CONTROL_PERIOD;
     return MiniPID(Kp, Ki, Kd);
 }
 
 ControllerPCC::ControllerPCC(AugmentedRigidArm* augmentedRigidArm, SoftArm* softArm) : ara(augmentedRigidArm), sa(softArm){
     // set up PID controllers
     if (USE_PID_CURVATURE_CONTROL){
-        miniPIDs.push_back(ZieglerNichols(10, 0.4));// PID for phi. Z-N doesn't seem to work very well, so just doing P control...
-        miniPIDs.push_back(ZieglerNichols(10, 0.4)); // PID for theta
-        miniPIDs.push_back(ZieglerNichols(10, 0.4)); // PID for phi
-        miniPIDs.push_back(ZieglerNichols(10, 0.4)); // PID for theta
-        miniPIDs.push_back(MiniPID(30,0,0)); // PID for phi
-        miniPIDs.push_back(MiniPID(30,0,0)); // PID for theta
+        miniPIDs.push_back(ZieglerNichols(220000, 0.3));//MiniPID(230000,0,0));
+        miniPIDs.push_back(ZieglerNichols(220000, 0.3));//MiniPID(230000,0,0));
+        miniPIDs.push_back(ZieglerNichols(220000, 0.3));//MiniPID(230000,0,0));
+        miniPIDs.push_back(ZieglerNichols(220000, 0.3));//MiniPID(230000,0,0));
+        miniPIDs.push_back(MiniPID(30,0,0));
+        miniPIDs.push_back(MiniPID(30,0,0));
     }
     else{
 //        no PID controller necessary when not doing PID control
@@ -43,7 +43,7 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
         dq_meas = sa->curvatureCalculator->dq;
     }
     updateBCG(q_meas, dq_meas);
-    *tau = sa->k*q_ref + sa->d* dq_ref+ G + C*dq_ref + B*ddq_ref;
+    *tau = sa->k.asDiagonal()*q_ref + sa->d.asDiagonal()* dq_ref+ G + C*dq_ref + B*ddq_ref;
 }
 
 void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
@@ -55,8 +55,8 @@ void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
 
 
 
-void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *tau) {
+void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *pressures) {
     for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {
-        (*tau)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref(i));
+        (*pressures)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i), q_ref(i)); //Compensate for division by alpha inside SoftArm->actuate.
     }
 }

@@ -14,7 +14,8 @@ int main(){
     AugmentedRigidArm augmentedRigidArm{};
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
-//    q(1) = 0.02;
+    q(1) = 0.02;
+    dq(1) = 0.01;
 
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);

@@ -93,7 +93,6 @@ void CurvatureCalculator::calculateCurvature() {
         q(2*i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
         q(2*i+1) = -TRUNK_RADIUS * cos(PI/2-phi) * theta; // deltaLb
     }
-    q = (1-0.2) * presmooth_q + 0.2 * q;
 }
 
 void CurvatureCalculator::stop() {

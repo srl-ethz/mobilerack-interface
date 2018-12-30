@@ -105,7 +105,7 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
         q_deltaX(2*i) += epsilon;
         q_deltaY(2*i+1) += epsilon;
     }
-
+    update_xi(q);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
     update_xi(q_deltaX);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, 6*NUM_ELEMENTS, 1>(xi);
@@ -123,9 +123,10 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
     //todo: verify this numerical method too
     //todo: actually this messes up Jxi so not using this for now...
-    double epsilon=0.01;
-    Vector2Nd q_delta = q + dq*epsilon;
-    std::cout<<q_delta<<"\n";
+    double epsilon=0.1;
+    Vector2Nd q_delta = Vector2Nd(q);
+    q_delta +=  dq*epsilon;
+//    std::cout<<q_delta<<"\n";
     update_Jxi(q);
     Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double, 6*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
     update_Jxi(q_delta);
@@ -139,7 +140,7 @@ void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
     // first update xi (augmented model parameters)
     update_xi(q);
     update_Jxi(q);
-//    update_dJxi(q, dq);
+    update_dJxi(q, dq);
 
     update_xi(q);
     extract_B_G();
@@ -165,5 +166,6 @@ void AugmentedRigidArm::extract_B_G() {
 }
 
 void AugmentedRigidArm::joint_publish(){
-
+    //todo: integrate with ROS to publish joint states
+    // https://answers.ros.org/question/217773/node-outside-catkin-workspace/
 }

@@ -42,11 +42,11 @@ public:
     /**
      * compute the torque for good old PID control.
      * @param q_ref
-     * @param tau pointer to where you want the torque value to be saved.
+     * @param pressures pointer to where you want the pressures values to be saved.
      */
     void curvaturePIDControl(
             const Vector2Nd &q_ref,
-            Vector2Nd *tau
+            Vector2Nd *pressures
             );
     /**
      * @brief update B(inertia matrix), C and G(gravity vector) in q space

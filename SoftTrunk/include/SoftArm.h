@@ -35,17 +35,18 @@ public:
      */
     void actuate(Vector2Nd tau);
     /**
-     * relays the pressure command to ForceController.
-     * @param pressures pressure values for each chamber
+     * send the pressures to ForceController
+     * @param pressures generalized pressure values for each chamber (pressure along x y directions), 0 is neutral
+     * todo: elaborate on this in separate document
      */
-    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures); // actuate using pressures for each chamber
+    void actuatePressure(Vector2Nd pressures); // actuate using pressures for each chamber
     CurvatureCalculator* curvatureCalculator;
     ForceController* forceController;
     void stop();
 //    Vector2Nd k;
-//    Vector2Nd d;
-//    Vector2Nd alpha;
-    double k; double d; double alpha; //todo: use customized k, d, alpha for each chamber.
+    Vector2Nd d;
+    Vector2Nd alpha = Vector2Nd::Zero();;
+    Vector2Nd k=Vector2Nd::Zero();
     bool simulate;
 };
 
