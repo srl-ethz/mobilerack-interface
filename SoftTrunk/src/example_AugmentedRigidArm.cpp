@@ -4,7 +4,8 @@
 
 #include "AugmentedRigidArm.h"
 #include <stdio.h>
-
+#include <chrono>
+#include <thread>
 /*
  * demo of AugmentedRigidArm class.
  * creates an augmented rigid arm model, then gives it some values (q and dq, the soft robot's configurations) so it can update its internal variables.
@@ -24,5 +25,9 @@ int main(){
     std::cout << "\tdJxi:\n" << augmentedRigidArm.dJxi << "\n";
     std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
+    for(int i=0; i<100; i++){
+      augmentedRigidArm.joint_publish();
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
     return 1;
 }

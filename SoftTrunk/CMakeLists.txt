@@ -36,6 +36,12 @@ INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
 
+# including ROS
+# somewhat based on CMakeLists.txt here:
+# https://answers.ros.org/question/237494/fatal-error-rosrosh-no-such-file-or-directory/
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs)
+include_directories(${catkin_INCLUDE_DIRS})
+
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(test_valve ${PYTHON_LIBRARIES})
@@ -78,7 +84,8 @@ add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
 add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
-target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
+target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES} ${catkin_LIBRARIES})
+#${ROSCPP_LIBRARIES} ${SENSOR_MSGS_LIBRARIES})
 target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_library(SoftArm SHARED src/SoftArm.cpp)
@@ -90,7 +97,7 @@ target_link_libraries(create_xacro AugmentedRigidArm ${PYTHON_LIBRARIES})
 target_include_directories(create_xacro PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
-target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES})
+target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES}  ${CATKIN_LIBRARIES})
 target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
