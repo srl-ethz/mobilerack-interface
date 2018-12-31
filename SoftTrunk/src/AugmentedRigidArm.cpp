@@ -1,26 +1,42 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
 
-//#include <boost/filesystem.hpp>
 
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        lengths.push_back(0.12);
-        
-    }
-    masses.push_back(0.15);
-    masses.push_back(0.14);
-    masses.push_back(0.13);
     if (is_create_xacro){
         create_xacro();
         return;
     }
   create_rbdl_model();
   if (USE_ROS){
-//      https://stackoverflow.com/questions/50324348/can-a-ros-node-be-created-outside-a-catkin-workspace
-//      ros::init("", "", "joint_pub");
-//      ros::NodeHandle n;
+    // ros::init() requires argc and argv for remapping, but since we're not using command line arguments for this, input placeholder values that won't be used.
+    int tmp_c = 1;
+    char *tmp_v[1];
+    strcpy(tmp_v[0], "placeholder");
+      ros::init(tmp_c, tmp_v, "joint_pub", ros::init_options::AnonymousName);
+      std::cout<<"1\n";
+      ros::NodeHandle n;
+      nodeHandle = &n;
+      std::cout<<"2\n";
+      joint_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
+      std::cout<<"3\n";
+      for (int i=0; i<NUM_ELEMENTS; i++){
+        // set up joint names
+        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_z_joint");
+        jointState.name.push_back(std::to_string(i)+"-a-b_joint");
+        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_z_joint");
+        jointState.name.push_back(std::to_string(i)+"-c-d_joint");
+        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_z_joint");
+      }
+      for (int i=0; i<NUM_ELEMENTS*11; i++)
+        jointState.position.push_back(0.0);
   }
 }
 
@@ -53,70 +69,115 @@ void AugmentedRigidArm::create_xacro(){
     xacro_file << "</robot>";
 
     xacro_file.close();
-    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.\n";
+    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.(requires ROS)\n";
 }
 
 void AugmentedRigidArm::create_rbdl_model() {
     rbdl_model = new RigidBodyDynamics::Model();
     if (!RigidBodyDynamics::Addons::URDFReadFromFile("./urdf/robot.urdf", rbdl_model, false)) {
-        std::cerr << "Error loading model ./urdf/robot.urdf" << std::endl;
+        std::cerr << "Error loading model ./urdf/robot.urdf. Make sure that robot.urdf.xacro is generated with ./create_xacro, and then converted to robot.urdf with ./create_urdf.sh (requires ROS)" << std::endl;
         abort();
       }
       rbdl_model->gravity = Vector3d(0., 0., 9.81);
-      std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. \n";
+      std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << rbdl_model->dof_count/11 <<"-segment arm.\n";
 }
 
-void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
-    double phi;
-    double theta;
-    double L;
-    double shrunk_L;
-    double dshrunk_L;
-    double ddshrunk_L;
-    // first update xi (augmented model parameters)
+Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta){
+  Eigen::Matrix<double, 3, 1> angles = Eigen::Matrix<double, 3, 1>::Zero();
+  if (theta==0)
+    return angles;
+  angles(0) = -atan(tan(theta)*sin(phi));
+  angles(1) = asin(sin(theta/2)*cos(phi));
+  angles(2) = -asin( (cos(phi)*sin(phi)*cos(theta)-sin(phi)*cos(phi)) / cos(angles(1)));
+  return angles;
+}
+
+void  AugmentedRigidArm::update_xi(Vector2Nd q) {
+    double theta; double phi; double thetaX; double thetaY; double deltaL;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
-      // sanitize values to the defined range
-        phi = q(2*i+0);
-        theta = q(2*i+1);
-        L= lengths[i];
-        if (theta < 0){
-          phi += PI;
-          theta = -theta;
+        // use phi, theta parametrization because it's simpler for calculation
+        if (q(2*i) == 0) {
+            if (q(2*i + 1) == 0)
+                phi = 0;
+            else
+                phi = PI / 2;
         }
-        phi = fmod(phi, PI*2);
-        // problems when theta is too close to zero?
-        if (theta < 0.001)
-          theta = 0.001;
-       
+        else
+            phi = atan(q(2*i+1)/q(2*i)-cos(PI/2) /sin(PI/2));
+        if(q(2*i) == 0)
+            theta = -q(2*i+1)/(TRUNK_RADIUS*cos(PI/2-phi));
+        else
+            theta = -q(2*i)/(TRUNK_RADIUS*cos(phi));
+        if(theta<0){
+          theta = -theta;
+          phi += PI;
+        }
+        double b = lengths[i]/2;
+        if (theta!=0)
+          b = lengths[i]/theta * sqrt(1.0+4.0*sin(theta/2.0)/theta * (sin(theta/2.0)/theta - cos(theta/2.0)));
+        double nu = 0;
+        if (theta!=0)
+          nu = acos(1.0/b*lengths[i]/theta*sin(theta/2.0));
 
-        // construct the configuration(that is consistent with URDF/XACRO) for rigid arm
-        shrunk_L = L*sin(theta/2)/(theta/2);
-        xi(8*i+0,0) = phi;
-        xi(8*i+1,0) = theta/2;
-        xi(8*i+2,0) = (L-shrunk_L)/2;
-        xi(8*i+3,0) = -phi;
-        xi(8*i+4,0) = phi;
-        xi(8*i+5,0) = (L-shrunk_L)/2;
-        xi(8*i+6,0) = theta/2;
-        xi(8*i+7,0) = -phi;
-
-        // next, update the Jacobian Jm
-        dshrunk_L = L * (theta*cos(theta/2)-2*sin(theta/2)) / (theta*theta);        
-        Jm(8*i+0,2*i+0) = 1;
-        Jm(8*i+1,2*i+1) = 0.5;
-        Jm(8*i+2,2*i+1) = -dshrunk_L/2;
-        Jm(8*i+3,2*i+0) = -1;
-        Jm(8*i+4,2*i+0) = 1;
-        Jm(8*i+5,2*i+1) = -dshrunk_L/2;
-        Jm(8*i+6,2*i+1) = 0.5;
-        Jm(8*i+7,2*i+0) = -1;
-
-        // next, update dJm.
-        ddshrunk_L = L * dq(2*i+1) * (4*sin(theta/2)/pow(theta,3) - 2*cos(theta/2)/pow(theta, 2) - sin(theta/2)/(2*theta));
-        dJm(8*i+2, 2*i+1) = -ddshrunk_L/2;
-        dJm(8*i+5, 2*i+1) = -ddshrunk_L/2;
+        deltaL = lengths[i]/2.0 - b;
+        xi.block(11*i+0,0,3,1) = straw_bend_joint(phi, theta/2-nu);
+        xi(11*i+3) = deltaL;
+        xi.block(11*i+4,0,3,1) = straw_bend_joint(phi, 2*nu);
+        xi(11*i+7) = deltaL;
+        xi.block(11*i+8,0,3,1) = xi.block(11*i+0,0,3,1);
     }
+}
 
+void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
+    // brute force calculate Jacobian lol
+    //todo: verify that this numerical method is actually okay
+    // this particular method only works because xi of each element is totally independent of other elements
+    Vector2Nd q_deltaX = Vector2Nd(q);
+    Vector2Nd q_deltaY = Vector2Nd(q);
+    double epsilon = 0.0001;
+    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+        q_deltaX(2*i) += epsilon;
+        q_deltaY(2*i+1) += epsilon;
+    }
+    update_xi(q);
+    Eigen::Matrix<double, 11*NUM_ELEMENTS, 1> xi_current = Eigen::Matrix<double, 11*NUM_ELEMENTS, 1>(xi);
+    update_xi(q_deltaX);
+    Eigen::Matrix<double, 11*NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, 11*NUM_ELEMENTS, 1>(xi);
+    update_xi(q_deltaY);
+    Eigen::Matrix<double, 11*NUM_ELEMENTS, 1> xi_deltaY = Eigen::Matrix<double, 11*NUM_ELEMENTS, 1>(xi);
+//    std::cout<<"xi_current"<<xi_current<<"\n";
+//    std::cout<<"xi_deltaX"<<xi_deltaX<<"\n";
+//    std::cout<<"xi_deltaY"<<xi_deltaY<<"\n";
+    for (int j = 0; j < NUM_ELEMENTS; ++j) {
+      Jxi.block(11*j, 2*j+0, 11, 1) = (xi_deltaX-xi_current).block(11*j,0,11,1)/epsilon;
+        Jxi.block(11*j, 2*j+1, 11, 1) = (xi_deltaY-xi_current).block(11*j,0,11,1)/epsilon;
+    }
+}
+
+void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
+    //todo: verify this numerical method too
+    //todo: actually this messes up Jxi so not using this for now...
+    double epsilon=0.1;
+    Vector2Nd q_delta = Vector2Nd(q);
+    q_delta +=  dq*epsilon;
+//    std::cout<<q_delta<<"\n";
+    update_Jxi(q);
+    Eigen::Matrix<double, 11*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double, 11*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
+    update_Jxi(q_delta);
+    Eigen::Matrix<double, 11*NUM_ELEMENTS, 2*NUM_ELEMENTS> Jxi_delta = Eigen::Matrix<double, 11*NUM_ELEMENTS, 2*NUM_ELEMENTS>(Jxi);
+    dJxi = (Jxi_delta - Jxi_current)/epsilon;
+}
+
+
+void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
+
+    // first update xi (augmented model parameters)
+    update_xi(q);
+    joint_publish();
+    update_Jxi(q);
+    update_dJxi(q, dq);
+
+    update_xi(q);
     extract_B_G();
 }
 
@@ -124,23 +185,32 @@ void AugmentedRigidArm::extract_B_G() {
     // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL
     
     // first run ID with dQ and ddQ as zero vectors (gives gravity vector)
-    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
-    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS*8);
-    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS*8);
+    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS*11);
+    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS*11);
+    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS*11);
     InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
     G_xi = tau;
     
     // next, iterate through by making ddQ_zeros a unit vector and get inertia matrix
-    for (int i = 0; i < NUM_ELEMENTS*8; ++i) {
-        for (int j = 0; j < NUM_ELEMENTS * 8; ++j) {
-            ddQ_zeros(j) = 0.0;
-        }
-        ddQ_zeros(i) = 1.0;
+    for (int i = 0; i < NUM_ELEMENTS*11; ++i) {
+        ddQ_zeros(i) = 0.1;
         InverseDynamics(*rbdl_model, xi, dQ_zeros, ddQ_zeros, tau);
-        B_xi.col(i) = tau - G_xi;
+        B_xi.col(i) = (tau - G_xi)/ddQ_zeros(i);
+        ddQ_zeros(i) = 0;
     }
 }
 
-void AugmentedRigidArm::joint_publish(){
+AugmentedRigidArm::~AugmentedRigidArm(){
+  ros::shutdown();
 
+}
+
+void AugmentedRigidArm::joint_publish(){
+  if (!USE_ROS)
+    return;
+  jointState.header.stamp = ros::Time::now();
+  for(int i=0; i<NUM_ELEMENTS*11; i++)
+    jointState.position[i] = xi(i);
+  joint_pub.publish(jointState);
+  //  std::cout<<"publishing"<<jointState<<"\n";
 }

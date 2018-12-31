@@ -1,17 +1,21 @@
+# URDF directory
 Holds URDF files that describe the robot.
-Uses [XACRO](http://wiki.ros.org/xacro) for macros and such to make the URDF simpler.
+Uses [XACRO](http://wiki.ros.org/xacro)(a feature in ROS) for macros and such to make the URDF simpler.
 
 To generate a URDF file from XACRO file, run `./create_urdf.sh`.
 
-View the model in Rviz with `roslaunch rviz.launch`.
+Preview the robot with `roslaunch rviz.launch` and `roslaunch joints.launch` in two terminals.
 
-The URDF model currently does not accurately reflect the actual augmented model- needs two more joints in the center.
+To preview the current robot state, just launch rviz.launch.
+
 
 # link & joint naming conventions
 ![](naming_convention.jpeg)
 **ATT'N: This is wrong. The URDF is fixed.**
 
 # making PCC robot
+This should be done through the ./create_urdf program, but this section demonstrates how robot.urdf.xacro is constructed.
+
 create *robot.urdf.xacro* with contents;
 ```xml
 <?xml version="1.0"?>
@@ -27,9 +31,9 @@ create *robot.urdf.xacro* with contents;
 ```
 Note: the arm library can automatically generate *robot.urdf.xacro* using the length and mass parameters set in the code. This is done in *create_urdf.cpp*.
 
-convert to URDF with `./create_urdf.sh`
+convert to URDF with `./create_urdf.sh` 
 
 view with
-`roslaunch rviz.launch`
+`roslaunch rviz.launch` and `roslaunch joints.launch`
 
 ![](rviz.png)

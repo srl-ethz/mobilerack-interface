@@ -3,16 +3,16 @@
 /*
 Eigen- getting started: https://eigen.tuxfamily.org/dox/GettingStarted.html
 */
-CurvatureCalculator::CurvatureCalculator(int numOfRigidBodies,
-                                         int sensorType = USE_OPTITRACK)
-        : numOfRigidBodies(numOfRigidBodies), sensorType(sensorType) {
-    // initialize transforms
-    for (int i = 0; i <= numOfRigidBodies; i++) {
+CurvatureCalculator::CurvatureCalculator(int sensorType)
+        :sensorType(sensorType) {
+    // initialize size of arrays that record transforms
+    for (int i = 0; i <= NUM_ELEMENTS; i++) {
         abs_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
-    for (int j = 0; j < numOfRigidBodies; ++j) {
+    for (int j = 0; j < NUM_ELEMENTS; ++j) {
         rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
+
 }
 
 void CurvatureCalculator::setupOptiTrack(std::string localAddress,
@@ -63,7 +63,7 @@ void CurvatureCalculator::calculateCurvature() {
         std::vector<RigidBody> rigidBodies = optiTrackClient->getData();
         for (int i = 0; i < rigidBodies.size(); i++) {
             int id = rigidBodies[i].id();
-            if (0 <= id && id < numOfRigidBodies + 1) {
+            if (0 <= id && id < NUM_ELEMENTS + 1) {
                 Point3f position = rigidBodies[i].location();
 
                 Quaternion4f quaternion = rigidBodies[i].orientation();
@@ -82,24 +82,17 @@ void CurvatureCalculator::calculateCurvature() {
     }
 
 
-    // next, calculate the curvature (phi and theta)
+    // next, calculate the parameters
     for (int i = 0; i < NUM_ELEMENTS; i++) {
         rel_transforms[i] = abs_transforms[i+1] * abs_transforms[i].inverse();
 
         Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
-        presmooth_q(i*2) = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
-        presmooth_q(i*2+1) = sign(matrix(0,3)) * abs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
+        phi = atan(matrix(1,3)/matrix(0,3)); // -PI/2 ~ PI/2
+        theta = sign(matrix(0,3)) * fabs(asin(sqrt(pow(matrix(0,2),2) + pow(matrix(1,2),2))));
 
-        // sanitize values: phi's range is 0 ~ 2*PI, theta's range is 0 ~
-        if (presmooth_q(i*2+1)<0){
-            presmooth_q(i*2+1) = -presmooth_q(i*2+1);
-            presmooth_q(i*2) += PI;
-        }
-        if (presmooth_q(i*2) < 0){
-            presmooth_q(i*2) += 2 * PI;
-        }
+        q(2*i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
+        q(2*i+1) = -TRUNK_RADIUS * cos(PI/2-phi) * theta; // deltaLb
     }
-    q = (1-0.2) * presmooth_q + 0.2 * q;
 }
 
 void CurvatureCalculator::stop() {

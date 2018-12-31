@@ -2,15 +2,18 @@
 // Created by yasu on 31/10/18.
 //
 
-#include "SoftTrunkManager.h"
+#include "Manager.h"
 #include <Eigen/Dense>
-#define DURATION 6
+#define DURATION 10
 
+/**
+ * @file experiment.cpp
+ * @brief Topmost code to run experiments on the Soft Trunk system.
+ */
 
-#include "SoftTrunk_common_defs.h"
 
 int main(){
-    SoftTrunkManager stm{true};
+    Manager stm{true};
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
     Vector2Nd ddq = Vector2Nd::Zero();
@@ -24,7 +27,7 @@ int main(){
 
     double a = 2;
     double maxTheta = 0.3;
-    double T=4.0;
+    double T=15.0;
 
     double theta;
     double dtheta;
@@ -37,8 +40,6 @@ int main(){
         i++;
         lastTime = std::chrono::high_resolution_clock::now();
         // first set the commands
-        // make sure phi are not near 0 (problems when crossing over 0)
-        //todo: having phi go over phi=0 without hitch with PID controller
 
         if (experiment_type == 1) {
             q(0) = PI + 1 * cos(a * seconds);
@@ -116,8 +117,9 @@ int main(){
         }
         else if(experiment_type==4){
             for (int j = 0; j < NUM_ELEMENTS; ++j) {
-                q(2*j+1) = 0.5;
-                q(2*j) = PI/2;
+                q(2*j) = 0.01*sin(seconds * 2*PI/T);
+                dq(2*j) = 0.01*cos(seconds * 2*PI/T)* 2*PI/T;
+                ddq(2*j) = -0.01*sin(seconds * 2*PI/T)* 2*PI/T * 2*PI/T;
             }
         }
 

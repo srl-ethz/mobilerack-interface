@@ -11,7 +11,11 @@
 #include "SoftTrunk_common_defs.h"
 #include <chrono>
 
-
+/**
+ * @brief Implements an individual PID control for each valve of the FESTO valve array.
+ * @details example_sinusoidal.cpp and example_forceController.cpp are demos of this library.
+ *
+ */
 class ForceController {
 private:
   void controllerThread();

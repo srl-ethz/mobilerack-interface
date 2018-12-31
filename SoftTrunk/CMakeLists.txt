@@ -33,6 +33,17 @@ INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR})
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
+FIND_PACKAGE( Boost REQUIRED COMPONENTS program_options system thread REQUIRED)
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
+
+# including ROS
+# somewhat based on CMakeLists.txt here:
+# https://answers.ros.org/question/237494/fatal-error-rosrosh-no-such-file-or-directory/
+find_package(catkin COMPONENTS roscpp sensor_msgs)
+include_directories(${catkin_INCLUDE_DIRS})
+if (catkin_FOUND)
+add_definitions(-DCATKIN_FOUND)
+endif()
 
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
@@ -56,10 +67,6 @@ target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES} ForceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 
-FIND_PACKAGE( Boost COMPONENTS program_options system thread REQUIRED)
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
-ADD_EXECUTABLE(example_optitrack src/example_optitrack.cpp)
-TARGET_LINK_LIBRARIES( example_optitrack ${Boost_LIBRARIES} )
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
 ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
@@ -72,15 +79,16 @@ add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
 target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-add_library(SoftTrunkManager SHARED src/SoftTrunkManager.cpp)
-target_link_libraries(SoftTrunkManager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
-target_include_directories(SoftTrunkManager PRIVATE ${PYTHON_INCLUDE_DIRS})
+add_library(Manager SHARED src/Manager.cpp)
+target_link_libraries(Manager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
+target_include_directories(Manager PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/SoftTrunkManager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
-target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES})
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
+target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES} ${catkin_LIBRARIES})
+#${ROSCPP_LIBRARIES} ${SENSOR_MSGS_LIBRARIES})
 target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_library(SoftArm SHARED src/SoftArm.cpp)
@@ -92,7 +100,7 @@ target_link_libraries(create_xacro AugmentedRigidArm ${PYTHON_LIBRARIES})
 target_include_directories(create_xacro PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
-target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES})
+target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES} )
 target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
@@ -100,11 +108,11 @@ target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC ${PY
 target_include_directories(example_ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(characterize src/characterize.cpp)
-target_link_libraries(characterize SoftTrunkManager ${PYTHON_LIBRARIES})
+target_link_libraries(characterize Manager ${PYTHON_LIBRARIES})
 target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_executable(experiment src/experiment.cpp)
-target_link_libraries(experiment SoftTrunkManager ${PYTHON_LIBRARIES} -pthread)
+target_link_libraries(experiment Manager ${PYTHON_LIBRARIES} -pthread)
 target_include_directories(experiment PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 

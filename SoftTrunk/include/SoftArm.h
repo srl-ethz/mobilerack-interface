@@ -10,25 +10,43 @@
 #include <Eigen/Dense>
 #include "SoftTrunk_common_defs.h"
 
+/**
+ * @brief Represents the physical soft trunk robot.
+ */
 class SoftArm{
     /*
      * class that acts as interface for I/O of physical soft arm (curvatures, pressures etc.) and combines the soft arm's parameters(like k,d)
      */
 private:
-    std::vector<int> valve_map = {7, 5, 4, 6, 11, 9, 8, 10, 15, 13, 12, 14};// Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
-    std::vector<double> outputPressures;
-
-
+    std::vector<int> valve_map = VALVE_MAP;
+    /**
+     * @brief used for 3-chamber arm. Provides a map from force expressed in La, Lb to the same force expressed with 3 chambers.
+     */
+    Eigen::Matrix<double, 3, 2> force_map_matrix;
 public:
-    SoftArm(bool sim=false); // sim=true if simulation (does not try to connect to actual arm)
-    void actuate(Vector2Nd, Vector2Nd); // input tau in phi-theta coordinates
-    void actuatePressure(Vector2Nd); // actuate using pressures
+    /**
+     *
+     * @param sim true if running simulation, in which case it does not try to connect to actual arm
+     */
+    SoftArm(bool sim=false);
+    /**
+     * actuate the arm
+     * @param tau torque,in q space
+     */
+    void actuate(Vector2Nd tau);
+    /**
+     * send the pressures to ForceController
+     * @param pressures generalized pressure values for each chamber (pressure along x y directions), 0 is neutral
+     * todo: elaborate on this in separate document
+     */
+    void actuatePressure(Vector2Nd pressures); // actuate using pressures for each chamber
     CurvatureCalculator* curvatureCalculator;
     ForceController* forceController;
     void stop();
-    Vector2Nd k;
+//    Vector2Nd k;
     Vector2Nd d;
-    Vector2Nd alpha;
+    Vector2Nd alpha = Vector2Nd::Zero();;
+    Vector2Nd k=Vector2Nd::Zero();
     bool simulate;
 };
 
