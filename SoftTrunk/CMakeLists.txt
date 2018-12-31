@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 set (CMAKE_CXX_STANDARD 11)
 project(SoftTrunk)
-include_directories(include src/matplotlib-cpp src/MiniPID include/modbus)
+include_directories(include src/MiniPID include/modbus)
 
 find_package(PythonLibs 2.7)
 FIND_PACKAGE(PkgConfig)
@@ -39,34 +39,30 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
 # including ROS
 # somewhat based on CMakeLists.txt here:
 # https://answers.ros.org/question/237494/fatal-error-rosrosh-no-such-file-or-directory/
-find_package(catkin COMPONENTS roscpp sensor_msgs)
+find_package(catkin QUIET COMPONENTS roscpp sensor_msgs)
 include_directories(${catkin_INCLUDE_DIRS})
+# if found, set the CATKIN_FOUND definition, which is read in SoftTrun_common_defs.h to set USE_ROS to true or false.
 if (catkin_FOUND)
 add_definitions(-DCATKIN_FOUND)
 endif()
 
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(test_valve PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(test_valve ${PYTHON_LIBRARIES})
+target_include_directories(test_valve PRIVATE)
 target_include_directories(test_valve PRIVATE ${MODBUS_DIRS})
 target_link_libraries(test_valve ${MODBUS_LIBRARIES} )
 
 
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 add_library(ForceController SHARED src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(ForceController PRIVATE ${MODBUS_DIRS} ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(ForceController -pthread ${MODBUS_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+target_include_directories(ForceController PRIVATE ${MODBUS_DIRS})
+target_link_libraries(ForceController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(example_ForceController src/example_ForceController.cpp)
-target_link_libraries(example_ForceController ForceController ${PYTHON_LIBRARIES})
-target_include_directories(example_ForceController PRIVATE ${PYTHON_INCLUDE_DIRS})
-
+target_link_libraries(example_ForceController ForceController)
 
 add_executable(example_sinusoidal src/example_sinusoidal.cpp)
-target_include_directories(example_sinusoidal PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(example_sinusoidal ${PYTHON_LIBRARIES} ForceController -pthread)
+target_link_libraries(example_sinusoidal ForceController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
-
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
 ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
@@ -76,46 +72,37 @@ ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
 add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
-target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES} AugmentedRigidArm SoftArm)
-target_include_directories(ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftArm)
 
 add_library(Manager SHARED src/Manager.cpp)
-target_link_libraries(Manager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread ${PYTHON_LIBRARIES})
-target_include_directories(Manager PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(Manager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
 add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
-target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${PYTHON_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${catkin_LIBRARIES})
 #${ROSCPP_LIBRARIES} ${SENSOR_MSGS_LIBRARIES})
-target_include_directories(AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 add_library(SoftArm SHARED src/SoftArm.cpp)
-target_link_libraries(SoftArm ForceController CurvatureCalculator ${PYTHON_LIBRARIES})
-target_include_directories(SoftArm PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(SoftArm ForceController CurvatureCalculator)
 
 add_executable(create_xacro src/create_xacro.cpp)
-target_link_libraries(create_xacro AugmentedRigidArm ${PYTHON_LIBRARIES})
-target_include_directories(create_xacro PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(create_xacro AugmentedRigidArm)
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
-target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm ${PYTHON_LIBRARIES} )
-target_include_directories(example_AugmentedRigidArm PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
-target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC ${PYTHON_LIBRARIES} SoftArm)
-target_include_directories(example_ControllerPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftArm)
 
 add_executable(characterize src/characterize.cpp)
-target_link_libraries(characterize Manager ${PYTHON_LIBRARIES})
-target_include_directories(characterize PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(characterize Manager)
 
 add_executable(experiment src/experiment.cpp)
-target_link_libraries(experiment Manager ${PYTHON_LIBRARIES} -pthread)
-target_include_directories(experiment PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(experiment Manager -pthread)
 
 
 add_executable(example_SoftArm src/example_SoftArm.cpp)
-target_link_libraries(example_SoftArm SoftArm ${PYTHON_LIBRARIES} -pthread)
-target_include_directories(example_SoftArm PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(example_SoftArm SoftArm -pthread)
+

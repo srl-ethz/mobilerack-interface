@@ -23,36 +23,40 @@
 //#include <iostream>
 //#include <time.h>
 #include "SoftTrunk_common_defs.h"
+
 /**
  * @brief receives transform data for each frame from the OptiTrack system, which can then be used to calculate the current pose of the robot.
  * @details Acts as a client that communicates with the PC running Optitrack software. Uses the NatNetLinux library. Based on example_optitrack.cpp, which is based on SimpleExample.cpp provided as example in NatNetLinux.
  */
 class OptiTrackClient {
-  /*
-  Acts as a client that communicates with the PC running Optitrack software.
-  This class takes care of receiving transform data for each frame, which can
-  then be used to calculate the current pose of the robot.
-  */
+    /*
+    Acts as a client that communicates with the PC running Optitrack software.
+    This class takes care of receiving transform data for each frame, which can
+    then be used to calculate the current pose of the robot.
+    */
 public:
-  OptiTrackClient(std::string localAddress, std::string serverAddress);
-  /**
-   * @brief disconnect from OptiTrack server.
-   * @return
-   */
-  int stop();
-  /**
-   * Try to get a new frame from the listener.
-   * @return Each RigidBody contains the transform data for one frame.
-   * * RigidBody.id: integer ID
-   * * RigidBody.location: Point3f
-   * * RigidBody.orientation: Quaternion4f
-   */
-  std::vector<RigidBody> getData();
+    OptiTrackClient(std::string localAddress, std::string serverAddress);
+
+    /**
+     * @brief disconnect from OptiTrack server.
+     * @return
+     */
+    int stop();
+
+    /**
+     * Try to get a new frame from the listener.
+     * @return Each RigidBody contains the transform data for one frame.
+     * * RigidBody.id: integer ID
+     * * RigidBody.location: Point3f
+     * * RigidBody.orientation: Quaternion4f
+     */
+    std::vector<RigidBody> getData();
 
 private:
-  FrameListener *frameListener;
-  CommandListener *commandListener;
-  int sdData;
-  int sdCommand;
+    FrameListener *frameListener;
+    CommandListener *commandListener;
+    int sdData;
+    int sdCommand;
 };
+
 #endif

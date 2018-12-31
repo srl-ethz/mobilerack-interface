@@ -3,6 +3,7 @@
 //
 
 #include "AugmentedRigidArm.h"
+
 /**
  * @file create_xacro.cpp
  * @brief generates a URDF XACRO file using AugmentedRigidArm class
