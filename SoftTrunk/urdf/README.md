@@ -4,7 +4,10 @@ Uses [XACRO](http://wiki.ros.org/xacro)(a feature in ROS) for macros and such to
 
 To generate a URDF file from XACRO file, run `./create_urdf.sh`.
 
-View the model in Rviz with `roslaunch rviz.launch`.
+Preview the robot with `roslaunch rviz.launch` and `roslaunch joints.launch` in two terminals.
+
+To preview the current robot state, just launch rviz.launch.
+
 
 # link & joint naming conventions
 ![](naming_convention.jpeg)
@@ -28,9 +31,9 @@ create *robot.urdf.xacro* with contents;
 ```
 Note: the arm library can automatically generate *robot.urdf.xacro* using the length and mass parameters set in the code. This is done in *create_urdf.cpp*.
 
-convert to URDF with `./create_urdf.sh`
+convert to URDF with `./create_urdf.sh` 
 
 view with
-`roslaunch rviz.launch`
+`roslaunch rviz.launch` and `roslaunch joints.launch`
 
 ![](rviz.png)

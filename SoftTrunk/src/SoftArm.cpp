@@ -7,9 +7,9 @@
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
 
     // set up the impedance parameters (k&d), and actuation coefficient(alpha).
-    k(0) = -213.208;
+    k(0) = 1;
     k(1) = k(0);
-    k(2) = -38.2404;
+    k(2) = 1;
     k(3) = k(2);
     alpha(0) = 0.001;
     alpha(1) = alpha(0);

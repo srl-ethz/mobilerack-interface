@@ -82,6 +82,16 @@ void AugmentedRigidArm::create_rbdl_model() {
       std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << rbdl_model->dof_count/11 <<"-segment arm.\n";
 }
 
+Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta){
+  Eigen::Matrix<double, 3, 1> angles = Eigen::Matrix<double, 3, 1>::Zero();
+  if (theta==0)
+    return angles;
+  angles(0) = -atan(tan(theta)*sin(phi));
+  angles(1) = asin(sin(theta/2)*cos(phi));
+  angles(2) = -asin( (cos(phi)*sin(phi)*cos(theta)-sin(phi)*cos(phi)) / cos(angles(1)));
+  return angles;
+}
+
 void  AugmentedRigidArm::update_xi(Vector2Nd q) {
     double theta; double phi; double thetaX; double thetaY; double deltaL;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -98,23 +108,23 @@ void  AugmentedRigidArm::update_xi(Vector2Nd q) {
             theta = -q(2*i+1)/(TRUNK_RADIUS*cos(PI/2-phi));
         else
             theta = -q(2*i)/(TRUNK_RADIUS*cos(phi));
-//        std::cout<<"q[2i]\t"<<q(2*i)<<"\nq[2i+1]\t"<<q(2*i+1)<<"\nphi\t" <<phi<<"\ntheta\t"<<theta<<"\n";
+        if(theta<0){
+          theta = -theta;
+          phi += PI;
+        }
+        double b = lengths[i]/2;
+        if (theta!=0)
+          b = lengths[i]/theta * sqrt(1.0+4.0*sin(theta/2.0)/theta * (sin(theta/2.0)/theta - cos(theta/2.0)));
+        double nu = 0;
+        if (theta!=0)
+          nu = acos(1.0/b*lengths[i]/theta*sin(theta/2.0));
 
-        thetaX = -atan(tan(theta/2)*sin(phi));
-        thetaY = asin(sin(theta/2)*cos(phi));
-//        std::cout<<"thetaX\t"<<thetaX<<"\nthetaY\t"<<thetaY<<"\n";
-        if (theta==0)
-            deltaL = 0;
-        else
-            deltaL = lengths[i]/2 - lengths[i]*sin(theta/2)/theta;
-
-        /*        xi(6*i+0) = thetaX;
-        xi(6*i+1) = thetaY;
-        xi(6*i+2) = deltaL;
-        xi(6*i+3) = deltaL;
-        xi(6*i+4) = thetaX;
-        xi(6*i+5) = thetaY;*/
-        //todo: update to new parametrization
+        deltaL = lengths[i]/2.0 - b;
+        xi.block(11*i+0,0,3,1) = straw_bend_joint(phi, theta/2-nu);
+        xi(11*i+3) = deltaL;
+        xi.block(11*i+4,0,3,1) = straw_bend_joint(phi, 2*nu);
+        xi(11*i+7) = deltaL;
+        xi.block(11*i+8,0,3,1) = xi.block(11*i+0,0,3,1);
     }
 }
 
@@ -163,6 +173,7 @@ void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
 
     // first update xi (augmented model parameters)
     update_xi(q);
+    joint_publish();
     update_Jxi(q);
     update_dJxi(q, dq);
 
@@ -195,10 +206,11 @@ AugmentedRigidArm::~AugmentedRigidArm(){
 }
 
 void AugmentedRigidArm::joint_publish(){
-    //todo: integrate with ROS to publish joint states
+  if (!USE_ROS)
+    return;
   jointState.header.stamp = ros::Time::now();
   for(int i=0; i<NUM_ELEMENTS*11; i++)
     jointState.position[i] = xi(i);
   joint_pub.publish(jointState);
-  std::cout<<"publishing"<<jointState<<"\n";
+  //  std::cout<<"publishing"<<jointState<<"\n";
 }

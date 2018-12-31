@@ -1,7 +1,6 @@
 #ifndef ARMPCC_H
 #define ARMPCC_H
 
-#define USE_ROS true  // do you want to publish joint states to ROS
 
 #include <rbdl/rbdl.h>
 #include "SoftTrunk_common_defs.h"
@@ -14,8 +13,10 @@
 
 #include <iostream>
 #include <fstream>
+#if USE_ROS
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
+#endif
 
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
@@ -42,8 +43,14 @@ private:
    */
   void create_xacro();
   ros::Publisher joint_pub;
+  #if USE_ROS
   sensor_msgs::JointState jointState;
   ros::NodeHandle *nodeHandle;
+  #endif
+  /**
+   * @brief convert phi-theta bend to joint angles for a straw-bend joint.
+   */
+  Eigen::Matrix<double, 3, 1> straw_bend_joint(double phi, double theta);
   
 public:
     /**

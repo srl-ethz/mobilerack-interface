@@ -6,6 +6,8 @@
 #ifndef SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
 #define SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
 
+
+
 #include <Eigen/Dense>
 
 /**
@@ -73,5 +75,12 @@ typedef Eigen::Matrix<double,NUM_ELEMENTS*2,1> Vector2Nd;
  */
 typedef Eigen::Matrix<double,NUM_ELEMENTS*2,NUM_ELEMENTS*2> Matrix2Nd;
 
+#ifdef CATKIN_FOUND
+#define USE_ROS true  // do you want to publish joint states to ROS
+#endif
+
+#ifndef CATKIN_FOUND
+#define USE_ROS false
+#endif
 
 #endif //SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
