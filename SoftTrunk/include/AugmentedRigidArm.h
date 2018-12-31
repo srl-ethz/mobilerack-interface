@@ -42,8 +42,9 @@ private:
    * @brief generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
    */
   void create_xacro();
-  ros::Publisher joint_pub;
+
   #if USE_ROS
+  ros::Publisher joint_pub;
   sensor_msgs::JointState jointState;
   ros::NodeHandle *nodeHandle;
   #endif
