@@ -19,11 +19,13 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
 
     std::cout << "Starting SoftArm...\n";
 
-    Eigen::Matrix<double, 3, 3> A;
-    A << 1, 1, 1, 0, sqrt(3) / 2, -sqrt(3) / 2, 1, -0.5, -0.5;
-    force_map_matrix << 0, 0, 0, 1, 1, 0;
-    force_map_matrix = A.inverse() * force_map_matrix;
-    std::cout << "force_map_matrix is\n" << force_map_matrix << "\n";
+    if (CHAMBERS==3) {
+        Eigen::Matrix<double, 3, 3> A;
+        A << 1, 1, 1, 0, sqrt(3) / 2, -sqrt(3) / 2, 1, -0.5, -0.5;
+        force_map_matrix << 0, 0, 0, 1, 1, 0;
+        force_map_matrix = A.inverse() * force_map_matrix;
+        std::cout << "force_map_matrix is\n" << force_map_matrix << "\n";
+    }
 
     if (simulate)
         return;

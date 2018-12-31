@@ -24,13 +24,6 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
     return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
 }
 
-// https://stackoverflow.com/questions/41588159/eigen-matrix-resizing-issue-when-implementing-damped-pseudo-inverse
-template<typename Derived>
-Derived dampedPinv(const Eigen::MatrixBase<Derived> &a, double rho = 1e-4) {
-    return a.transpose() *
-           (a * a.transpose() + rho * rho * Eigen::MatrixBase<Derived>::Identity(a.rows(), a.rows())).inverse();
-}
-
 Manager::Manager(bool logMode) : logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
@@ -43,9 +36,7 @@ Manager::Manager(bool logMode) : logMode(logMode) {
 void Manager::curvatureControl(Vector2Nd q,
                                Vector2Nd dq,
                                Vector2Nd ddq) {
-    // get current measured state from CurvatureCalculator inside SoftArm, send that to ControllerPCC
-    // actuate the arm with the tau value.
-
+    // gets values from ControllerPCC and relays that to SoftArm
     if (USE_PID_CURVATURE_CONTROL) {
         Vector2Nd output;
         controllerPCC->curvaturePIDControl(q, &output);
@@ -57,6 +48,37 @@ void Manager::curvatureControl(Vector2Nd q,
     }
     if (logMode)
         log(softArm->curvatureCalculator->q, q);
+}
+
+void Manager::sendJointSpaceProfile(vFunctionCall updateQ, double duration) {
+    std::chrono::high_resolution_clock::time_point lastTime; // used to keep track of how long the control loop took
+    int count=0;
+    Vector2Nd q=Vector2Nd::Zero();
+    Vector2Nd q_tmp1=Vector2Nd::Zero();
+    Vector2Nd q_tmp2=Vector2Nd::Zero();
+    Vector2Nd dq=Vector2Nd::Zero();
+    Vector2Nd ddq=Vector2Nd::Zero();
+    double epsilon = 0.01;
+    long long sum_duration = 0;
+
+    for (double seconds = 0; seconds < duration; seconds += CONTROL_PERIOD) {
+        count++;
+        lastTime = std::chrono::high_resolution_clock::now();
+
+        // update q
+        updateQ(seconds, q);
+        // numerically derive dq and ddq
+        updateQ(seconds+epsilon, q_tmp1);
+        updateQ(seconds+epsilon*2.0, q_tmp2);
+        dq = (q_tmp1 - q)/epsilon;
+        ddq = (q_tmp2-2.0*q_tmp1+q)/(epsilon*epsilon);
+
+        curvatureControl(q, dq, ddq);
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count();
+        sum_duration += duration;
+        std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD * 1000000.0 - duration, 0)))); //todo: properly manage time count
+    }
+    std::cout << "control loop took on average " << sum_duration / count << " microseconds.\n";
 }
 
 void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {

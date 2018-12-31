@@ -12,15 +12,15 @@
 
 /**
  * @brief Represents the physical soft trunk robot.
+ * Gets the current q of robot continuously in the background (using CurvatureCalculator)
+ * Outputs pressure to robot
+ * Manage physical parameters of arm derived from characterization (such as k, d, alpha)
  */
 class SoftArm {
-    /*
-     * class that acts as interface for I/O of physical soft arm (curvatures, pressures etc.) and combines the soft arm's parameters(like k,d)
-     */
 private:
     std::vector<int> valve_map = VALVE_MAP;
     /**
-     * @brief used for 3-chamber arm. Provides a map from force expressed in La, Lb to the same force expressed with 3 chambers.
+     * @brief used for 3-chamber arm. Provides a mapping matrix from generalized pressure expressed with two parameters to pressure expressed with 3 chambers.
      */
     Eigen::Matrix<double, 3, 2> force_map_matrix;
 public:

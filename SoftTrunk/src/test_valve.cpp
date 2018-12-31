@@ -1,5 +1,4 @@
 #include "MiniPID.h"
-#include "matplotlibcpp.h"
 #include "MPA.h"
 #include <chrono>
 #include <iostream>
@@ -16,7 +15,6 @@
          example_forceController.cpp has similar function but uses the
    forceController class, and can actuate multiple valves.
  */
-namespace plt = matplotlibcpp;
 
 int step_func(int i) {
     // step function to send to valve
@@ -97,20 +95,6 @@ int main() {
 
     // Disconnect.
     mpa.disconnect();
-
-    plt::figure_size(1200, 780);
-    if (USE_PID) {
-        plt::title("P:" + std::to_string(KP) + ", I:" + std::to_string(KI) +
-                   ", D:" + std::to_string(KD));
-    } else {
-        plt::title("w/o PID");
-    }
-    plt::named_plot("measured pressure", x, pressures);
-    plt::named_plot("commanded pressure", x, commandpressures);
-    // plt::ylim(800,1200);
-    plt::legend();
-    plt::save("./graph.png");
-    std::cout << "graph output to ./graph.png" << '\n';
 
     return 0;
 }

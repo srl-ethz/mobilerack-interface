@@ -27,7 +27,8 @@ public:
     ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm);
 
     /**
-     * compute the torque required to actuate the arm.
+     * compute the torque required to actuate the arm with a dynamic controller.
+     * Implements the controller described in the paper.
      * @param q_ref
      * @param dq_ref
      * @param ddq_ref
@@ -41,8 +42,8 @@ public:
             bool simulate = false);
 
     /**
-     * compute the torque for good old PID control.
-     * @param q_ref
+     * compute the pressures for good old PID control.
+     * @param q_ref target configuration
      * @param pressures pointer to where you want the pressures values to be saved.
      */
     void curvaturePIDControl(
@@ -61,9 +62,6 @@ private:
     AugmentedRigidArm *ara;
     SoftArm *sa;
     std::vector<MiniPID> miniPIDs;
-
-    Vector2Nd phi_PD_control(Vector2Nd);
-
 };
 
 

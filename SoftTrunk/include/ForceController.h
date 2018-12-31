@@ -2,7 +2,6 @@
 #define FORCECONTROLLER_H
 
 #include "MiniPID.h"
-#include "matplotlibcpp.h"
 #include "MPA.h"
 #include <thread>
 #include <vector>
@@ -12,7 +11,7 @@
 #include <chrono>
 
 /**
- * @brief Implements an individual PID control for each valve of the FESTO valve array.
+ * @brief Interface for the pressure valve array. Implements an individual PID control for each valve.
  * @details example_sinusoidal.cpp and example_forceController.cpp are demos of this library.
  *
  */

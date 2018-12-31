@@ -3,7 +3,7 @@
 
 
 #define USE_PID true
-#define PLOT true
+#define LOG true
 #define VALVE_TO_PLOT 4
 
 /*
@@ -74,7 +74,7 @@ void ForceController::controllerThread() {
         } else {
             mpa.set_all_pressures(commanded_pressures);
         }
-        if (PLOT) {
+        if (LOG) {
             seconds_log.push_back((double) (std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::high_resolution_clock::now() - logBeginTime).count()) / 1000);
             pressure_log.push_back(sensor_pressures[VALVE_TO_PLOT]);
@@ -93,7 +93,9 @@ void ForceController::controllerThread() {
 void ForceController::disconnect() {
     run = false;
     controller_thread.join();
-    if (PLOT) {
+    /*
+     * todo: output csv, not png graph. Also, log all pressure history.
+    if (LOG) {
         namespace plt = matplotlibcpp;
         plt::figure_size(1200, 780);
         plt::named_plot("measured pressure", seconds_log, pressure_log);
@@ -102,4 +104,5 @@ void ForceController::disconnect() {
         plt::save("./graph.png");
         std::cout << "graph output to ./graph.png" << '\n';
     }
+     */
 }

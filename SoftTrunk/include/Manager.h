@@ -15,8 +15,12 @@
 #include <chrono>
 #include <fstream>
 
+// define typedef for readability's sake, so that a function can be passed as parameter to sendJointSpaceProfile().
+//https://stackoverflow.com/questions/6339970/c-using-function-as-parameter
+typedef void (* vFunctionCall)(double, Vector2Nd);
+
 /**
- * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm and orchestrates them to control the robot.
+ * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm classes and orchestrates them to control the robot.
  * ## When setting up a new arm configuration
  * * update SoftTrunk_common_defs.h with information of new configuration. This file contains constants that are used throughout the code.
  * * run create_xacro.cpp to generate new robot.urdf.xacro
@@ -27,15 +31,21 @@
 class Manager {
 public:
     /**
-     * constructor for Manager class.
+     * @brief constructor for Manager class.
      * @param logMode if true, outputs log.csv which logs the reference and measured values of the arm.
      */
     Manager(bool logMode = false);
 
     /**
-     * @brief do dynamic curvature control on the robot.
+     * @brief do one step dynamic curvature control on the robot.
      */
     void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
+    /**
+     * @brief moves the arm according to a profile of q.
+     * @param updateQ function that updates q as a function of the current time
+     * @param duration how long the motion should last
+     */
+    void sendJointSpaceProfile(vFunctionCall updateQ, double duration);
 
     /**
      * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm. Then, edit the code manually to change these values.
