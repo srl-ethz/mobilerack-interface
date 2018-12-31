@@ -3,56 +3,80 @@
 
 class MiniPID {
 public:
-  MiniPID(double, double, double);
-  MiniPID(double, double, double, double);
-  void setP(double);
-  void setI(double);
-  void setD(double);
-  void setF(double);
-  void setPID(double, double, double);
-  void setPID(double, double, double, double);
-  void setMaxIOutput(double);
-  void setOutputLimits(double);
-  void setOutputLimits(double, double);
-  void setDirection(bool);
-  void setSetpoint(double);
-  void reset();
-  void setOutputRampRate(double);
-  void setSetpointRange(double);
-  void setOutputFilter(double);
-  double getOutput();
-  double getOutput(double);
-  double getOutput(double, double);
+    MiniPID(double, double, double);
+
+    MiniPID(double, double, double, double);
+
+    void setP(double);
+
+    void setI(double);
+
+    void setD(double);
+
+    void setF(double);
+
+    void setPID(double, double, double);
+
+    void setPID(double, double, double, double);
+
+    void setMaxIOutput(double);
+
+    void setOutputLimits(double);
+
+    void setOutputLimits(double, double);
+
+    void setDirection(bool);
+
+    void setSetpoint(double);
+
+    void reset();
+
+    void setOutputRampRate(double);
+
+    void setSetpointRange(double);
+
+    void setOutputFilter(double);
+
+    double getOutput();
+
+    double getOutput(double);
+
+    double getOutput(double, double);
 
 private:
-  double clamp(double, double, double);
-  bool bounded(double, double, double);
-  void checkSigns();
-  void init();
-  double P;
-  double I;
-  double D;
-  double F;
+    double clamp(double, double, double);
 
-  double maxIOutput;
-  double maxError;
-  double errorSum;
+    bool bounded(double, double, double);
 
-  double maxOutput;
-  double minOutput;
+    void checkSigns();
 
-  double setpoint;
+    void init();
 
-  double lastActual;
+    double P;
+    double I;
+    double D;
+    double F;
 
-  bool firstRun;
-  bool reversed;
+    double maxIOutput;
+    double maxError;
+    double errorSum;
 
-  double outputRampRate;
-  double lastOutput;
+    double maxOutput;
+    double minOutput;
 
-  double outputFilter;
+    double setpoint;
 
-  double setpointRange;
+    double lastActual;
+
+    bool firstRun;
+    bool reversed;
+
+    double outputRampRate;
+    double lastOutput;
+
+    double outputFilter;
+
+    double setpointRange;
 };
+
 #endif

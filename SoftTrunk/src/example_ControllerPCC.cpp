@@ -13,24 +13,24 @@
  * creates an AugmentedRigidArm and SoftArm object, and computes the torque required for curvature dynamic control.
  */
 
-int main(){
-  AugmentedRigidArm augmentedRigidArm{false};
-  SoftArm softArm{true};
-  ControllerPCC controllerPCC(&augmentedRigidArm, &softArm);
+int main() {
+    AugmentedRigidArm augmentedRigidArm{false};
+    SoftArm softArm{true};
+    ControllerPCC controllerPCC(&augmentedRigidArm, &softArm);
 
-  Vector2Nd q_ref = Vector2Nd::Zero();
-  Vector2Nd dq_ref = Vector2Nd::Zero();
-  Vector2Nd ddq_ref = Vector2Nd::Zero();
+    Vector2Nd q_ref = Vector2Nd::Zero();
+    Vector2Nd dq_ref = Vector2Nd::Zero();
+    Vector2Nd ddq_ref = Vector2Nd::Zero();
 
-  Vector2Nd q_meas = Vector2Nd::Zero();
-  Vector2Nd dq_meas = Vector2Nd::Zero();
+    Vector2Nd q_meas = Vector2Nd::Zero();
+    Vector2Nd dq_meas = Vector2Nd::Zero();
 
-  q_ref(0) = 0.001;
-  q_ref(2) = 0.001;
+    q_ref(0) = 0.001;
+    q_ref(2) = 0.001;
 
-  Vector2Nd tau_pt;
-  controllerPCC.curvatureDynamicControl(q_ref,dq_ref, ddq_ref, &tau_pt, true);
-  std::cout << "\ttau_q:\n" << tau_pt << "\n";
-  softArm.actuate(tau_pt);
-  return 1;
+    Vector2Nd tau_pt;
+    controllerPCC.curvatureDynamicControl(q_ref, dq_ref, ddq_ref, &tau_pt, true);
+    std::cout << "\ttau_q:\n" << tau_pt << "\n";
+    softArm.actuate(tau_pt);
+    return 1;
 }

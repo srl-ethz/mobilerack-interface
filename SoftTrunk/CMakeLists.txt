@@ -39,8 +39,9 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
 # including ROS
 # somewhat based on CMakeLists.txt here:
 # https://answers.ros.org/question/237494/fatal-error-rosrosh-no-such-file-or-directory/
-find_package(catkin COMPONENTS roscpp sensor_msgs)
+find_package(catkin QUIET COMPONENTS roscpp sensor_msgs)
 include_directories(${catkin_INCLUDE_DIRS})
+# if found, set the CATKIN_FOUND definition, which is read in SoftTrun_common_defs.h to set USE_ROS to true or false.
 if (catkin_FOUND)
 add_definitions(-DCATKIN_FOUND)
 endif()

@@ -42,7 +42,7 @@
 
 /* Evaluates to True if the version is greater than @major, @minor and @micro
  */
-#define LIBMODBUS_VERSION_CHECK(major,minor,micro)      \
+#define LIBMODBUS_VERSION_CHECK(major, minor, micro)      \
     (LIBMODBUS_VERSION_MAJOR > (major) ||               \
      (LIBMODBUS_VERSION_MAJOR == (major) &&             \
       LIBMODBUS_VERSION_MINOR > (minor)) ||             \

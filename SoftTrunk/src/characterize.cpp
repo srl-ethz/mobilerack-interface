@@ -4,7 +4,7 @@
 
 #include "Manager.h"
 
-int main(){
+int main() {
     Manager softTrunkManager = Manager();
     softTrunkManager.characterize();
     return 1;

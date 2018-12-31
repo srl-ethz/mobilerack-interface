@@ -16,37 +16,39 @@
 // Constructor functions
 //**********************************
 MiniPID::MiniPID(double p, double i, double d) {
-  init();
-  P = p;
-  I = i;
-  D = d;
+    init();
+    P = p;
+    I = i;
+    D = d;
 }
-MiniPID::MiniPID(double p, double i, double d, double f) {
-  init();
-  P = p;
-  I = i;
-  D = d;
-  F = f;
-}
-void MiniPID::init() {
-  P = 0;
-  I = 0;
-  D = 0;
-  F = 0;
 
-  maxIOutput = 0;
-  maxError = 0;
-  errorSum = 0;
-  maxOutput = 0;
-  minOutput = 0;
-  setpoint = 0;
-  lastActual = 0;
-  firstRun = true;
-  reversed = false;
-  outputRampRate = 0;
-  lastOutput = 0;
-  outputFilter = 0;
-  setpointRange = 0;
+MiniPID::MiniPID(double p, double i, double d, double f) {
+    init();
+    P = p;
+    I = i;
+    D = d;
+    F = f;
+}
+
+void MiniPID::init() {
+    P = 0;
+    I = 0;
+    D = 0;
+    F = 0;
+
+    maxIOutput = 0;
+    maxError = 0;
+    errorSum = 0;
+    maxOutput = 0;
+    minOutput = 0;
+    setpoint = 0;
+    lastActual = 0;
+    firstRun = true;
+    reversed = false;
+    outputRampRate = 0;
+    lastOutput = 0;
+    outputFilter = 0;
+    setpointRange = 0;
 }
 
 //**********************************
@@ -67,8 +69,8 @@ void MiniPID::init() {
  * <b>output+=P*(setpoint-current_value)</b>
  */
 void MiniPID::setP(double p) {
-  P = p;
-  checkSigns();
+    P = p;
+    checkSigns();
 }
 
 /**
@@ -85,26 +87,26 @@ void MiniPID::setP(double p) {
  * @param i New gain value for the Integral term
  */
 void MiniPID::setI(double i) {
-  if (I != 0) {
-    errorSum = errorSum * I / i;
-  }
-  if (maxIOutput != 0) {
-    maxError = maxIOutput / i;
-  }
-  I = i;
-  checkSigns();
-  /* Implementation note:
-  * this->Scales the accumulated error to avoid output errors.
-  * As an example doubling the I term cuts the accumulated error in half, which
-  * results in the
-  * output change due to the I term constant during the transition.
-  *
-  */
+    if (I != 0) {
+        errorSum = errorSum * I / i;
+    }
+    if (maxIOutput != 0) {
+        maxError = maxIOutput / i;
+    }
+    I = i;
+    checkSigns();
+    /* Implementation note:
+    * this->Scales the accumulated error to avoid output errors.
+    * As an example doubling the I term cuts the accumulated error in half, which
+    * results in the
+    * output change due to the I term constant during the transition.
+    *
+    */
 }
 
 void MiniPID::setD(double d) {
-  D = d;
-  checkSigns();
+    D = d;
+    checkSigns();
 }
 
 /**Configure the FeedForward parameter. <br>
@@ -117,8 +119,8 @@ void MiniPID::setD(double d) {
  * <b>output+=F*Setpoint</b>;
  */
 void MiniPID::setF(double f) {
-  F = f;
-  checkSigns();
+    F = f;
+    checkSigns();
 }
 
 /** Create a new PID object.
@@ -130,18 +132,18 @@ void MiniPID::setF(double f) {
  * values prevents P and I terms from causing overshoot.
  */
 void MiniPID::setPID(double p, double i, double d) {
-  P = p;
-  I = i;
-  D = d;
-  checkSigns();
+    P = p;
+    I = i;
+    D = d;
+    checkSigns();
 }
 
 void MiniPID::setPID(double p, double i, double d, double f) {
-  P = p;
-  I = i;
-  D = d;
-  F = f;
-  checkSigns();
+    P = p;
+    I = i;
+    D = d;
+    F = f;
+    checkSigns();
 }
 
 /**Set the maximum output value contributed by the I component of the system
@@ -149,15 +151,15 @@ void MiniPID::setPID(double p, double i, double d, double f) {
  * @param maximum. Units are the same as the expected output value
  */
 void MiniPID::setMaxIOutput(double maximum) {
-  /* Internally maxError and Izone are similar, but scaled for different
-   * purposes.
-   * The maxError is generated for simplifying math, since calculations against
-   * the max error are far more common than changing the I term or Izone.
-   */
-  maxIOutput = maximum;
-  if (I != 0) {
-    maxError = maxIOutput / I;
-  }
+    /* Internally maxError and Izone are similar, but scaled for different
+     * purposes.
+     * The maxError is generated for simplifying math, since calculations against
+     * the max error are far more common than changing the I term or Izone.
+     */
+    maxIOutput = maximum;
+    if (I != 0) {
+        maxError = maxIOutput / I;
+    }
 }
 
 /**Specify a maximum output. If a single parameter is specified, the minimum is
@@ -165,7 +167,7 @@ void MiniPID::setMaxIOutput(double maximum) {
  * @param output
  */
 void MiniPID::setOutputLimits(double output) {
-  setOutputLimits(-output, output);
+    setOutputLimits(-output, output);
 }
 
 /**
@@ -174,16 +176,16 @@ void MiniPID::setOutputLimits(double output) {
  * @param maximum possible output value
  */
 void MiniPID::setOutputLimits(double minimum, double maximum) {
-  if (maximum < minimum)
-    return;
-  maxOutput = maximum;
-  minOutput = minimum;
+    if (maximum < minimum)
+        return;
+    maxOutput = maximum;
+    minOutput = minimum;
 
-  // Ensure the bounds of the I term are within the bounds of the allowable
-  // output swing
-  if (maxIOutput == 0 || maxIOutput > (maximum - minimum)) {
-    setMaxIOutput(maximum - minimum);
-  }
+    // Ensure the bounds of the I term are within the bounds of the allowable
+    // output swing
+    if (maxIOutput == 0 || maxIOutput > (maximum - minimum)) {
+        setMaxIOutput(maximum - minimum);
+    }
 }
 
 /** Set the operating direction of the PID controller
@@ -207,94 +209,94 @@ void MiniPID::setSetpoint(double setpoint) { this->setpoint = setpoint; }
 * @return calculated output value for driving the actual to the target
 */
 double MiniPID::getOutput(double actual, double setpoint) {
-  double output;
-  double Poutput;
-  double Ioutput;
-  double Doutput;
-  double Foutput;
+    double output;
+    double Poutput;
+    double Ioutput;
+    double Doutput;
+    double Foutput;
 
-  this->setpoint = setpoint;
+    this->setpoint = setpoint;
 
-  // Ramp the setpoint used for calculations if user has opted to do so
-  if (setpointRange != 0) {
-    setpoint = clamp(setpoint, actual - setpointRange, actual + setpointRange);
-  }
+    // Ramp the setpoint used for calculations if user has opted to do so
+    if (setpointRange != 0) {
+        setpoint = clamp(setpoint, actual - setpointRange, actual + setpointRange);
+    }
 
-  // Do the simple parts of the calculations
-  double error = setpoint - actual;
+    // Do the simple parts of the calculations
+    double error = setpoint - actual;
 
-  // Calculate F output. Notice, this->depends only on the setpoint, and not the
-  // error.
-  Foutput = F * setpoint;
+    // Calculate F output. Notice, this->depends only on the setpoint, and not the
+    // error.
+    Foutput = F * setpoint;
 
-  // Calculate P term
-  Poutput = P * error;
+    // Calculate P term
+    Poutput = P * error;
 
-  // If this->is our first time running this-> we don't actually _have_ a
-  // previous input or output.
-  // For sensor, sanely assume it was exactly where it is now.
-  // For last output, we can assume it's the current time-independent outputs.
-  if (firstRun) {
+    // If this->is our first time running this-> we don't actually _have_ a
+    // previous input or output.
+    // For sensor, sanely assume it was exactly where it is now.
+    // For last output, we can assume it's the current time-independent outputs.
+    if (firstRun) {
+        lastActual = actual;
+        lastOutput = Poutput + Foutput;
+        firstRun = false;
+    }
+
+    // Calculate D Term
+    // Note, this->is negative. this->actually "slows" the system if it's doing
+    // the correct thing, and small values helps prevent output spikes and
+    // overshoot
+
+    Doutput = -D * (actual - lastActual);
     lastActual = actual;
-    lastOutput = Poutput + Foutput;
-    firstRun = false;
-  }
 
-  // Calculate D Term
-  // Note, this->is negative. this->actually "slows" the system if it's doing
-  // the correct thing, and small values helps prevent output spikes and
-  // overshoot
+    // The Iterm is more complex. There's several things to factor in to make it
+    // easier to deal with.
+    // 1. maxIoutput restricts the amount of output contributed by the Iterm.
+    // 2. prevent windup by not increasing errorSum if we're already running
+    // against our max Ioutput
+    // 3. prevent windup by not increasing errorSum if output is output=maxOutput
+    Ioutput = I * errorSum;
+    if (maxIOutput != 0) {
+        Ioutput = clamp(Ioutput, -maxIOutput, maxIOutput);
+    }
 
-  Doutput = -D * (actual - lastActual);
-  lastActual = actual;
+    // And, finally, we can just add the terms up
+    output = Foutput + Poutput + Ioutput + Doutput;
 
-  // The Iterm is more complex. There's several things to factor in to make it
-  // easier to deal with.
-  // 1. maxIoutput restricts the amount of output contributed by the Iterm.
-  // 2. prevent windup by not increasing errorSum if we're already running
-  // against our max Ioutput
-  // 3. prevent windup by not increasing errorSum if output is output=maxOutput
-  Ioutput = I * errorSum;
-  if (maxIOutput != 0) {
-    Ioutput = clamp(Ioutput, -maxIOutput, maxIOutput);
-  }
+    // Figure out what we're doing with the error.
+    if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput)) {
+        errorSum = error;
+        // reset the error sum to a sane level
+        // Setting to current error ensures a smooth transition when the P term
+        // decreases enough for the I term to start acting upon the controller
+        // From that point the I term will build up as would be expected
+    } else if (outputRampRate != 0 &&
+               !bounded(output, lastOutput - outputRampRate,
+                        lastOutput + outputRampRate)) {
+        errorSum = error;
+    } else if (maxIOutput != 0) {
+        errorSum = clamp(errorSum + error, -maxError, maxError);
+        // In addition to output limiting directly, we also want to prevent I term
+        // buildup, so restrict the error directly
+    } else {
+        errorSum += error;
+    }
 
-  // And, finally, we can just add the terms up
-  output = Foutput + Poutput + Ioutput + Doutput;
+    // Restrict output to our specified output and ramp limits
+    if (outputRampRate != 0) {
+        output =
+                clamp(output, lastOutput - outputRampRate, lastOutput + outputRampRate);
+    }
+    if (minOutput != maxOutput) {
+        output = clamp(output, minOutput, maxOutput);
+    }
+    if (outputFilter != 0) {
+        output = lastOutput * outputFilter + output * (1 - outputFilter);
+    }
 
-  // Figure out what we're doing with the error.
-  if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput)) {
-    errorSum = error;
-    // reset the error sum to a sane level
-    // Setting to current error ensures a smooth transition when the P term
-    // decreases enough for the I term to start acting upon the controller
-    // From that point the I term will build up as would be expected
-  } else if (outputRampRate != 0 &&
-             !bounded(output, lastOutput - outputRampRate,
-                      lastOutput + outputRampRate)) {
-    errorSum = error;
-  } else if (maxIOutput != 0) {
-    errorSum = clamp(errorSum + error, -maxError, maxError);
-    // In addition to output limiting directly, we also want to prevent I term
-    // buildup, so restrict the error directly
-  } else {
-    errorSum += error;
-  }
-
-  // Restrict output to our specified output and ramp limits
-  if (outputRampRate != 0) {
-    output =
-        clamp(output, lastOutput - outputRampRate, lastOutput + outputRampRate);
-  }
-  if (minOutput != maxOutput) {
-    output = clamp(output, minOutput, maxOutput);
-  }
-  if (outputFilter != 0) {
-    output = lastOutput * outputFilter + output * (1 - outputFilter);
-  }
-
-  lastOutput = output;
-  return output;
+    lastOutput = output;
+    return output;
 }
 
 /**
@@ -315,8 +317,8 @@ double MiniPID::getOutput(double actual) { return getOutput(actual, setpoint); }
  * the next loop.
  */
 void MiniPID::reset() {
-  firstRun = true;
-  errorSum = 0;
+    firstRun = true;
+    errorSum = 0;
 }
 
 /**Set the maximum rate the output can increase per cycle.
@@ -344,9 +346,9 @@ void MiniPID::setSetpointRange(double range) { setpointRange = range; }
  * output only)
  */
 void MiniPID::setOutputFilter(double strength) {
-  if (strength == 0 || bounded(strength, 0, 1)) {
-    outputFilter = strength;
-  }
+    if (strength == 0 || bounded(strength, 0, 1)) {
+        outputFilter = strength;
+    }
 }
 
 //**************************************
@@ -361,13 +363,13 @@ void MiniPID::setOutputFilter(double strength) {
  * @return Value if it's within provided range, min or max otherwise
  */
 double MiniPID::clamp(double value, double min, double max) {
-  if (value > max) {
-    return max;
-  }
-  if (value < min) {
-    return min;
-  }
-  return value;
+    if (value > max) {
+        return max;
+    }
+    if (value < min) {
+        return min;
+    }
+    return value;
 }
 
 /**
@@ -378,7 +380,7 @@ double MiniPID::clamp(double value, double min, double max) {
  * @return
  */
 bool MiniPID::bounded(double value, double min, double max) {
-  return (min < value) && (value < max);
+    return (min < value) && (value < max);
 }
 
 /**
@@ -386,23 +388,23 @@ bool MiniPID::bounded(double value, double min, double max) {
  * with that sign depending on the {@literal}reversed value
  */
 void MiniPID::checkSigns() {
-  if (reversed) { // all values should be below zero
-    if (P > 0)
-      P *= -1;
-    if (I > 0)
-      I *= -1;
-    if (D > 0)
-      D *= -1;
-    if (F > 0)
-      F *= -1;
-  } else { // all values should be above zero
-    if (P < 0)
-      P *= -1;
-    if (I < 0)
-      I *= -1;
-    if (D < 0)
-      D *= -1;
-    if (F < 0)
-      F *= -1;
-  }
+    if (reversed) { // all values should be below zero
+        if (P > 0)
+            P *= -1;
+        if (I > 0)
+            I *= -1;
+        if (D > 0)
+            D *= -1;
+        if (F > 0)
+            F *= -1;
+    } else { // all values should be above zero
+        if (P < 0)
+            P *= -1;
+        if (I < 0)
+            I *= -1;
+        if (D < 0)
+            D *= -1;
+        if (F < 0)
+            F *= -1;
+    }
 }

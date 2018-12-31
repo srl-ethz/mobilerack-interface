@@ -20,10 +20,10 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     std::cout << "Starting SoftArm...\n";
 
     Eigen::Matrix<double, 3, 3> A;
-    A<< 1,1,1,  0,sqrt(3)/2,-sqrt(3)/2,  1,-0.5,-0.5;
-    force_map_matrix << 0,0,  0,1,  1,0;
+    A << 1, 1, 1, 0, sqrt(3) / 2, -sqrt(3) / 2, 1, -0.5, -0.5;
+    force_map_matrix << 0, 0, 0, 1, 1, 0;
     force_map_matrix = A.inverse() * force_map_matrix;
-    std::cout << "force_map_matrix is\n"<<force_map_matrix<<"\n";
+    std::cout << "force_map_matrix is\n" << force_map_matrix << "\n";
 
     if (simulate)
         return;
@@ -44,29 +44,28 @@ void SoftArm::stop() {
 
 void SoftArm::actuate(Vector2Nd tau) {
     Vector2Nd pressures;
-    for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
-        pressures(j) = tau(j)/alpha(j);
+    for (int j = 0; j < NUM_ELEMENTS * 2; ++j) {
+        pressures(j) = tau(j) / alpha(j);
     }
     actuatePressure(pressures);
 }
 
 
 void SoftArm::actuatePressure(Vector2Nd pressures) {
-    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> mappedPressure;
-    if (CHAMBERS==3){
+    Eigen::Matrix<double, NUM_ELEMENTS * CHAMBERS, 1> mappedPressure;
+    if (CHAMBERS == 3) {
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
-            mappedPressure.block(3*j,0,3,1) =  (force_map_matrix*pressures.block(2*j,0,2,1));
+            mappedPressure.block(3 * j, 0, 3, 1) = (force_map_matrix * pressures.block(2 * j, 0, 2, 1));
         }
-    }
-    else if (CHAMBERS==4){
+    } else if (CHAMBERS == 4) {
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
-            mappedPressure(4 * j + 0) = pressures(2*j+0);
-            mappedPressure(4 * j + 1) = pressures(2*j+1);
+            mappedPressure(4 * j + 0) = pressures(2 * j + 0);
+            mappedPressure(4 * j + 1) = pressures(2 * j + 1);
             mappedPressure(4 * j + 2) = mappedPressure(4 * j + 0);
             mappedPressure(4 * j + 3) = mappedPressure(4 * j + 1);
         }
     }
-    for (int m = 0; m < NUM_ELEMENTS*CHAMBERS; ++m) {
+    for (int m = 0; m < NUM_ELEMENTS * CHAMBERS; ++m) {
         mappedPressure(m) += PRESSURE_OFFSET;
     }
     if (simulate) {

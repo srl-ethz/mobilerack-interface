@@ -5,7 +5,7 @@
 #include "Manager.h"
 
 // taken from https://gist.github.com/javidcf/25066cf85e71105d57b6
-template <class MatT>
+template<class MatT>
 Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime>
 pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4}) // choose appropriately
 {
@@ -15,12 +15,9 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
     Eigen::Matrix<Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> singularValuesInv(mat.cols(), mat.rows());
     singularValuesInv.setZero();
     for (unsigned int i = 0; i < singularValues.size(); ++i) {
-        if (singularValues(i) > tolerance)
-        {
+        if (singularValues(i) > tolerance) {
             singularValuesInv(i, i) = Scalar{1} / singularValues(i);
-        }
-        else
-        {
+        } else {
             singularValuesInv(i, i) = Scalar{0};
         }
     }
@@ -29,11 +26,12 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
 
 // https://stackoverflow.com/questions/41588159/eigen-matrix-resizing-issue-when-implementing-damped-pseudo-inverse
 template<typename Derived>
-Derived dampedPinv(const Eigen::MatrixBase<Derived>& a, double rho = 1e-4) {
-    return a.transpose() * (a*a.transpose() + rho*rho*Eigen::MatrixBase<Derived>::Identity(a.rows(), a.rows()) ).inverse();
+Derived dampedPinv(const Eigen::MatrixBase<Derived> &a, double rho = 1e-4) {
+    return a.transpose() *
+           (a * a.transpose() + rho * rho * Eigen::MatrixBase<Derived>::Identity(a.rows(), a.rows())).inverse();
 }
 
-Manager::Manager(bool logMode): logMode(logMode) {
+Manager::Manager(bool logMode) : logMode(logMode) {
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
     augmentedRigidArm = new AugmentedRigidArm{};
@@ -43,22 +41,21 @@ Manager::Manager(bool logMode): logMode(logMode) {
 }
 
 void Manager::curvatureControl(Vector2Nd q,
-                                        Vector2Nd dq,
-                                        Vector2Nd ddq) {
+                               Vector2Nd dq,
+                               Vector2Nd ddq) {
     // get current measured state from CurvatureCalculator inside SoftArm, send that to ControllerPCC
     // actuate the arm with the tau value.
 
-    if (USE_PID_CURVATURE_CONTROL){
+    if (USE_PID_CURVATURE_CONTROL) {
         Vector2Nd output;
-        controllerPCC->curvaturePIDControl(q,&output);
+        controllerPCC->curvaturePIDControl(q, &output);
         softArm->actuatePressure(output);
-    }
-    else {
+    } else {
         Vector2Nd tau;
         controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
         softArm->actuate(tau);
     }
-    if(logMode)
+    if (logMode)
         log(softArm->curvatureCalculator->q, q);
 }
 
@@ -72,55 +69,65 @@ void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
 void Manager::characterize() {
 
     std::cout << "Manager.characterize called. Computing characteristics of the SoftTrunk...\n";
-    logMode=true;
+    logMode = true;
 
     const int historySize = 100; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
     const double duration = 5; // for how long the process takes
-    const int steps = (int)(duration/CONTROL_PERIOD);
-    Eigen::MatrixXd pressures; pressures.resize(NUM_ELEMENTS*2, steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
+    const int steps = (int) (duration / CONTROL_PERIOD);
+    Eigen::MatrixXd pressures;
+    pressures.resize(NUM_ELEMENTS * 2,
+                     steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
     const double max_output = 0.8 * (MAX_PRESSURE - PRESSURE_OFFSET);
 
     // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
-            pressures(2*k+0, j) = -fmin(max_output, fmin(max_output*((double)j*2/steps), max_output*(2-(double)j*2/steps)));
-            pressures(2*k+1, j) = 0;
+            pressures(2 * k + 0, j) = -fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
+                                                             max_output * (2 - (double) j * 2 / steps)));
+            pressures(2 * k + 1, j) = 0;
         }
     }
 
     // log of pressure (take historySize number of samples)
-    Eigen::MatrixXd pressure_log; pressure_log.resize(NUM_ELEMENTS*2, historySize);
+    Eigen::MatrixXd pressure_log;
+    pressure_log.resize(NUM_ELEMENTS * 2, historySize);
     // log of q (take historySize number of samples)
-    Eigen::MatrixXd q_log; q_log.resize(NUM_ELEMENTS*2, historySize);
+    Eigen::MatrixXd q_log;
+    q_log.resize(NUM_ELEMENTS * 2, historySize);
     // log of dq (take historySize number of samples)
-    Eigen::MatrixXd dq_log; dq_log.resize(NUM_ELEMENTS*2, historySize);
+    Eigen::MatrixXd dq_log;
+    dq_log.resize(NUM_ELEMENTS * 2, historySize);
 
     softArm->actuatePressure(pressures.col(0));
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     Vector2Nd initial_q = softArm->curvatureCalculator->q;
 
     std::chrono::high_resolution_clock::time_point lastTime;
-    int loop_time; int log_index=0;
+    int loop_time;
+    int log_index = 0;
 
     // send that to arm and save the results.
     for (int l = 0; l < steps; ++l) {
         lastTime = std::chrono::high_resolution_clock::now();
-        log(softArm->curvatureCalculator->q, softArm->curvatureCalculator->dq); // hacking the logging mechanism to log dq as well(designed to log commanded q and measured q)
+        log(softArm->curvatureCalculator->q,
+            softArm->curvatureCalculator->dq); // hacking the logging mechanism to log dq as well(designed to log commanded q and measured q)
         softArm->actuatePressure(pressures.col(l));
-        if (l%(steps/historySize)==1) {
+        if (l % (steps / historySize) == 1) {
             // log the current state once in a while (to get historySize samples)
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 // only the first two pressures of each segment is used.
-                pressure_log(2*i+0, log_index) = pressures(2*i+0, l)-PRESSURE_OFFSET;
-                pressure_log(2*i+1, log_index) = pressures(2*i+1, l)-PRESSURE_OFFSET;
+                pressure_log(2 * i + 0, log_index) = pressures(2 * i + 0, l) - PRESSURE_OFFSET;
+                pressure_log(2 * i + 1, log_index) = pressures(2 * i + 1, l) - PRESSURE_OFFSET;
             }
             q_log.col(log_index) = softArm->curvatureCalculator->q;
             dq_log.col(log_index) = softArm->curvatureCalculator->dq;
-            log_index ++;
+            log_index++;
         }
         // control the loop speed here
-        loop_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count();
-        std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD*1000000 - loop_time - 500, 0))));
+        loop_time = std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - lastTime).count();
+        std::this_thread::sleep_for(
+                std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD * 1000000 - loop_time - 500, 0))));
     }
 
 //    std::cout<<"pressure_log is \n"<< pressure_log <<"\n";
@@ -129,37 +136,41 @@ void Manager::characterize() {
 
     // when computing, just use the values for first chamber of each segment, and values for La
     // convert the recorded data to matrix
-    Eigen::MatrixXd log_matrix;log_matrix.resize(2*NUM_ELEMENTS, historySize*NUM_ELEMENTS);
+    Eigen::MatrixXd log_matrix;
+    log_matrix.resize(2 * NUM_ELEMENTS, historySize * NUM_ELEMENTS);
     for (int m = 0; m < 2 * NUM_ELEMENTS; ++m) {
         for (int j = 0; j < historySize * NUM_ELEMENTS; ++j) {
-            log_matrix(m,j)=0;
+            log_matrix(m, j) = 0;
         }
     }
     // also compute the f for each sample
-    Eigen::MatrixXd log_f;log_f.resize(historySize*NUM_ELEMENTS, 1);
+    Eigen::MatrixXd log_f;
+    log_f.resize(historySize * NUM_ELEMENTS, 1);
 
     for (int l = 0; l < historySize; ++l) {
         controllerPCC->updateBCG(q_log.col(l), dq_log.col(l));
-        Vector2Nd tau= /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G;
+        Vector2Nd tau = /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G;
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
-            log_matrix(j,l*NUM_ELEMENTS+j) = pressure_log(NUM_ELEMENTS*j,l) - pressure_log(NUM_ELEMENTS*j+1,l); //todo: why this code? because re-map force to pressure thing. explain!
-            log_matrix(NUM_ELEMENTS+j,l*NUM_ELEMENTS+j) = -(q_log(2*j,l)-initial_q(2*j)); // remove offset at beginning
+            log_matrix(j, l * NUM_ELEMENTS + j) = pressure_log(NUM_ELEMENTS * j, l) - pressure_log(NUM_ELEMENTS * j + 1,
+                                                                                                   l); //todo: why this code? because re-map force to pressure thing. explain!
+            log_matrix(NUM_ELEMENTS + j, l * NUM_ELEMENTS + j) = -(q_log(2 * j, l) -
+                                                                   initial_q(2 * j)); // remove offset at beginning
 //            log_matrix(2*NUM_ELEMENTS,l*NUM_ELEMENTS+j) = -dq_log(2*j,l);
-            log_f(l*NUM_ELEMENTS+j) = tau(2*j);
+            log_f(l * NUM_ELEMENTS + j) = tau(2 * j);
         }
     }
     // outputting to CSV format
     std::ofstream output;
     const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", "\n");
     output.open("./characterization_f.csv");
-    output<<log_f.format(CSVFormat);
+    output << log_f.format(CSVFormat);
     output.close();
     output.open("./characterization_history.csv");
-    output<<log_matrix.format(CSVFormat);
+    output << log_matrix.format(CSVFormat);
     output.close();
 
-    Eigen::Matrix<double, 2*NUM_ELEMENTS, 1> characterization = pseudoinverse(log_matrix).transpose() * log_f;
-    std::cout<< "characterization is \n"<< characterization <<"\n";
+    Eigen::Matrix<double, 2 * NUM_ELEMENTS, 1> characterization = pseudoinverse(log_matrix).transpose() * log_f;
+    std::cout << "characterization is \n" << characterization << "\n";
 }
 
 Manager::~Manager() {
@@ -167,6 +178,7 @@ Manager::~Manager() {
     if (logMode)
         outputLog();
 }
+
 void Manager::outputLog() {
     std::cout << "Outputting log to log.csv...\n";
     std::ofstream log_file;
@@ -174,10 +186,10 @@ void Manager::outputLog() {
 
     // first the header row
     log_file << "time(millis)";
-    for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+    for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
         log_file << ", q_ref[" << k << "]";
     }
-    for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
+    for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
         log_file << ", q_meas[" << k << "]";
     }
     log_file << "\n";
@@ -185,14 +197,14 @@ void Manager::outputLog() {
     // log actual data
     for (int j = 0; j < logNum; ++j) {
         log_file << std::chrono::duration_cast<std::chrono::milliseconds>(log_time[j]).count();
-        for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
-            log_file << ", " <<log_q_ref[j](k);
+        for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+            log_file << ", " << log_q_ref[j](k);
         }
-        for (int k = 0; k < NUM_ELEMENTS*2; ++k) {
-            log_file << ", " <<log_q_meas[j](k);
+        for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+            log_file << ", " << log_q_meas[j](k);
         }
         log_file << "\n";
     }
     log_file.close();
-    std::cout<<"log output complete.\n";
+    std::cout << "log output complete.\n";
 }

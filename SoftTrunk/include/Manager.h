@@ -24,25 +24,30 @@
  * * run the characterization sequence, and update values as needed (todo: more documentation about this)
  * * run experiment.cpp
  */
-class Manager{
+class Manager {
 public:
     /**
      * constructor for Manager class.
      * @param logMode if true, outputs log.csv which logs the reference and measured values of the arm.
      */
-    Manager(bool logMode=false);
+    Manager(bool logMode = false);
+
     /**
      * @brief do dynamic curvature control on the robot.
      */
     void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
+
     /**
      * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm. Then, edit the code manually to change these values.
      */
     void characterize();
-    SoftArm* softArm;
-    ControllerPCC* controllerPCC;
-    AugmentedRigidArm* augmentedRigidArm;
+
+    SoftArm *softArm;
+    ControllerPCC *controllerPCC;
+    AugmentedRigidArm *augmentedRigidArm;
+
     ~Manager();
+
 private:
     // variables and functions used to save the log of q
     bool logMode;
@@ -50,8 +55,10 @@ private:
     std::vector<Vector2Nd> log_q_ref;
     std::vector<std::chrono::high_resolution_clock::duration> log_time;
     std::chrono::high_resolution_clock::time_point logBeginTime;
-    int logNum=0;
-    void log(Vector2Nd&, Vector2Nd&);
+    int logNum = 0;
+
+    void log(Vector2Nd &, Vector2Nd &);
+
     void outputLog();
 };
 

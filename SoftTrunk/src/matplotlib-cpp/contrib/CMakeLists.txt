@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project (MatplotlibCPP_Test)
+project(MatplotlibCPP_Test)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,7 +12,7 @@ add_definitions(-DMATPLOTLIBCPP_PYTHON_HEADER=Python.h)
 # message(STATUS "*** dump start cmake variables ***")
 # get_cmake_property(_variableNames VARIABLES)
 # foreach(_variableName ${_variableNames})
-        # message(STATUS "${_variableName}=${${_variableName}}")
+# message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
 # message(STATUS "*** dump end ***")
 
