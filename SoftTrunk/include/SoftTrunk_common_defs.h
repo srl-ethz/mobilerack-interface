@@ -32,7 +32,7 @@
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
-#define MAX_PRESSURE 1400
+#define MAX_PRESSURE 1200
 /**
  * @brief arm is moved with PID controller, not the dynamic controller, if true.
  */

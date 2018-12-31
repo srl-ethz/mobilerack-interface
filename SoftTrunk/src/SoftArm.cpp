@@ -7,13 +7,13 @@
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     std::cout << "Setting up SoftArm...\n";
     // set up the impedance parameters (k&d), and actuation coefficient(alpha).
-    k(0) = 1;
+    k(0) = -44;
     k(1) = k(0);
-    k(2) = 1;
+    k(2) = -10;
     k(3) = k(2);
-    alpha(0) = 0.001;
+    alpha(0) = 0.0001;
     alpha(1) = alpha(0);
-    alpha(2) = 0.001;
+    alpha(2) = 0.0001;
     alpha(3) = alpha(2);
     d = Vector2Nd::Zero();
 
@@ -28,8 +28,11 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     if (simulate)
         return;
 
+
     // set up the forceController and curvatureCalculator, which does the messaging with the physical arm
     forceController = new ForceController(16, MAX_PRESSURE);
+    actuatePressure(Vector2Nd::Zero());
+
     curvatureCalculator = new CurvatureCalculator(USE_OPTITRACK);
     curvatureCalculator->setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator->start();

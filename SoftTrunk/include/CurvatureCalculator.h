@@ -48,6 +48,8 @@ private:
     Vector2Nd presmooth_dq = Vector2Nd::Zero();
     Vector2Nd presmooth_ddq = Vector2Nd::Zero();
 
+    Vector2Nd initial_q = Vector2Nd::Zero();
+
     double phi;
     double theta;// used while calculating. phi, theta is the commonly used parametrization in PCC
 

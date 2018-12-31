@@ -26,8 +26,15 @@ void CurvatureCalculator::setupOptiTrack(std::string localAddress,
 
 void CurvatureCalculator::start() {
     std::cout << "starting CurvatureCalculator's calculator thread... \n";
+
     run = true;
     calculatorThread = std::thread(&CurvatureCalculator::calculatorThreadFunction, this);
+
+    // get the current q, to subtract from measurements to get rid of the offset
+    std::cout << "Waiting for 2 seconds to wait for the arm to stop swinging, and measure the initial q... \n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    initial_q = q;
+    std::cout << "initial q measured. This value is considered the offset and will be subtracted from future measurements.\n";
 }
 
 void CurvatureCalculator::calculatorThreadFunction() {
@@ -38,10 +45,10 @@ void CurvatureCalculator::calculatorThreadFunction() {
         // this loop continuously monitors the current state.
         calculateCurvature();
         // todo: is there a smarter algorithm to calculate time derivative, that can smooth out noises?
-        presmooth_dq = (q - prev_q) / interval;
-        dq = (1 - 0.2) * presmooth_dq + 0.2 * dq;
-        presmooth_ddq = (dq - prev_dq) / interval;
-        ddq = (1 - 0.2) * presmooth_ddq + 0.2 * ddq;
+//        presmooth_dq = (q - prev_q) / interval;
+        dq = (q - prev_q) / interval;;// (1 - 0.2) * presmooth_dq + 0.2 * dq;
+//        presmooth_ddq = (dq - prev_dq) / interval;
+        ddq = (dq - prev_dq) / interval;;//(1 - 0.2) * presmooth_ddq + 0.2 * ddq;
         prev_q = Vector2Nd(q);
         prev_dq = Vector2Nd(dq);
         std::this_thread::sleep_for(std::chrono::milliseconds((int) (interval * 1000)));
@@ -90,10 +97,10 @@ void CurvatureCalculator::calculateCurvature() {
         phi = atan(matrix(1, 3) / matrix(0, 3)); // -PI/2 ~ PI/2
         theta = sign(matrix(0, 3)) * fabs(asin(sqrt(pow(matrix(0, 2), 2) + pow(matrix(1, 2), 2))));
 
-        q(2 * i) = -TRUNK_RADIUS * cos(phi) *
-                   theta; // deltaLa (the difference in the length of La compared to neutral state)
+        q(2 * i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
         q(2 * i + 1) = -TRUNK_RADIUS * cos(PI / 2 - phi) * theta; // deltaLb
     }
+    q -= initial_q;
 }
 
 void CurvatureCalculator::stop() {

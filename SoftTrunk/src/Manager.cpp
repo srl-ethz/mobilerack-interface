@@ -62,23 +62,24 @@ void Manager::sendJointSpaceProfile(vFunctionCall updateQ, double duration) {
     Vector2Nd ddq=Vector2Nd::Zero();
     double epsilon = 0.01;
     long long sum_duration = 0;
+    int duration_control;
 
     for (double seconds = 0; seconds < duration; seconds += CONTROL_PERIOD) {
         count++;
         lastTime = std::chrono::high_resolution_clock::now();
 
         // update q
-        updateQ(seconds, q);
+        updateQ(seconds, &q);
         // numerically derive dq and ddq
-        updateQ(seconds+epsilon, q_tmp1);
-        updateQ(seconds+epsilon*2.0, q_tmp2);
+        updateQ(seconds+epsilon, &q_tmp1);
+        updateQ(seconds+epsilon*2.0, &q_tmp2);
         dq = (q_tmp1 - q)/epsilon;
         ddq = (q_tmp2-2.0*q_tmp1+q)/(epsilon*epsilon);
 
         curvatureControl(q, dq, ddq);
-        duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count();
-        sum_duration += duration;
-        std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD * 1000000.0 - duration, 0)))); //todo: properly manage time count
+        duration_control = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count();
+        sum_duration += duration_control;
+        std::this_thread::sleep_for(std::chrono::microseconds(int(std::fmax(CONTROL_PERIOD * 1000000.0 - duration_control, 0)))); //todo: properly manage time count
     }
     std::cout << "control loop took on average " << sum_duration / count << " microseconds.\n";
 }
@@ -96,7 +97,7 @@ void Manager::characterize() {
     logMode = true;
 
     const int historySize = 100; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
-    const double duration = 5; // for how long the process takes
+    const double duration = 10; // for how long the process takes
     const int steps = (int) (duration / CONTROL_PERIOD);
     Eigen::MatrixXd pressures;
     pressures.resize(NUM_ELEMENTS * 2,
@@ -106,7 +107,7 @@ void Manager::characterize() {
     // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
-            pressures(2 * k + 0, j) = -fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
+            pressures(2 * k + 0, j) = fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
                                                              max_output * (2 - (double) j * 2 / steps)));
             pressures(2 * k + 1, j) = 0;
         }
@@ -122,8 +123,6 @@ void Manager::characterize() {
     Eigen::MatrixXd dq_log;
     dq_log.resize(NUM_ELEMENTS * 2, historySize);
 
-    softArm->actuatePressure(pressures.col(0));
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     Vector2Nd initial_q = softArm->curvatureCalculator->q;
 
     std::chrono::high_resolution_clock::time_point lastTime;

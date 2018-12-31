@@ -17,7 +17,7 @@
 
 // define typedef for readability's sake, so that a function can be passed as parameter to sendJointSpaceProfile().
 //https://stackoverflow.com/questions/6339970/c-using-function-as-parameter
-typedef void (* vFunctionCall)(double, Vector2Nd);
+typedef void (* vFunctionCall)(double, Vector2Nd*);
 
 /**
  * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm classes and orchestrates them to control the robot.

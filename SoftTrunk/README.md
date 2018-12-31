@@ -4,7 +4,7 @@
 ## Doxygen
 Uses Doxygen to generate documentation from inline comments in code.
 Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
-The HTML output is included in git for convenience, but please be aware that it may be out of date. 
+ 
 [GraphViz](https://www.graphviz.org/download/) is required if you want to generate depecdency graphs. 
 
 This is the "collaboration diagram" for the Manager class(topmost class for control of the robot):
