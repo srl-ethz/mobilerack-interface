@@ -25,12 +25,14 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
 }
 
 Manager::Manager(bool logMode) : logMode(logMode) {
+    std::cout << "Setting up Manager...\n";
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
     augmentedRigidArm = new AugmentedRigidArm{};
     controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
 
     logBeginTime = std::chrono::high_resolution_clock::now();
+    std::cout << "Setup of Manager done.\n";
 }
 
 void Manager::curvatureControl(Vector2Nd q,

@@ -6,13 +6,7 @@
 #define LOG true
 #define VALVE_TO_PLOT 4
 
-/*
-   This is a class that acts as a PID controller for the Festo valves.
-   It sends out target pressures to the Festo valves.
-   Runs as a separate thread from the main code, since it continuously does PID
-   control.
- */
-ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressure(maxPresure) {
+ForceController::ForceController(int maxValveIndex, int maxPressure) : DoF(maxValveIndex), maxPressure(maxPressure) {
     run = true;
     std::cout << "Connecting to MPA." << '\n';
     if (!mpa.connect()) {
@@ -31,13 +25,12 @@ ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressur
         commanded_pressures.push_back(0);
         pid.push_back(MiniPID(KP, KI, KD));
         pid[i].setOutputLimits(20);
-        // setting a good output limit is important so as not oscillate
+        // setting a good output limit is important so as not to oscillate
     }
     controller_thread = std::thread(&ForceController::controllerThread, this);
 }
 
 void ForceController::setSinglePressure(int index, int pressure) {
-    // set pressure for a single valve.
     if (index < 0 || index >= DoF) {
         // wrong index
         return;
@@ -57,10 +50,9 @@ void ForceController::controllerThread() {
         i++;
         mpa.get_all_pressures(&sensor_pressures);
         for (int i = 0; i < DoF; i++) {
-            output_pressures[i] =
-                    commanded_pressures[i] + pid[i].getOutput(sensor_pressures[i], commanded_pressures[i]);
+            output_pressures[i] = commanded_pressures[i] + pid[i].getOutput(sensor_pressures[i], commanded_pressures[i]);
             if (output_pressures[i] < 0) {
-                // goes haywire when it tries to write negative value
+                // valve goes haywire when it tries to write negative value
                 output_pressures[i] = 0;
             }
         }
@@ -93,6 +85,7 @@ void ForceController::controllerThread() {
 void ForceController::disconnect() {
     run = false;
     controller_thread.join();
+    std::cout << "Stopped ForceController thread.\n";
     /*
      * todo: output csv, not png graph. Also, log all pressure history.
     if (LOG) {

@@ -21,14 +21,29 @@ class CurvatureCalculator {
 private:
     int sensorType;
     OptiTrackClient *optiTrackClient;
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> abs_transforms; // record data from OptiTrack. Absolute transforms for each frame.
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> rel_transforms; // derived from abs_transforms
+    /**
+     * @brief record data from OptiTrack. Saves absolute transforms for each frame.
+     */
+    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> abs_transforms;
+    /**
+     * @brief derived from abs_transforms. Saves relative transforms between frames.
+     */
+    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> rel_transforms;
     std::thread calculatorThread;
 
-    void calculatorThreadFunction(); // background process for calculating curvature
+    /**
+     * @brief background process that calculates curvature
+     */
+    void calculatorThreadFunction();
+    /**
+     * @brief thread runs while this is true
+     */
     bool run;
 
-    void calculateCurvature(); // calculates phi and theta from the current frame values.
+    /**
+     * @brief calculates q from the current frame values.
+     */
+    void calculateCurvature();
     Vector2Nd presmooth_q = Vector2Nd::Zero();
     Vector2Nd presmooth_dq = Vector2Nd::Zero();
     Vector2Nd presmooth_ddq = Vector2Nd::Zero();
@@ -42,22 +57,31 @@ public:
      * @param sensorType USE_OPTITRACK or USE_INTEGRATEDSENSOR
      */
     explicit CurvatureCalculator(int sensorType);
-
+    /**
+     * @brief     uses the optitrack system to measure curvature.
+     * id conventions
+     * * base is 0
+     * * first frame after that is 1, and so on...
+     */
     void setupOptiTrack(std::string localAddress, std::string serverAddress);
 
-    /*
-    uses the optitrack system to measure curvature.
-    id conventions:
-    base is 0, first frame after that is 1, and so on...
-    */
-    void setupIntegratedSensor(); // for future, if you want to use sensors embedded in arm.
-    void start(); //calling this starts a thread that continuously calculates theta, phi, and their time derivatives.
+    /**
+     * @brief for future, if you want to use sensors embedded in arm.
+     */
+    void setupIntegratedSensor();
+    /**
+     * @brief calling this starts a thread that continuously calculates q, dq, and ddq
+     */
+    void start();
     void stop(); // stops the thread, disconnects.
 
-    Vector2Nd q = Vector2Nd::Zero(); // [deltaLa0, deltaLb0, deltaLa1, ...]
-    // La, Lb: length of a line along the surface of arm,
-    Vector2Nd dq = Vector2Nd::Zero(); // derivative of dq
-    Vector2Nd ddq = Vector2Nd::Zero(); // derivative of dq
+    /**
+     * @brief [deltaLa0, deltaLb0, deltaLa1, ...]
+     * (La, Lb: length of a line along the surface of arm)
+     */
+    Vector2Nd q = Vector2Nd::Zero();
+    Vector2Nd dq = Vector2Nd::Zero();
+    Vector2Nd ddq = Vector2Nd::Zero();
 };
 
 #endif // SOFTTRUNK_INCLUDE_CurvatureCalculator_H_

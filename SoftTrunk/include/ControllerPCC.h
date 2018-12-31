@@ -50,18 +50,19 @@ public:
             const Vector2Nd &q_ref,
             Vector2Nd *pressures
     );
-
     /**
      * @brief update B(inertia matrix), C and G(gravity vector) in q space
      */
-    void updateBCG(const Vector2Nd &q, const Vector2Nd &dq); // update B(inertia matrix), C and G(gravity vector)
+    void updateBCG(const Vector2Nd &q, const Vector2Nd &dq);
     Matrix2Nd B;
     Matrix2Nd C;
     Vector2Nd G;
+
 private:
     AugmentedRigidArm *ara;
     SoftArm *sa;
     std::vector<MiniPID> miniPIDs;
+
 };
 
 

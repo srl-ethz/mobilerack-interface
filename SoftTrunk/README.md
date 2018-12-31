@@ -1,4 +1,17 @@
 # Soft Trunk repository
+# Documentation
+## Overleaf
+## Doxygen
+Uses Doxygen to generate documentation from inline comments in code.
+Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
+The HTML output is included in git for convenience, but please be aware that it may be out of date. 
+[GraphViz](https://www.graphviz.org/download/) is required if you want to generate depecdency graphs. 
+
+This is the "collaboration diagram" for the Manager class(topmost class for control of the robot):
+![](./img/collaboration_diagram.png)
+
+A good starting point is experiment.cpp, the Manager class, and SoftTrunk_common_defs.h
+
 # Fabrication of Physical Soft Robot
 See **Soft Robot Fabrication.md**
 
@@ -21,16 +34,6 @@ See **Bill of materials.csv**
 # OS
 Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore, the XACRO -> URDF conversion must be done on a Linux machine with ROS installed. It is also impossible to preview the URDF with Rviz.
 
-# Documentation with Doxygen
-Uses Doxygen to generate documentation from inline comments in code.
-Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
-The HTML output is included in git for convenience, but please be aware that it may be out of date. 
-[GraphViz](https://www.graphviz.org/download/) is required if you want to generate depecdency graphs. 
-
-This is the "collaboration diagram" for the Manager class(topmost class for control of the robot):
-![](img/collaboration_diagram.png)
-
-A good starting point is experiment.cpp, the Manager class, and SoftTrunk_common_defs.h
 
 # Installing necessary libraries
 ## boost
@@ -75,6 +78,7 @@ cd build/
 cmake ..
 sudo make install
 ```
+[This](https://eigen.tuxfamily.org/dox/GettingStarted.html) is a good starting reference for Eigen.
 
 ## RBDL
 This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html) for calculating the dynamics of the rigid bodies of the augmented robot model.

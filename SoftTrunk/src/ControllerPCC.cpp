@@ -20,6 +20,7 @@ MiniPID ZieglerNichols(double Ku, double period) {
 
 ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm) : ara(augmentedRigidArm),
                                                                                        sa(softArm) {
+    std::cout<<"ControllerPCC created...\n";
     // set up PID controllers
     if (USE_PID_CURVATURE_CONTROL) {
         for (int j = 0; j < NUM_ELEMENTS*2; ++j) {

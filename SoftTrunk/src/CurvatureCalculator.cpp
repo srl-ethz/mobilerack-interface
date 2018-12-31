@@ -1,8 +1,6 @@
 #include "CurvatureCalculator.h"
 
-/*
-Eigen- getting started: https://eigen.tuxfamily.org/dox/GettingStarted.html
-*/
+
 CurvatureCalculator::CurvatureCalculator(int sensorType)
         : sensorType(sensorType) {
     // initialize size of arrays that record transforms
@@ -12,17 +10,18 @@ CurvatureCalculator::CurvatureCalculator(int sensorType)
     for (int j = 0; j < NUM_ELEMENTS; ++j) {
         rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
-
 }
 
 void CurvatureCalculator::setupOptiTrack(std::string localAddress,
                                          std::string serverAddress) {
+    std::cout << "Setting up connection with OptiTrack...\n";
     if (sensorType != USE_OPTITRACK) {
         std::cout << "error: CurvatureCalculator not set up to use OptiTrack"
                   << '\n';
         return;
     }
     optiTrackClient = new OptiTrackClient(localAddress, serverAddress);
+    std::cout << "done.\n";
 }
 
 void CurvatureCalculator::start() {
@@ -82,7 +81,6 @@ void CurvatureCalculator::calculateCurvature() {
     } else if (sensorType == USE_INTEGRATEDSENSOR) {
         // to be written?
     }
-
 
     // next, calculate the parameters
     for (int i = 0; i < NUM_ELEMENTS; i++) {

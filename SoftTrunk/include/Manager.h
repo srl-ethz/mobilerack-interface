@@ -21,6 +21,7 @@ typedef void (* vFunctionCall)(double, Vector2Nd);
 
 /**
  * @brief The topmost class for the SoftTrunk robot system. Has instances of AugmentedRigidArm, ControllerPCC, and SoftArm classes and orchestrates them to control the robot.
+ *
  * ## When setting up a new arm configuration
  * * update SoftTrunk_common_defs.h with information of new configuration. This file contains constants that are used throughout the code.
  * * run create_xacro.cpp to generate new robot.urdf.xacro
@@ -37,10 +38,6 @@ public:
     Manager(bool logMode = false);
 
     /**
-     * @brief do one step dynamic curvature control on the robot.
-     */
-    void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
-    /**
      * @brief moves the arm according to a profile of q.
      * @param updateQ function that updates q as a function of the current time
      * @param duration how long the motion should last
@@ -52,14 +49,19 @@ public:
      */
     void characterize();
 
-    SoftArm *softArm;
-    ControllerPCC *controllerPCC;
-    AugmentedRigidArm *augmentedRigidArm;
-
     ~Manager();
 
 private:
-    // variables and functions used to save the log of q
+    /**
+     * @brief do one step dynamic curvature control on the robot.
+     */
+    void curvatureControl(Vector2Nd, Vector2Nd, Vector2Nd);
+    SoftArm *softArm;
+    ControllerPCC *controllerPCC;
+    AugmentedRigidArm *augmentedRigidArm;
+    /**
+     * @brief variables and functions used to save the log of q
+     */
     bool logMode;
     std::vector<Vector2Nd> log_q_meas;
     std::vector<Vector2Nd> log_q_ref;

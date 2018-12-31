@@ -23,6 +23,8 @@ private:
      * @brief used for 3-chamber arm. Provides a mapping matrix from generalized pressure expressed with two parameters to pressure expressed with 3 chambers.
      */
     Eigen::Matrix<double, 3, 2> force_map_matrix;
+    ForceController *forceController;
+    bool simulate;
 public:
     /**
      *
@@ -42,16 +44,15 @@ public:
      * todo: elaborate on this in separate document
      */
     void actuatePressure(Vector2Nd pressures); // actuate using pressures for each chamber
-    CurvatureCalculator *curvatureCalculator;
-    ForceController *forceController;
 
     void stop();
 
-//    Vector2Nd k;
-    Vector2Nd d;
-    Vector2Nd alpha = Vector2Nd::Zero();;
+    CurvatureCalculator *curvatureCalculator;
+
+    Vector2Nd d = Vector2Nd::Zero();
+    Vector2Nd alpha = Vector2Nd::Zero();
     Vector2Nd k = Vector2Nd::Zero();
-    bool simulate;
+
 };
 
 #endif //SOFTTRUNK_SOFTARM_H

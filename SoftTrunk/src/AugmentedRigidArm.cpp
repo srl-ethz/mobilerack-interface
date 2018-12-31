@@ -10,47 +10,39 @@ AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     create_rbdl_model();
 #if USE_ROS
     // ros::init() requires argc and argv for remapping, but since we're not using command line arguments for this, input placeholder values that won't be used.
+    std::cout << "Setting up ROS node and publisher...\n";
     int tmp_c = 1;
     char *tmp_v[1];
     strcpy(tmp_v[0], "placeholder");
-      ros::init(tmp_c, tmp_v, "joint_pub", ros::init_options::AnonymousName);
-      std::cout<<"1\n";
-      ros::NodeHandle n;
-      nodeHandle = &n;
-      std::cout<<"2\n";
-      joint_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
-      std::cout<<"3\n";
-      for (int i=0; i<NUM_ELEMENTS; i++){
+    ros::init(tmp_c, tmp_v, "joint_pub", ros::init_options::AnonymousName);
+    ros::NodeHandle n;
+    nodeHandle = &n;
+    joint_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
+    for (int i = 0; i < NUM_ELEMENTS; i++) {
         // set up joint names
-        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_x_joint");
-        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_y_joint");
-        jointState.name.push_back(std::to_string(i)+"-base-ball-joint_z_joint");
-        jointState.name.push_back(std::to_string(i)+"-a-b_joint");
-        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_x_joint");
-        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_y_joint");
-        jointState.name.push_back(std::to_string(i)+"-middle-ball-joint_z_joint");
-        jointState.name.push_back(std::to_string(i)+"-c-d_joint");
-        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_x_joint");
-        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_y_joint");
-        jointState.name.push_back(std::to_string(i)+"-tip-ball-joint_z_joint");
-      }
-      for (int i=0; i<NUM_ELEMENTS*11; i++)
+        jointState.name.push_back(std::to_string(i) + "-base-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i) + "-base-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i) + "-base-ball-joint_z_joint");
+        jointState.name.push_back(std::to_string(i) + "-a-b_joint");
+        jointState.name.push_back(std::to_string(i) + "-middle-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i) + "-middle-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i) + "-middle-ball-joint_z_joint");
+        jointState.name.push_back(std::to_string(i) + "-c-d_joint");
+        jointState.name.push_back(std::to_string(i) + "-tip-ball-joint_x_joint");
+        jointState.name.push_back(std::to_string(i) + "-tip-ball-joint_y_joint");
+        jointState.name.push_back(std::to_string(i) + "-tip-ball-joint_z_joint");
+    }
+    for (int i = 0; i < NUM_ELEMENTS * 11; i++)
         jointState.position.push_back(0.0);
-  }
+    std::cout << "done.\n";
 #endif
 }
 
+
 void AugmentedRigidArm::create_xacro() {
-    std::cout << "generating XACRO file robot.urdf.xacro...";
+    std::cout << "generating XACRO file robot.urdf.xacro...\n";
     std::ofstream xacro_file;
-    //std::string pathToUse1 = "./urdf";
-    //boost::filesystem::path dir1(pathToUse1);
 
-
-    //if (!(boost::filesystem::exists(dir1))) {
-    //    std::cout << "ERROR: following path doesn't exist" << std::endl;
-    //    return;
-    //}
     xacro_file.open("./urdf/robot.urdf.xacro");
 
     // write outlog text to the file
@@ -71,8 +63,7 @@ void AugmentedRigidArm::create_xacro() {
     xacro_file << "</robot>";
 
     xacro_file.close();
-    std::cout
-            << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.(requires ROS)\n";
+    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.(requires ROS)\n";
 }
 
 void AugmentedRigidArm::create_rbdl_model() {
@@ -83,9 +74,13 @@ void AugmentedRigidArm::create_rbdl_model() {
                 << std::endl;
         abort();
     }
+    int segments= rbdl_model->dof_count / 11;
+    std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << segments << "-segment arm.\n";
+    if (segments != NUM_ELEMENTS){
+        std::cout <<"Error: Number of segments in URDF does not match that in code. \n";
+        abort();
+    }
     rbdl_model->gravity = Vector3d(0., 0., 9.81);
-    std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << rbdl_model->dof_count / 11
-              << "-segment arm.\n";
 }
 
 Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
@@ -101,8 +96,6 @@ Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, doub
 void AugmentedRigidArm::update_xi(Vector2Nd q) {
     double theta;
     double phi;
-    double thetaX;
-    double thetaY;
     double deltaL;
     for (int i = 0; i < NUM_ELEMENTS; ++i) {
         // use phi, theta parametrization because it's simpler for calculation
@@ -139,9 +132,9 @@ void AugmentedRigidArm::update_xi(Vector2Nd q) {
 }
 
 void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
-    // brute force calculate Jacobian lol
+    // brute force calculate Jacobian numerically lol
     //todo: verify that this numerical method is actually okay
-    // this particular method only works because xi of each element is totally independent of other elements
+    // this particular implementation only works because xi of each element is totally independent of other elements
     Vector2Nd q_deltaX = Vector2Nd(q);
     Vector2Nd q_deltaY = Vector2Nd(q);
     double epsilon = 0.0001;
@@ -155,9 +148,6 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
     Eigen::Matrix<double, 11 * NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, 11 * NUM_ELEMENTS, 1>(xi);
     update_xi(q_deltaY);
     Eigen::Matrix<double, 11 * NUM_ELEMENTS, 1> xi_deltaY = Eigen::Matrix<double, 11 * NUM_ELEMENTS, 1>(xi);
-//    std::cout<<"xi_current"<<xi_current<<"\n";
-//    std::cout<<"xi_deltaX"<<xi_deltaX<<"\n";
-//    std::cout<<"xi_deltaY"<<xi_deltaY<<"\n";
     for (int j = 0; j < NUM_ELEMENTS; ++j) {
         Jxi.block(11 * j, 2 * j + 0, 11, 1) = (xi_deltaX - xi_current).block(11 * j, 0, 11, 1) / epsilon;
         Jxi.block(11 * j, 2 * j + 1, 11, 1) = (xi_deltaY - xi_current).block(11 * j, 0, 11, 1) / epsilon;
@@ -166,11 +156,9 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 
 void AugmentedRigidArm::update_dJxi(Vector2Nd q, Vector2Nd dq) {
     //todo: verify this numerical method too
-    //todo: actually this messes up Jxi so not using this for now...
     double epsilon = 0.1;
     Vector2Nd q_delta = Vector2Nd(q);
     q_delta += dq * epsilon;
-//    std::cout<<q_delta<<"\n";
     update_Jxi(q);
     Eigen::Matrix<double, 11 * NUM_ELEMENTS, 2 * NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double,
             11 * NUM_ELEMENTS, 2 * NUM_ELEMENTS>(Jxi);
@@ -185,18 +173,20 @@ void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
 
     // first update xi (augmented model parameters)
     update_xi(q);
+    extract_B_G();
     joint_publish();
+
     update_Jxi(q);
     update_dJxi(q, dq);
 
     update_xi(q);
-    extract_B_G();
+
 }
 
 void AugmentedRigidArm::extract_B_G() {
-    // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL
+    // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL, using unit vectors
 
-    // first run ID with dQ and ddQ as zero vectors (gives gravity vector)
+    // first run Inverse Dynamics with dQ and ddQ as zero vectors (gives gravity vector)
     VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS * 11);
     VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS * 11);
     VectorNd tau = VectorNd::Zero(NUM_ELEMENTS * 11);

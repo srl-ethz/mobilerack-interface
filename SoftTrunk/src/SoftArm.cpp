@@ -5,7 +5,7 @@
 #include "SoftArm.h"
 
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
-
+    std::cout << "Setting up SoftArm...\n";
     // set up the impedance parameters (k&d), and actuation coefficient(alpha).
     k(0) = 1;
     k(1) = k(0);
@@ -16,8 +16,6 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     alpha(2) = 0.001;
     alpha(3) = alpha(2);
     d = Vector2Nd::Zero();
-
-    std::cout << "Starting SoftArm...\n";
 
     if (CHAMBERS==3) {
         Eigen::Matrix<double, 3, 3> A;
@@ -35,6 +33,7 @@ SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     curvatureCalculator = new CurvatureCalculator(USE_OPTITRACK);
     curvatureCalculator->setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator->start();
+    std::cout << "Setup of SoftArm done.\n";
 }
 
 void SoftArm::stop() {

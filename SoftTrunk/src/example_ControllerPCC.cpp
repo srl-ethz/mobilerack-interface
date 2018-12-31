@@ -9,7 +9,7 @@
 
 /**
  * @file example_ControllerPCC.cpp
- * @brief demo of AugmentedRigidArm class.
+ * @brief demo of ControllerPCC class.
  * creates an AugmentedRigidArm and SoftArm object, and computes the torque required for curvature dynamic control.
  */
 

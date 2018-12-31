@@ -7,8 +7,10 @@
 #include <chrono>
 #include <thread>
 
-/*
- * demo of AugmentedRigidArm class.
+/**
+ * @file example_AugmentedRigidArm.cpp
+ * @brief demo of AugmentedRigidArm class.
+ *
  * creates an augmented rigid arm model, then gives it some values (q and dq, the soft robot's configurations) so it can update its internal variables, then prints them out.
  * for ROS_enabled systems, also animates the arm and published /joint_states ROS topics that can be viewed with RViz.
  */
@@ -46,7 +48,6 @@ int main() {
     for (double t = 0; t < 10; t += step) {
         augmentedRigidArm.update(q_update(t),
                                  dq); // don't care about updating dq, since this is just to check if xi values are appropriate
-        augmentedRigidArm.joint_publish();
         std::this_thread::sleep_for(std::chrono::milliseconds((int) (step * 1000)));
     }
     return 1;

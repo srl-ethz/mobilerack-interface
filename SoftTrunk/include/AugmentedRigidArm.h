@@ -58,6 +58,16 @@ private:
      */
     Eigen::Matrix<double, 3, 1> straw_bend_joint(double phi, double theta);
 
+    void update_xi(Vector2Nd);
+
+    void update_Jxi(Vector2Nd);
+
+    void update_dJxi(Vector2Nd, Vector2Nd);
+    /**
+    * @brief publish joint state to ROS
+    */
+    void joint_publish();
+
 public:
     /**
      * @param is_create_xacro set to true if you only want to generate the model's xacro model
@@ -77,8 +87,7 @@ public:
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 2> dJxi = Eigen::Matrix<double,
-            NUM_ELEMENTS * 11, NUM_ELEMENTS * 2>::Zero(); // time derivative of Jacobian
+    Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 2> dJxi = Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 2>::Zero(); // time derivative of Jacobian
     Eigen::Matrix<double, 3, NUM_ELEMENTS * 2> update_J(Vector2Nd q); // used for inverse kinematics
 
     /**
@@ -96,16 +105,6 @@ public:
      */
     void update(Vector2Nd, Vector2Nd);
 
-    void update_xi(Vector2Nd);
-
-    void update_Jxi(Vector2Nd);
-
-    void update_dJxi(Vector2Nd, Vector2Nd);
-
-    /**
-     * @brief publish joint state to ROS
-     */
-    void joint_publish();
 
 };
 
