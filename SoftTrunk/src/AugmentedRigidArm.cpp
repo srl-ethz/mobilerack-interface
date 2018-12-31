@@ -4,7 +4,6 @@
 
 AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     rbdl_check_api_version (RBDL_API_VERSION);
-g
     if (is_create_xacro){
         create_xacro();
         return;
