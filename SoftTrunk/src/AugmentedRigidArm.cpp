@@ -80,7 +80,7 @@ void AugmentedRigidArm::create_rbdl_model() {
         std::cout <<"Error: Number of segments in URDF does not match that in code. \n";
         abort();
     }
-    rbdl_model->gravity = Vector3d(0., 0., 9.81);
+    rbdl_model->gravity = Vector3d(0., 0., -9.81);
 }
 
 Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
@@ -105,7 +105,7 @@ void AugmentedRigidArm::update_xi(Vector2Nd q) {
             else
                 phi = PI / 2;
         } else
-            phi = atan(q(2 * i + 1) / q(2 * i) - cos(PI / 2) / sin(PI / 2));
+            phi = atan(q(2 * i + 1) / q(2 * i));
         if (q(2 * i) == 0)
             theta = -q(2 * i + 1) / (TRUNK_RADIUS * cos(PI / 2 - phi));
         else

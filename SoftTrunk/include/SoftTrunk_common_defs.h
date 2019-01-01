@@ -57,7 +57,7 @@
 /**
  * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
  */
-#define VALVE_MAP {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14}
+#define VALVE_MAP {11, 10, 12, 14, 15, 13}
 
 #define PI 3.141592
 /**

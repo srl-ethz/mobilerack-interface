@@ -97,17 +97,17 @@ void Manager::characterize() {
     logMode = true;
 
     const int historySize = 100; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
-    const double duration = 10; // for how long the process takes
+    const double duration = 20; // for how long the process takes
     const int steps = (int) (duration / CONTROL_PERIOD);
     Eigen::MatrixXd pressures;
     pressures.resize(NUM_ELEMENTS * 2,
                      steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
-    const double max_output = 0.8 * (MAX_PRESSURE - PRESSURE_OFFSET);
+    const double max_output = 0.9 * (MAX_PRESSURE - PRESSURE_OFFSET);
 
     // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
     for (int k = 0; k < NUM_ELEMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
-            pressures(2 * k + 0, j) = fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
+            pressures(2 * k + 0, j) = -fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
                                                              max_output * (2 - (double) j * 2 / steps)));
             pressures(2 * k + 1, j) = 0;
         }
@@ -139,8 +139,8 @@ void Manager::characterize() {
             // log the current state once in a while (to get historySize samples)
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 // only the first two pressures of each segment is used.
-                pressure_log(2 * i + 0, log_index) = pressures(2 * i + 0, l) - PRESSURE_OFFSET;
-                pressure_log(2 * i + 1, log_index) = pressures(2 * i + 1, l) - PRESSURE_OFFSET;
+                pressure_log(2 * i + 0, log_index) = pressures(2 * i + 0, l);
+                pressure_log(2 * i + 1, log_index) = pressures(2 * i + 1, l);
             }
             q_log.col(log_index) = softArm->curvatureCalculator->q;
             dq_log.col(log_index) = softArm->curvatureCalculator->dq;
@@ -174,10 +174,8 @@ void Manager::characterize() {
         controllerPCC->updateBCG(q_log.col(l), dq_log.col(l));
         Vector2Nd tau = /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G;
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
-            log_matrix(j, l * NUM_ELEMENTS + j) = pressure_log(NUM_ELEMENTS * j, l) - pressure_log(NUM_ELEMENTS * j + 1,
-                                                                                                   l); //todo: why this code? because re-map force to pressure thing. explain!
-            log_matrix(NUM_ELEMENTS + j, l * NUM_ELEMENTS + j) = -(q_log(2 * j, l) -
-                                                                   initial_q(2 * j)); // remove offset at beginning
+            log_matrix(j, l * NUM_ELEMENTS + j) = pressure_log(NUM_ELEMENTS * j, l);
+            log_matrix(NUM_ELEMENTS + j, l * NUM_ELEMENTS + j) = -q_log(2 * j, l);
 //            log_matrix(2*NUM_ELEMENTS,l*NUM_ELEMENTS+j) = -dq_log(2*j,l);
             log_f(l * NUM_ELEMENTS + j) = tau(2 * j);
         }
