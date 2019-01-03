@@ -18,7 +18,7 @@
  * @param q this will be updated
  */
 void updateQ(double seconds, Vector2Nd * q){
-    int experiment_type = 1;
+    int experiment_type = 3;
     double maxTheta = 0.01;
     double T = 5.0;
     for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
@@ -51,5 +51,5 @@ void updateQ(double seconds, Vector2Nd * q){
 
 int main() {
     Manager manager{true}; // initialize Manager object
-    manager.sendJointSpaceProfile((vFunctionCall)updateQ, 3); // move the arm according to the updateQ function
+    manager.sendJointSpaceProfile((vFunctionCall)updateQ, 10); // move the arm according to the updateQ function
 }

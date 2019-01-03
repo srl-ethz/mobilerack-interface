@@ -25,8 +25,8 @@ int main() {
     Vector2Nd q_meas = Vector2Nd::Zero();
     Vector2Nd dq_meas = Vector2Nd::Zero();
 
-    q_ref(0) = 0.001;
-    q_ref(2) = 0.001;
+//    q_ref(0) = 0.001;
+//    q_ref(2) = 0.001;
 
     Vector2Nd tau_pt;
     controllerPCC.curvatureDynamicControl(q_ref, dq_ref, ddq_ref, &tau_pt, true);

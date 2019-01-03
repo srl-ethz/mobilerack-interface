@@ -22,7 +22,7 @@ private:
     /**
      * @brief used for 3-chamber arm. Provides a mapping matrix from generalized pressure expressed with two parameters to pressure expressed with 3 chambers.
      */
-    Eigen::Matrix<double, 3, 2> force_map_matrix;
+    Eigen::Matrix<double, CHAMBERS, 2> A_f2p;
     ForceController *forceController;
     bool simulate;
 public:
@@ -40,10 +40,10 @@ public:
 
     /**
      * send the pressures to ForceController
-     * @param pressures generalized pressure values for each chamber (pressure along x y directions), 0 is neutral
+     * @param pressures pressure values for each chamber
      * todo: elaborate on this in separate document
      */
-    void actuatePressure(Vector2Nd pressures); // actuate using pressures for each chamber
+    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> pressures); // actuate using pressures for each chamber
 
     void stop();
 

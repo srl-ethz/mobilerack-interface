@@ -28,7 +28,7 @@
 /**
  * @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
  */
-#define PRESSURE_OFFSET 800
+#define PRESSURE_OFFSET 300
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */

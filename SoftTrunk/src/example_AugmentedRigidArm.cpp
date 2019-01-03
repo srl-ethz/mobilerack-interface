@@ -30,8 +30,8 @@ int main() {
     // calculate the state of arm at a particular value of q and print out the various parameters
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
-    q(0) = 0.02;
-    dq(0) = 0.01;
+//    q(0) = 0.02;
+//    dq(0) = 0.01;
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
     std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";

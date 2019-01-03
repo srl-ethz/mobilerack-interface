@@ -88,7 +88,7 @@ Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, doub
     if (theta == 0)
         return angles;
     angles(0) = -atan(tan(theta) * sin(phi));
-    angles(1) = asin(sin(theta / 2) * cos(phi));
+    angles(1) = asin(sin(theta) * cos(phi));
     angles(2) = -asin((cos(phi) * sin(phi) * cos(theta) - sin(phi) * cos(phi)) / cos(angles(1)));
     return angles;
 }

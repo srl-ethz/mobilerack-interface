@@ -14,14 +14,12 @@ CurvatureCalculator::CurvatureCalculator(int sensorType)
 
 void CurvatureCalculator::setupOptiTrack(std::string localAddress,
                                          std::string serverAddress) {
-    std::cout << "Setting up connection with OptiTrack...\n";
     if (sensorType != USE_OPTITRACK) {
         std::cout << "error: CurvatureCalculator not set up to use OptiTrack"
                   << '\n';
         return;
     }
     optiTrackClient = new OptiTrackClient(localAddress, serverAddress);
-    std::cout << "done.\n";
 }
 
 void CurvatureCalculator::start() {
