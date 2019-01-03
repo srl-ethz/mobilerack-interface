@@ -4,7 +4,6 @@
 
 #define USE_PID true
 #define LOG true
-#define VALVE_TO_PLOT 4
 
 ForceController::ForceController(int maxValveIndex, int maxPressure) : DoF(maxValveIndex), maxPressure(maxPressure) {
     run = true;
@@ -69,8 +68,8 @@ void ForceController::controllerThread() {
         if (LOG) {
             seconds_log.push_back((double) (std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::high_resolution_clock::now() - logBeginTime).count()) / 1000);
-            pressure_log.push_back(sensor_pressures[VALVE_TO_PLOT]);
-            commandpressure_log.push_back(commanded_pressures[VALVE_TO_PLOT]);
+            pressure_log.push_back(sensor_pressures);
+            commandpressure_log.push_back(commanded_pressures);
         }
     }
 
@@ -86,16 +85,27 @@ void ForceController::disconnect() {
     run = false;
     controller_thread.join();
     std::cout << "Stopped ForceController thread.\n";
-    /*
-     * todo: output csv, not png graph. Also, log all pressure history.
-    if (LOG) {
-        namespace plt = matplotlibcpp;
-        plt::figure_size(1200, 780);
-        plt::named_plot("measured pressure", seconds_log, pressure_log);
-        plt::named_plot("commanded pressure", seconds_log, commandpressure_log);
-        plt::legend();
-        plt::save("./graph.png");
-        std::cout << "graph output to ./graph.png" << '\n';
+    std::cout << "Outputting log of ForceController to log_pressure.csv...\n";
+    std::ofstream log_file;
+    log_file.open("log_pressure.csv");
+    log_file << "time(millis)";
+    for (int i = 0; i < 16; ++i) {
+        log_file <<", p_ref[" << i<< "]";
     }
-     */
+    for (int i = 0; i < 16; ++i) {
+        log_file <<", p_meas[" << i<< "]";
+    }
+    log_file<<"\n";
+    for (int j = 0; j < seconds_log.size(); ++j) {
+        log_file << seconds_log[j];
+        for (int i = 0; i < 16; ++i) {
+            log_file << ", "<<commandpressure_log[j][i];
+        }
+        for (int i = 0; i < 16; ++i) {
+            log_file << ", "<<pressure_log[j][i];
+        }
+        log_file<<"\n";
+    }
+    log_file.close();
+    std::cout<<"log_pressure.csv is output.\n";
 }

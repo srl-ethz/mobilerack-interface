@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include "SoftTrunk_common_defs.h"
 #include <chrono>
@@ -33,8 +34,8 @@ private:
     MPA mpa{VALVE_ADDRESS, "502"};
     std::thread controller_thread;
     std::vector<double> seconds_log;
-    std::vector<double> pressure_log;
-    std::vector<double> commandpressure_log;
+    std::vector<std::vector<int>> pressure_log;
+    std::vector<std::vector<int>> commandpressure_log;
     int maxPressure;
     std::chrono::high_resolution_clock::time_point logBeginTime;
 
