@@ -12,12 +12,11 @@
  */
 int main() {
     SoftArm softArm = SoftArm{};
-    Vector2Nd pressures;
-    std::vector<std::string> names = {"X", "Y"};
+    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures=Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1>::Zero();
 
-    for (int i = 0; i < NUM_ELEMENTS * 2; ++i) {
-        pressures(i) = PRESSURE_OFFSET;
-        std::cout << "actuating element " << i / 2 << " in the +" << i % 2 << " direction...\n";
+    for (int i = 0; i < NUM_ELEMENTS * CHAMBERS; ++i) {
+        pressures(i) = 300;
+        std::cout << "actuating element " << i / CHAMBERS << " in the +" << i % CHAMBERS << " direction...\n";
         softArm.actuatePressure(pressures);
         std::this_thread::sleep_for(std::chrono::milliseconds(int(2000)));
         pressures(i) = 0;

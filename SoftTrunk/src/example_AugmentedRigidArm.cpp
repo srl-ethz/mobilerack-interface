@@ -7,8 +7,10 @@
 #include <chrono>
 #include <thread>
 
-/*
- * demo of AugmentedRigidArm class.
+/**
+ * @file example_AugmentedRigidArm.cpp
+ * @brief demo of AugmentedRigidArm class.
+ *
  * creates an augmented rigid arm model, then gives it some values (q and dq, the soft robot's configurations) so it can update its internal variables, then prints them out.
  * for ROS_enabled systems, also animates the arm and published /joint_states ROS topics that can be viewed with RViz.
  */
@@ -28,13 +30,14 @@ int main() {
     // calculate the state of arm at a particular value of q and print out the various parameters
     Vector2Nd q = Vector2Nd::Zero();
     Vector2Nd dq = Vector2Nd::Zero();
-    q(0) = 0.02;
-    dq(0) = 0.01;
+//    q(0) = 0.02;
+//    dq(0) = 0.01;
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
-    std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";
+    std::cout << "\tm:\n" << augmentedRigidArm.m << "\n";
+    std::cout << "\tJm:\n" << augmentedRigidArm.Jm << "\n";
+    std::cout << "\tdJm:\n" << augmentedRigidArm.dJm << "\n";
     std::cout << "\tJxi:\n" << augmentedRigidArm.Jxi << "\n";
-    std::cout << "\tdJxi:\n" << augmentedRigidArm.dJxi << "\n";
     std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
 
@@ -45,8 +48,7 @@ int main() {
     double step = 0.1;
     for (double t = 0; t < 10; t += step) {
         augmentedRigidArm.update(q_update(t),
-                                 dq); // don't care about updating dq, since this is just to check if xi values are appropriate
-        augmentedRigidArm.joint_publish();
+                                 dq); // don't care about updating dq, since this is just to check if m values are appropriate
         std::this_thread::sleep_for(std::chrono::milliseconds((int) (step * 1000)));
     }
     return 1;

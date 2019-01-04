@@ -28,11 +28,11 @@
 /**
  * @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
  */
-#define PRESSURE_OFFSET 800
+#define PRESSURE_OFFSET 300
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
-#define MAX_PRESSURE 1400
+#define MAX_PRESSURE 1200
 /**
  * @brief arm is moved with PID controller, not the dynamic controller, if true.
  */
@@ -57,7 +57,7 @@
 /**
  * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
  */
-#define VALVE_MAP {4, 6, 5, 9, 8, 7, 8, 10, 15, 13, 12, 14}
+#define VALVE_MAP {11, 10, 12, 14, 15, 13}
 
 #define PI 3.141592
 /**

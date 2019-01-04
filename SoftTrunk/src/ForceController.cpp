@@ -4,15 +4,8 @@
 
 #define USE_PID true
 #define LOG true
-#define VALVE_TO_PLOT 4
 
-/*
-   This is a class that acts as a PID controller for the Festo valves.
-   It sends out target pressures to the Festo valves.
-   Runs as a separate thread from the main code, since it continuously does PID
-   control.
- */
-ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressure(maxPresure) {
+ForceController::ForceController(int maxValveIndex, int maxPressure) : DoF(maxValveIndex), maxPressure(maxPressure) {
     run = true;
     std::cout << "Connecting to MPA." << '\n';
     if (!mpa.connect()) {
@@ -31,13 +24,12 @@ ForceController::ForceController(int DoF, int maxPresure) : DoF(DoF), maxPressur
         commanded_pressures.push_back(0);
         pid.push_back(MiniPID(KP, KI, KD));
         pid[i].setOutputLimits(20);
-        // setting a good output limit is important so as not oscillate
+        // setting a good output limit is important so as not to oscillate
     }
     controller_thread = std::thread(&ForceController::controllerThread, this);
 }
 
 void ForceController::setSinglePressure(int index, int pressure) {
-    // set pressure for a single valve.
     if (index < 0 || index >= DoF) {
         // wrong index
         return;
@@ -57,10 +49,9 @@ void ForceController::controllerThread() {
         i++;
         mpa.get_all_pressures(&sensor_pressures);
         for (int i = 0; i < DoF; i++) {
-            output_pressures[i] =
-                    commanded_pressures[i] + pid[i].getOutput(sensor_pressures[i], commanded_pressures[i]);
+            output_pressures[i] = commanded_pressures[i] + pid[i].getOutput(sensor_pressures[i], commanded_pressures[i]);
             if (output_pressures[i] < 0) {
-                // goes haywire when it tries to write negative value
+                // valve goes haywire when it tries to write negative value
                 output_pressures[i] = 0;
             }
         }
@@ -77,8 +68,8 @@ void ForceController::controllerThread() {
         if (LOG) {
             seconds_log.push_back((double) (std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::high_resolution_clock::now() - logBeginTime).count()) / 1000);
-            pressure_log.push_back(sensor_pressures[VALVE_TO_PLOT]);
-            commandpressure_log.push_back(commanded_pressures[VALVE_TO_PLOT]);
+            pressure_log.push_back(sensor_pressures);
+            commandpressure_log.push_back(commanded_pressures);
         }
     }
 
@@ -93,16 +84,28 @@ void ForceController::controllerThread() {
 void ForceController::disconnect() {
     run = false;
     controller_thread.join();
-    /*
-     * todo: output csv, not png graph. Also, log all pressure history.
-    if (LOG) {
-        namespace plt = matplotlibcpp;
-        plt::figure_size(1200, 780);
-        plt::named_plot("measured pressure", seconds_log, pressure_log);
-        plt::named_plot("commanded pressure", seconds_log, commandpressure_log);
-        plt::legend();
-        plt::save("./graph.png");
-        std::cout << "graph output to ./graph.png" << '\n';
+    std::cout << "Stopped ForceController thread.\n";
+    std::cout << "Outputting log of ForceController to log_pressure.csv...\n";
+    std::ofstream log_file;
+    log_file.open("log_pressure.csv");
+    log_file << "time(millis)";
+    for (int i = 0; i < 16; ++i) {
+        log_file <<", p_ref[" << i<< "]";
     }
-     */
+    for (int i = 0; i < 16; ++i) {
+        log_file <<", p_meas[" << i<< "]";
+    }
+    log_file<<"\n";
+    for (int j = 0; j < seconds_log.size(); ++j) {
+        log_file << seconds_log[j];
+        for (int i = 0; i < 16; ++i) {
+            log_file << ", "<<commandpressure_log[j][i];
+        }
+        for (int i = 0; i < 16; ++i) {
+            log_file << ", "<<pressure_log[j][i];
+        }
+        log_file<<"\n";
+    }
+    log_file.close();
+    std::cout<<"log_pressure.csv is output.\n";
 }
