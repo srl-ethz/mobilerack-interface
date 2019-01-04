@@ -34,9 +34,10 @@ int main() {
 //    dq(0) = 0.01;
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
-    std::cout << "\txi:\n" << augmentedRigidArm.xi << "\n";
+    std::cout << "\tm:\n" << augmentedRigidArm.m << "\n";
+    std::cout << "\tJm:\n" << augmentedRigidArm.Jm << "\n";
+    std::cout << "\tdJm:\n" << augmentedRigidArm.dJm << "\n";
     std::cout << "\tJxi:\n" << augmentedRigidArm.Jxi << "\n";
-    std::cout << "\tdJxi:\n" << augmentedRigidArm.dJxi << "\n";
     std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
 
@@ -47,7 +48,7 @@ int main() {
     double step = 0.1;
     for (double t = 0; t < 10; t += step) {
         augmentedRigidArm.update(q_update(t),
-                                 dq); // don't care about updating dq, since this is just to check if xi values are appropriate
+                                 dq); // don't care about updating dq, since this is just to check if m values are appropriate
         std::this_thread::sleep_for(std::chrono::milliseconds((int) (step * 1000)));
     }
     return 1;

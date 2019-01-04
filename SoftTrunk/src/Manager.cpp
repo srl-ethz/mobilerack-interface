@@ -112,7 +112,7 @@ void Manager::characterize() {
             }
             pressures(CHAMBERS * k + 0, j) = PRESSURE_OFFSET+fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
                                                              max_output * (2 - (double) j * 2 / steps)));
-            pressures(CHAMBERS * k + 1, j) = 0.6*pressures(CHAMBERS * k + 0, j);
+            pressures(CHAMBERS * k + 1, j) = 0.6*(pressures(CHAMBERS * k + 0, j) -PRESSURE_OFFSET) +PRESSURE_OFFSET;
         }
     }
     // log of pressure (take historySize number of samples)

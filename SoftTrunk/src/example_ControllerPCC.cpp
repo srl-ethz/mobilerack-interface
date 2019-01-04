@@ -33,6 +33,7 @@ int main() {
     std::cout<< "\tB\n" << controllerPCC.B <<"\n";
     std::cout<< "\tC\n" << controllerPCC.C <<"\n";
     std::cout<< "\tG\n" << controllerPCC.G <<"\n";
+    std::cout<< "\tJ\n" << controllerPCC.J <<"\n";
     std::cout<< "\ttau_q:\n" << tau_pt << "\n";
     softArm.actuate(tau_pt);
     return 1;

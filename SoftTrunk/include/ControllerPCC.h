@@ -57,6 +57,7 @@ public:
     Matrix2Nd B;
     Matrix2Nd C;
     Vector2Nd G;
+    Eigen::Matrix<double, 3, 2*NUM_ELEMENTS> J;
 
 private:
     AugmentedRigidArm *ara;

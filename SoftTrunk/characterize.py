@@ -28,12 +28,13 @@ elif chambers == 4:
     A_p2f = np.matrix([[1, 0, -1, 0],
                       [0, 1, 0, -1]])
 history_size = f.shape[1]
+print("history size\t", history_size)
 history_matrix = np.zeros([2*segments*2, history_size*2*segments])
 for i in range(history_size):
     for j in range(segments):
-        history_matrix[2*j:2*j+2, 2*segments*i+2*j:2*segments*i+2*j+2] = np.diag(np.matmul(A_p2f,p[chambers*j:chambers*(j+1),i]))
+        mapped_p = np.matmul(A_p2f,p[chambers*j:chambers*(j+1),i])
+        history_matrix[2*j:2*j+2, 2*segments*i+2*j:2*segments*i+2*j+2] = np.diagflat(mapped_p)
     history_matrix[2*segments:2*segments+2*segments, 2*segments*i:2*segments*i+2*segments] = -np.diag(q[:,i])
-#
 f_asRow = np.zeros([2*segments*history_size, 1])
 for i in range(history_size):
     f_asRow[2*segments*i:2*segments*i+2*segments, 0] = np.transpose(f[:,i])
