@@ -20,6 +20,7 @@ MiniPID ZieglerNichols(double Ku, double period) {
 
 ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm) : ara(augmentedRigidArm),
                                                                                        sa(softArm) {
+    std::cout<<"ControllerPCC created...\n";
     // set up PID controllers
     if (USE_PID_CURVATURE_CONTROL) {
         for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
@@ -50,10 +51,11 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
 
 void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
     ara->update(q, dq);
-    // these conversions from xi space to q space are described in the paper
-    B = ara->Jxi.transpose() * ara->B_xi * ara->Jxi;
-    C = ara->Jxi.transpose() * ara->B_xi * ara->dJxi;
-    G = ara->Jxi.transpose() * ara->G_xi;
+    // these conversions from m space to q space are described in the paper
+    B = ara->Jm.transpose() * ara->B_xi * ara->Jm;
+    C = ara->Jm.transpose() * ara->B_xi * ara->dJm;
+    G = ara->Jm.transpose() * ara->G_xi;
+    J = ara->Jxi * ara->Jm;
 }
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *pressures) {

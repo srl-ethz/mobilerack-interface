@@ -8,6 +8,7 @@
 
 OptiTrackClient::OptiTrackClient(std::string localAddress,
                                  std::string serverAddress) {
+    std::cout << "Setting up OptiTrackClient...\n";
     // set addresses
     uint32_t _localAddress = inet_addr(localAddress.c_str());
     uint32_t _serverAddress = inet_addr(serverAddress.c_str());
@@ -41,6 +42,7 @@ OptiTrackClient::OptiTrackClient(std::string localAddress,
     // Start up a FrameListener in a new thread.
     frameListener = new FrameListener(sdData, natNetMajor, natNetMinor);
     frameListener->start();
+    std::cout << "Setup of OptiTrackClient done.\n";
 }
 
 std::vector<RigidBody> OptiTrackClient::getData() {
@@ -55,6 +57,7 @@ std::vector<RigidBody> OptiTrackClient::getData() {
 }
 
 int OptiTrackClient::stop() {
+    std::cout << "Stopping OptiTrackClient.\n";
     frameListener->stop();
     commandListener->stop();
     frameListener->join();

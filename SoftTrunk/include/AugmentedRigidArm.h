@@ -19,6 +19,11 @@
 #include <sensor_msgs/JointState.h>
 #endif
 
+/**
+ * how many joints there are in one segment of the augmented rigid arm.
+ */
+#define JOINTS 11
+
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
 
@@ -58,6 +63,16 @@ private:
      */
     Eigen::Matrix<double, 3, 1> straw_bend_joint(double phi, double theta);
 
+    void update_m(Vector2Nd);
+
+    void update_Jm(Vector2Nd);
+
+    void update_dJm(Vector2Nd, Vector2Nd);
+    /**
+    * @brief publish joint state to ROS
+    */
+    void joint_publish();
+
 public:
     /**
      * @param is_create_xacro set to true if you only want to generate the model's xacro model
@@ -68,44 +83,34 @@ public:
 
     std::vector<double> lengths = LENGTHS;
     std::vector<double> masses = MASSES;
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, 1> xi;
+    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1> m;
     /**
      * @brief the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 2> Jxi = Eigen::Matrix<double,
-            NUM_ELEMENTS * 11, NUM_ELEMENTS * 2>::Zero(); // Jacobian
+    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2> Jm = Eigen::Matrix<double,
+            NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2>::Zero(); // Jacobian
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 2> dJxi = Eigen::Matrix<double,
-            NUM_ELEMENTS * 11, NUM_ELEMENTS * 2>::Zero(); // time derivative of Jacobian
-    Eigen::Matrix<double, 3, NUM_ELEMENTS * 2> update_J(Vector2Nd q); // used for inverse kinematics
+    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2> dJm = Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2>::Zero(); // time derivative of Jacobian
+    void update_Jxi(Vector2Nd q); // used for inverse kinematics
+    Eigen::Matrix<double, 3, NUM_ELEMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, NUM_ELEMENTS * JOINTS>::Zero();
 
     /**
      * @brief inertia matrix
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, NUM_ELEMENTS * 11> B_xi = Eigen::Matrix<double,
-            NUM_ELEMENTS * 11, NUM_ELEMENTS * 11>::Zero();
+    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * JOINTS> B_xi = Eigen::Matrix<double,
+            NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * JOINTS>::Zero();
     /**
      * @brief the gravity vector, i.e. the force at each joint when the arm is completely stationary at its current configuration.
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * 11, 1> G_xi = Eigen::Matrix<double, NUM_ELEMENTS * 11, 1>::Zero();
+    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1>::Zero();
 
     /**
      * @brief update the member variables based on current values
      */
     void update(Vector2Nd, Vector2Nd);
 
-    void update_xi(Vector2Nd);
-
-    void update_Jxi(Vector2Nd);
-
-    void update_dJxi(Vector2Nd, Vector2Nd);
-
-    /**
-     * @brief publish joint state to ROS
-     */
-    void joint_publish();
 
 };
 
