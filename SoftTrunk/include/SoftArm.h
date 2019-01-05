@@ -10,26 +10,57 @@
 #include <Eigen/Dense>
 #include "SoftTrunk_common_defs.h"
 
-class SoftArm{
-    /*
-     * class that acts as interface for I/O of physical soft arm (curvatures, pressures etc.) and combines the soft arm's parameters(like k,d)
-     */
+/**
+ * @brief Represents the physical soft trunk robot.
+ * Gets the current q of robot continuously in the background (using CurvatureCalculator)
+ * Outputs pressure to robot
+ * Manage physical parameters of arm derived from characterization (such as k, d, alpha)
+ */
+class SoftArm {
 private:
-    std::vector<int> valve_map = {7, 5, 4, 6, 11, 9, 8, 10, 15, 13, 12, 14};// Should be ordered in: {root stage x positive -> root stage x negative -> root stage y positive -> ...}
-    std::vector<double> outputPressures;
-
-
-public:
-    SoftArm(bool sim=false); // sim=true if simulation (does not try to connect to actual arm)
-    void actuate(Vector2Nd, Vector2Nd); // input tau in phi-theta coordinates
-    void actuatePressure(Vector2Nd); // actuate using pressures
-    CurvatureCalculator* curvatureCalculator;
-    ForceController* forceController;
-    void stop();
-    Vector2Nd k;
-    Vector2Nd d;
-    Vector2Nd alpha;
+    std::vector<int> valve_map = VALVE_MAP;
+    ForceController *forceController;
     bool simulate;
+public:
+    /**
+     *
+     * @param sim true if running simulation, in which case it does not try to connect to actual arm
+     */
+    SoftArm(bool sim = false);
+
+    /**
+     * actuate the arm
+     * @param tau torque,in q space
+     */
+    void actuate(Vector2Nd tau, bool setAlphaToOne=false);
+    /**
+     * @brief Provides a mapping matrix from force to pressure.
+     */
+    Eigen::Matrix<double, CHAMBERS, 2> A_f2p;
+    Eigen::Matrix<double, 2, CHAMBERS> A_p2f;
+    /**
+    * @brief extends A_p2f to all segments. Used in characterization.
+    */
+    Eigen::Matrix<double, 2*NUM_ELEMENTS, CHAMBERS*NUM_ELEMENTS> A_p2f_all;
+    /**
+     * send the pressures to ForceController
+     * @param pressures pressure values for each chamber
+     * todo: elaborate on this in separate document
+     */
+    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> pressures); // actuate using pressures for each chamber
+
+    void stop();
+
+    CurvatureCalculator *curvatureCalculator;
+
+    Vector2Nd d = Vector2Nd::Zero();
+    Vector2Nd k = Vector2Nd::Zero();
+    Vector2Nd alpha;
+    /**
+     * records pressure of each chamber.
+     */
+    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> p;
+
 };
 
 #endif //SOFTTRUNK_SOFTARM_H

@@ -4,6 +4,9 @@
 # Unignore all with extensions
 !*.*
 
+# Unignore Doxyfile
+!Doxyfile
+
 # Unignore all dirs
 !*/
 

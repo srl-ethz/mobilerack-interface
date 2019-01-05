@@ -3,26 +3,28 @@
 #include <cmath>
 #include <iostream>
 #include <thread>
-/*
-sends a sinusoidal wave to 4 actuators, and each phase is offset by PI/2.
+/**
+ * @file example_sinusoidal.cpp
+ * @brief sends a sinusoidal wave to 3 actuators, and each phase is offset by 2*PI/3.
 */
-void wait() { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+#define DURATION 10 //in seconds
+#define WAIT 0.01 // in seconds
 
-int sinusoid(double t) { return 700 + 500 * sin(t); }
+void wait() { std::this_thread::sleep_for(std::chrono::milliseconds((int) (WAIT * 1000))); }
+
+std::vector<int> valve_map = {0, 1, 2};
+
+int sinusoid(double t) { return 400 + 100 * sin(t); }
+
 int main() {
-  ForceController forceController(16, 1000);
+    ForceController forceController(16, 1000);
 
-  for (int i = 0; i < 10000; i++) {
-    for (int j = 0; j < 4; j++) {
-      forceController.setSinglePressure(
-          j+4, sinusoid(static_cast<double>(i) / 20 + PI * j / 2));
-      forceController.setSinglePressure(
-              j+8, sinusoid(static_cast<double>(i) / 20 + PI * j / 2 + PI * 2/3));
-      forceController.setSinglePressure(
-              j+12, sinusoid(static_cast<double>(i) / 20 + PI * j / 2 + PI * 4/3));
+    for (double time = 0; time < DURATION; time += WAIT) {
+        forceController.setSinglePressure(valve_map[0], sinusoid(time));
+        forceController.setSinglePressure(valve_map[1], sinusoid(time + 2 * PI / 3));
+        forceController.setSinglePressure(valve_map[2], sinusoid(time + 4 * PI / 3));
+        wait();
     }
-    wait();
-  }
-  forceController.disconnect();
-  return 1;
+    forceController.disconnect();
+    return 1;
 }

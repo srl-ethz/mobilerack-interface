@@ -2,30 +2,54 @@
 // Created by yasu on 31/10/18.
 //
 
-#include "SoftTrunkManager.h"
+#include "Manager.h"
 #include <Eigen/Dense>
-#define STEPS 10000
 
-#include "SoftTrunk_common_defs.h"
+/**
+ * @file experiment.cpp
+ * @brief Topmost code to run experiments on the Soft Trunk system.
+ */
 
-int main(){
-    SoftTrunkManager stm{true};
-    Vector2Nd q = Vector2Nd::Zero();
-    Vector2Nd dq = Vector2Nd::Zero();
-    Vector2Nd ddq = Vector2Nd::Zero();
-    std::cout << q <<"\n";
-    double seconds;
 
-    for (int j = 0; j < STEPS; ++j) {
-        seconds += CONTROL_PERIOD;
 
-        int a=4;
-        q(0) = 0;
-        q(1) = 0.25 + 0.25 * sin(a*seconds);
-        dq(1) = 0.25 * a* cos(a*seconds);
-        ddq(1) = -0.25 * a*a* sin(a*seconds);
-
-        stm.curvatureControl(q, dq, ddq);
-        std::this_thread::sleep_for(std::chrono::milliseconds(int(CONTROL_PERIOD*1000)));
+/**
+ * @brief function that updates the q depending on the time. To be passed into Manager.
+ * @param seconds how many seconds passed since beginning
+ * @param q this will be updated
+ */
+void updateQ(double seconds, Vector2Nd * q){
+    int experiment_type = 3;
+    double maxTheta = 0.01;
+    double T = 2.0;
+    q->setZero();
+    if (experiment_type==1){
+        // draws circle
+        (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(2) = maxTheta * cos(seconds*2.0*PI/T + PI / 3);
+//        (*q)(4) = maxTheta * cos(seconds*2.0*PI/T + PI * 2 / 3);
+        (*q)(1) = maxTheta * sin(seconds*2.0*PI/T);
+        (*q)(3) = maxTheta * sin(seconds*2.0*PI/T + PI / 3);
+//        (*q)(5) = maxTheta * sin(seconds*2.0*PI/T + PI * 2 / 3);
+        //todo: ensure smooth transition from 0
     }
+    else if(experiment_type==2){
+        (*q)(1) = maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(2) = maxTheta * cos(seconds*2.0*PI/T);
+//        (*q)(5) = maxTheta * cos(seconds*2.0*PI/T);
+    }
+    else if(experiment_type==3){
+        (*q)(0) = 0.5*maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(2) = 0.5*maxTheta * cos(seconds*2.0*PI/T + PI / 3);
+//        (*q)(4) = 0.5*maxTheta * cos(seconds*2.0*PI/T + PI * 2 / 3);
+        (*q)(1) = 0.5*maxTheta * (sin(seconds*2.0*PI/T)+1.0);
+        (*q)(3) = 0.5*maxTheta * (sin(seconds*2.0*PI/T + PI / 3)+1.0);
+//        (*q)(5) = 0.5*maxTheta * (sin(seconds*2.0*PI/T + PI * 2 / 3)+1.0);
+    }
+}
+
+int main() {
+    bool log=true;
+    bool use_pid = false;
+    Manager manager{log, use_pid}; // initialize Manager object
+    manager.sendJointSpaceProfile((vFunctionCall)updateQ, 20); // move the arm according to the updateQ function
 }

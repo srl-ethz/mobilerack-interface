@@ -3,8 +3,11 @@
 //
 
 #include "AugmentedRigidArm.h"
-/*
- * generates a URDF XACRO file based on the parameters set inside arm.cpp.
+
+/**
+ * @file create_xacro.cpp
+ * @brief generates a URDF XACRO file using AugmentedRigidArm class
+ * @details file is robot.urdf.xacro and is saved in the ./urdf directory.
  */
 int main() {
     AugmentedRigidArm arm{true};

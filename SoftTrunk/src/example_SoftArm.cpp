@@ -6,21 +6,21 @@
 #include "SoftTrunk_common_defs.h"
 #include <string>
 
-int main(){
+/**
+ * @file example_SoftArm.cpp
+ * @brief example demonstrating the SoftArm class. actuates each chamber of the soft arm.
+ */
+int main() {
     SoftArm softArm = SoftArm{};
-    Vector2Nd tau_xy = Vector2Nd::Zero();
-    std::vector<std::string> names = {"X", "Y"};
+    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1> pressures=Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS,1>::Zero();
 
-    for (int i = 0; i < NUM_ELEMENTS*2; ++i) {
-        tau_xy(i) = 200;
-        std::cout << "actuating element "<< i/2 <<" in the +"<< names[i%2] << " direction...\n";
-        softArm.actuatePressure(tau_xy);
+    for (int i = 0; i < NUM_ELEMENTS * CHAMBERS; ++i) {
+        pressures(i) = 300;
+        std::cout << "actuating element " << i / CHAMBERS << " in the +" << i % CHAMBERS << " direction...\n";
+        softArm.actuatePressure(pressures);
         std::this_thread::sleep_for(std::chrono::milliseconds(int(2000)));
-        tau_xy(i) = 0;
+        pressures(i) = 0;
     }
-
-
-
 
     softArm.stop();
 }

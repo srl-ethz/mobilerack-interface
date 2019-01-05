@@ -28,18 +28,19 @@ int main (int argc, char* argv[]) {
 		abort();
 	}
 
-	model->gravity = Vector3d (0., 0., 	-9.81);
+	model->gravity = Vector3d (0., 0., 	9.81);
 
 	VectorNd Q = VectorNd::Zero (model->dof_count);
+	Q(0) = 3.14/4;
 	VectorNd QDot = VectorNd::Zero (model->dof_count);
 	VectorNd Tau = VectorNd::Zero (model->dof_count);
 	VectorNd QDDot = VectorNd::Zero (model->dof_count);
 
-	ForwardDynamics(*model, Q, QDot, Tau, QDDot);
-// 	InverseDynamics (*model, Q, QDot, Tau, QDDot);
+//	ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+ 	InverseDynamics (*model, Q, QDot, QDDot, Tau);
 
 	std::cout << Q.transpose() << std::endl;
-	std::cout << QDDot.transpose() << std::endl;
+	std::cout << Tau.transpose() << std::endl;
 
 	delete model;
 

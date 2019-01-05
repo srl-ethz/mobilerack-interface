@@ -6,18 +6,30 @@ import sys
 
 values = dict()
 
-print("This is a Python3 script to plot the logged curvature profile.")
-print("You can selectively plot data by including the labels as arguments, like $python3 plotGraph.py q_ref[0] q_meas[0]")
+print("This is a Python3 script to plot the logged data.")
+print("Use with filename after command, such as '$python3 plotGraph.py log.csv'")
+print("You can selectively plot data by including the labels as arguments, like '$python3 plotGraph.py log.csv q_ref[0] q_meas[0]'")
 
-with open('log.csv') as csvfile:
+try:
+    filename = sys.argv[1]
+except IndexError:
+    print("Error: Put in filename as argument")
+    exit()
+
+# select which data to plot
+selectedData = []
+if len(sys.argv) > 2:
+    selectedData = sys.argv[2:]
+
+with open(filename) as csvfile:
     reader = csv.DictReader(csvfile)
     firstRow = True
     for row in reader:
-        # first, if there were arguments, remove the columns supposed to be removed
+        # first, if there were arguments designating which data to plot, remove the columns supposed to be removed
         newDict = dict(row)
-        if len(sys.argv)>0:
+        if len(selectedData)>1:
             for key in row:
-                if not (key.replace(" ", "") in sys.argv[1:] or key == 'time(millis)'):
+                if not (key.replace(" ", "") in selectedData or key == 'time(millis)'):
                     del newDict[key]
 
         if firstRow:

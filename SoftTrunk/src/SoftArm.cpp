@@ -5,32 +5,45 @@
 #include "SoftArm.h"
 
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
-    for (int i = 0; i < NUM_ELEMENTS * 4; ++i) {
-        outputPressures.push_back(0.0);
-    }
+    std::cout << "Setting up SoftArm...\n";
+    // set up the impedance parameters (k&d), and actuation coefficient(alpha).
+    k(0) = 1000;
+    k(1) = k(0);
+    k(2) = 1300;
+    k(3) = k(2);
+    alpha(0) = 0.0158;
+    alpha(1) = alpha(0);
+    alpha(2) = 0.0175;
+    alpha(3) = alpha(2);
+    for (int l = 0; l < 2*NUM_ELEMENTS; ++l)
+        d(l) = 9;
 
-    k = Vector2Nd::Zero();
-    d = Vector2Nd::Zero();
-    alpha = Vector2Nd::Zero();
-    // just inputting random values for now
-    for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-        alpha(j) = 0.000839;
+    // set up the matrix that maps from f to p
+    if (CHAMBERS==3) {
+        A_f2p << 2.0 / 3.0, 0, -1.0 / 3.0, 1.0 / sqrt(3), -1.0 / 3.0, -1.0 / sqrt(3);
+        A_p2f << 1., -0.5, -0.5, 0., sqrt(3)/2., -sqrt(3)/2.;
     }
-    for (int l = 0; l < NUM_ELEMENTS; ++l) {
-        k(2 * l + 1) = 0.626;
-        d(2 * l + 1) = 0.285;
+    else if (CHAMBERS==4) {
+        A_f2p << 0.5, 0., 0., 0.5, -0.5, 0., 0., -0.5;
+        A_p2f << 1., 0., -1., 0., 0., 1., 0., -1.;
     }
-
-    std::cout << "Starting SoftArm...\n";
+    A_p2f_all.setZero();
+    for (int j = 0; j < NUM_ELEMENTS; ++j) {
+        A_p2f_all.block(2*j, CHAMBERS*j, 2, CHAMBERS) = A_p2f;
+    }
+    std::cout<<"A_p2f_all=\n"<<A_p2f_all<<"\n";
 
     if (simulate)
         return;
 
     // set up the forceController and curvatureCalculator, which does the messaging with the physical arm
     forceController = new ForceController(16, MAX_PRESSURE);
-    curvatureCalculator = new CurvatureCalculator(NUM_ELEMENTS, USE_OPTITRACK);
+    actuate(Vector2Nd::Zero());
+
+    curvatureCalculator = new CurvatureCalculator(USE_OPTITRACK);
     curvatureCalculator->setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
     curvatureCalculator->start();
+    std::cout << "Setup of SoftArm done.\n";
 }
 
 void SoftArm::stop() {
@@ -40,48 +53,52 @@ void SoftArm::stop() {
     forceController->disconnect();
 }
 
-void SoftArm::actuate(Vector2Nd tau_pt, Vector2Nd ref_q) {
-    Eigen::Matrix2d mat;
-    Vector2Nd tau_xy;
-    Vector2Nd pressures;
-    double phi;
-    double theta;
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
-        //todo: why is this matrix operation the way it is?
-        if (simulate)
-            theta = ref_q(2 * i + 1);
-        else
-            theta = curvatureCalculator->q(2 * i + 1);
-        if (theta < PI / 36 or simulate) {
-            // sensor reading for phi is unstable when theta is small. In those cases, use the reference value for phi.
-            phi = ref_q(2 * i);
-        } else {
-            phi = curvatureCalculator->q(2 * i);
+void SoftArm::actuate(Vector2Nd f, bool setAlphaToOne) {
+    Eigen::Matrix<double, NUM_ELEMENTS * CHAMBERS, 1> mappedPressure;
+    double tmp_min0;
+    double tmp_min1;
+    // procedure to convert f to p, as described in report
+    if (CHAMBERS == 3) {
+        for (int j = 0; j < NUM_ELEMENTS; ++j) {
+            mappedPressure.block(3 * j, 0, 3, 1) = (A_f2p * f.block(2 * j, 0, 2, 1))/alpha(2*j); //todo: fix sloppy alpha implementation
+            if (setAlphaToOne)
+                mappedPressure.block(3 * j, 0, 3, 1) *= alpha(2*j);
+            for (int l = 0; l < 3; ++l) {
+                mappedPressure(3*j+l) += PRESSURE_OFFSET; // add pressure offset to each
+            }
+            tmp_min0 = std::min(0.0, std::min(mappedPressure(3*j+0), std::min(mappedPressure(3*j+1), mappedPressure(3*j+2))));
+            for (int l = 0; l < 3; ++l) {
+                mappedPressure(3*j+l) -= tmp_min0;
+            }
         }
-
-        if (theta < PI / 36) {
-            mat << 0, -sin(phi), 0, cos(phi);
-        } else {
-            mat << -cos(phi) * sin(theta), -sin(phi), -sin(phi) * sin(theta), cos(phi);
+    } else if (CHAMBERS == 4) {
+        for (int j = 0; j < NUM_ELEMENTS; ++j) {
+            mappedPressure.block(4 * j, 0, 4, 1) = (A_f2p * f.block(2 * j, 0, 2, 1))/alpha(2*j);
+            if (setAlphaToOne)
+                mappedPressure.block(4 * j, 0, 4, 1) *= alpha(2*j);
+            for (int l = 0; l < 4; ++l) {
+                mappedPressure(4*j+l) += PRESSURE_OFFSET; // add pressure offset to each
+            }
+            tmp_min0 = std::min(0.0, std::min(mappedPressure(4*j+0), mappedPressure(4*j+2)));
+            tmp_min1 = std::min(0.0, std::min(mappedPressure(4*j+1), mappedPressure(4*j+3)));
+            for (int l = 0; l < 2; ++l) {
+                mappedPressure(4*j+l) -= tmp_min0;
+                mappedPressure(4*j+1+l) -= tmp_min1;
+            }
         }
-        tau_xy.block(i * 2, 0, 2, 1) = mat * tau_pt.block(i * 2, 0, 2, 1);
     }
-
-    for (int j = 0; j < NUM_ELEMENTS * 2; ++j) {
-        pressures(j) = tau_xy(j) / alpha(j);
-    }
-    if (simulate) {
-        std::cout << "In simulation mode, outputting pressure\n";
-        std::cout << "\ttau_xy\n" << pressures << "\n";
-        return;
-    }
-    actuatePressure(pressures);
+    actuatePressure(mappedPressure);
 }
 
 
-void SoftArm::actuatePressure(Vector2Nd pressures) {
-    for (int i = 0; i < NUM_ELEMENTS * 2; ++i) {
-        forceController->setSinglePressure(valve_map[2 * i], PRESSURE_OFFSET + pressures(i));
-        forceController->setSinglePressure(valve_map[2 * i + 1], PRESSURE_OFFSET - pressures(i));
+void SoftArm::actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> pressures){
+    p = pressures;
+    if (simulate) {
+        std::cout << "In simulation mode; outputting pressure\n";
+        std::cout << "\n" << pressures << "\n";
+        return;
+    }
+    for (int l = 0; l < NUM_ELEMENTS * CHAMBERS; ++l) {
+        forceController->setSinglePressure(valve_map[l], pressures(l));
     }
 }
