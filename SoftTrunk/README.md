@@ -5,7 +5,7 @@
 Uses Doxygen to generate documentation from inline comments in code.
 Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
  
-[GraphViz](https://www.graphviz.org/download/) is required if you want to generate depecdency graphs. 
+[GraphViz](https://www.graphviz.org/download/) is required if you want to generate dependency graphs. 
 
 This is the "collaboration diagram" for the Manager class(topmost class for control of the robot):
 ![](./img/collaboration_diagram.png)
@@ -33,17 +33,23 @@ See **Bill of materials.csv**
 
 # OS
 Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore, the XACRO -> URDF conversion must be done on a Linux machine with ROS installed. It is also impossible to preview the URDF with Rviz.
-
+On macOS, install [homebrew](https://brew.sh/) or if already installed, run `brew update`.
 
 # Installing necessary libraries
 ## boost
-boost extends C++ features. On Ubuntu, install from [boost](https://www.boost.org/), on macOS, do `brew install boost`
+boost extends C++ features. On Ubuntu, install from [boost](https://www.boost.org/) or use 
+```
+sudo apt-get install libboost-all-dev
+```
+
+On macOS, do `brew install boost`
 
 ## pkg-config
 helps manage libraries or something. On macOS,
 ```
 brew install pkg-config
 ```
+Note: On ubuntu, it is possibly already installed.
 
 ## libmodbus
 Used for communication to FESTO valve array via modbus. For Ubuntu, 
@@ -57,13 +63,16 @@ brew install libmodbus
 
 ## NatNetLinux
 This linux library is needed for listening to a udp communication from Optitrack Motive 1.10.0 on a windows machine and streaming rigid bodies. Ensure you install the [Prerequisites](https://github.com/rocketman768/NatNetLinux) for NatNetLinux.
+For MacOS, ensure you are on os version 10.12 or newer.
 In the /3rd directory(which is in the root of this repository), NatNetLinux is added as a submodule. After fetching the submodule with:
 ```
+cd <3d_soft_trunk_contact_repo>
 git submodule init
 git submodule update
 ```
 compile and install NatNetLinux. In the /build directory of the repository, run:
 ```
+cd <3d_soft_trunk_contact_repo>/3rd
 mkdir build
 cd build
 cmake ../NatNetLinux
@@ -71,7 +80,8 @@ make
 sudo make install
 ```
 ## Eigen3
-[Get the code](http://eigen.tuxfamily.org/index.php?title=Main_Page), unzip, navigate into the unzipped folder, prepare with cmake and then install this header libary:
+[Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) is the math library used.
+[Get the code version 3.3.7](http://bitbucket.org/eigen/eigen/get/3.3.7.zip), unzip, navigate into the unzipped folder, prepare with cmake and then install this header libary:
 ```
 mkdir build
 cd build/
@@ -82,7 +92,7 @@ sudo make install
 
 ## RBDL
 This code uses the [Rigid Body Dynamics Library](https://rbdl.bitbucket.io/index.html) for calculating the dynamics of the rigid bodies of the augmented robot model.
-Download the most recent stable version as zip file, then follow its README to install, but make sure to also compile the URDF reader addon. Run in rbdl's directory:
+Download the most recent stable version as zip file, we tested with 2.6.0. Then follow its README to install, but make sure to also compile the URDF reader addon. Run in rbdl's directory:
 ```
 mkdir build
 cd build/
@@ -91,3 +101,11 @@ make
 sudo make install
 ```
 You need to install Eigen3 before installing RBDL.
+
+## Install Soft Trunk
+
+```
+cd <3d_soft_trunk_contact_repo>/SoftTrunk
+cmake .
+make
+```
