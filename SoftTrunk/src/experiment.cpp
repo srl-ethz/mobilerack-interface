@@ -20,10 +20,8 @@
 void updateQ(double seconds, Vector2Nd * q){
     int experiment_type = 3;
     double maxTheta = 0.01;
-    double T = 5.0;
-    for (int j = 0; j < 2 * NUM_ELEMENTS; ++j) {
-        (*q)(j) = 0;
-    }
+    double T = 2.0;
+    q->setZero();
     if (experiment_type==1){
         // draws circle
         (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
@@ -50,6 +48,8 @@ void updateQ(double seconds, Vector2Nd * q){
 }
 
 int main() {
-    Manager manager{true}; // initialize Manager object
-    manager.sendJointSpaceProfile((vFunctionCall)updateQ, 10); // move the arm according to the updateQ function
+    bool log=true;
+    bool use_pid = false;
+    Manager manager{log, use_pid}; // initialize Manager object
+    manager.sendJointSpaceProfile((vFunctionCall)updateQ, 20); // move the arm according to the updateQ function
 }

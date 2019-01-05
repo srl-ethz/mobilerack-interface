@@ -12,9 +12,12 @@
  */
 MiniPID ZieglerNichols(double Ku, double period) {
     // https://en.wikipedia.org/wiki/Ziegler–Nichols_method
-    double Kp = 0.2 * Ku;
-    double Ki = Kp / (period / 2.0) * CONTROL_PERIOD;
-    double Kd = Kp * period / 3.0 / CONTROL_PERIOD;
+//    double Kp = 0.2 * Ku;
+//    double Ki = Kp / (period / 2.0) * CONTROL_PERIOD;
+//    double Kd = Kp * period / 3.0 / CONTROL_PERIOD;
+    double Kp = 0.45*Ku;
+    double Ki = Kp / (period/1.2) * CONTROL_PERIOD;
+    double Kd = 0.;
     return MiniPID(Kp, Ki, Kd);
 }
 
@@ -22,10 +25,8 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *soft
                                                                                        sa(softArm) {
     std::cout<<"ControllerPCC created...\n";
     // set up PID controllers
-    if (USE_PID_CURVATURE_CONTROL) {
-        for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
-            miniPIDs.push_back(MiniPID(230000,0,0));
-        }
+    for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
+        miniPIDs.push_back(ZieglerNichols(30000,0.36));
     }
 }
 

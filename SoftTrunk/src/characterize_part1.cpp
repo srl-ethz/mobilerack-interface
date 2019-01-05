@@ -6,6 +6,6 @@
 
 int main() {
     Manager softTrunkManager = Manager();
-    softTrunkManager.characterize();
+    softTrunkManager.characterize_part1();
     return 1;
 }

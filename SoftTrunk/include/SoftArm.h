@@ -19,10 +19,6 @@
 class SoftArm {
 private:
     std::vector<int> valve_map = VALVE_MAP;
-    /**
-     * @brief used for 3-chamber arm. Provides a mapping matrix from generalized pressure expressed with two parameters to pressure expressed with 3 chambers.
-     */
-    Eigen::Matrix<double, CHAMBERS, 2> A_f2p;
     ForceController *forceController;
     bool simulate;
 public:
@@ -36,8 +32,16 @@ public:
      * actuate the arm
      * @param tau torque,in q space
      */
-    void actuate(Vector2Nd tau);
-
+    void actuate(Vector2Nd tau, bool setAlphaToOne=false);
+    /**
+     * @brief Provides a mapping matrix from force to pressure.
+     */
+    Eigen::Matrix<double, CHAMBERS, 2> A_f2p;
+    Eigen::Matrix<double, 2, CHAMBERS> A_p2f;
+    /**
+    * @brief extends A_p2f to all segments. Used in characterization.
+    */
+    Eigen::Matrix<double, 2*NUM_ELEMENTS, CHAMBERS*NUM_ELEMENTS> A_p2f_all;
     /**
      * send the pressures to ForceController
      * @param pressures pressure values for each chamber
@@ -50,8 +54,12 @@ public:
     CurvatureCalculator *curvatureCalculator;
 
     Vector2Nd d = Vector2Nd::Zero();
-    Vector2Nd alpha = Vector2Nd::Zero();
     Vector2Nd k = Vector2Nd::Zero();
+    Vector2Nd alpha;
+    /**
+     * records pressure of each chamber.
+     */
+    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> p;
 
 };
 

@@ -32,12 +32,11 @@
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  */
-#define MAX_PRESSURE 1200
+#define MAX_PRESSURE 1000
 /**
- * @brief arm is moved with PID controller, not the dynamic controller, if true.
+ * @brief does not use feedback, i.e. OptiTrack data is not used for control.
  */
-#define USE_PID_CURVATURE_CONTROL false
-#define USE_FEEDFORWARD_CONTROL true
+#define USE_FEEDFORWARD_CONTROL false
 /**
  * @brief number of chambers in a single segment. 3 or 4 is supported.
  */
@@ -57,7 +56,7 @@
 /**
  * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
  */
-#define VALVE_MAP {11, 10, 12, 14, 15, 13}
+#define VALVE_MAP {14, 15, 13, 11, 10, 12}
 
 #define PI 3.141592
 /**

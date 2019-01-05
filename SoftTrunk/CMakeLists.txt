@@ -96,8 +96,11 @@ target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
 target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftArm)
 
-add_executable(characterize src/characterize.cpp)
-target_link_libraries(characterize Manager)
+add_executable(characterize_part2 src/characterize_part2.cpp)
+target_link_libraries(characterize_part2 Manager)
+
+add_executable(characterize_part1 src/characterize_part1.cpp)
+target_link_libraries(characterize_part1 Manager)
 
 add_executable(experiment src/experiment.cpp)
 target_link_libraries(experiment Manager -pthread)

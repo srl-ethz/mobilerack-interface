@@ -34,8 +34,9 @@ public:
     /**
      * @brief constructor for Manager class.
      * @param logMode if true, outputs log.csv which logs the reference and measured values of the arm.
+     * @param use_pid whether to use PID control or not
      */
-    Manager(bool logMode = false);
+    explicit Manager(bool logMode = false, bool use_pid=false);
 
     /**
      * @brief moves the arm according to a profile of q.
@@ -44,10 +45,11 @@ public:
      */
     void sendJointSpaceProfile(vFunctionCall updateQ, double duration);
 
+    void characterize_part1();
     /**
-     * @brief run experiments to characterize the parameters alpha, k, and d of the soft arm. Then, edit the code manually to change these values.
+     * @brief run experiments to characterize the parameters k, and d of the soft arm(alpha should already be measured with characteize_part1(). Then, edit the code manually to change these values.
      */
-    void characterize();
+    void characterize_part2();
 
     ~Manager();
 
@@ -63,6 +65,7 @@ private:
      * @brief variables and functions used to save the log of q
      */
     bool logMode;
+    bool use_pid;
     std::vector<Vector2Nd> log_q_meas;
     std::vector<Vector2Nd> log_q_ref;
     std::vector<std::chrono::high_resolution_clock::duration> log_time;

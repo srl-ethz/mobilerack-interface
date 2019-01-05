@@ -24,7 +24,7 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
     return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
 }
 
-Manager::Manager(bool logMode) : logMode(logMode) {
+Manager::Manager(bool logMode, bool use_pid) : logMode(logMode), use_pid(use_pid) {
     std::cout << "Setting up Manager...\n";
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftArm{};
@@ -39,14 +39,14 @@ void Manager::curvatureControl(Vector2Nd q,
                                Vector2Nd dq,
                                Vector2Nd ddq) {
     // gets values from ControllerPCC and relays that to SoftArm
-    if (USE_PID_CURVATURE_CONTROL) {
+    if (use_pid) {
         Vector2Nd output;
         controllerPCC->curvaturePIDControl(q, &output);
-//        softArm->actuate(output); //todo: fix this
+        softArm->actuate(output, true);
     } else {
-        Vector2Nd tau;
-        controllerPCC->curvatureDynamicControl(q, dq, ddq, &tau);
-        softArm->actuate(tau);
+        Vector2Nd f;
+        controllerPCC->curvatureDynamicControl(q, dq, ddq, &f);
+        softArm->actuate(f);
     }
     if (logMode)
         log(softArm->curvatureCalculator->q, q);
@@ -90,10 +90,30 @@ void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
     log_time.push_back(std::chrono::high_resolution_clock::now() - logBeginTime);
     logNum++;
 }
+void doNothing(double seconds, Vector2Nd * q){
 
-void Manager::characterize() {
+}
+void Manager::characterize_part1() {
+    std::cout<< "Manager.characterize_part1 called. This measures alpha. Make sure to exert a known force to the tip of the arm(check that it matches with f_ext in code).\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    std::cout << "Doing PID control for 15 seconds to bring arm to a straight position...\n";
+    use_pid = true;
+    sendJointSpaceProfile((vFunctionCall)doNothing, 15);
+    std::cout<<"p=\n"<<softArm->p<<"\n";
+    std::cout<<"A_p2f_all * p=\n"<<softArm->A_p2f_all*softArm->p<<"\n";
+    Eigen::Matrix<double, 3,1> f_ext = Eigen::Matrix<double, 3,1>::Zero();
+    f_ext(0) = 1;
+    std::cout << "f_ext=\n" <<f_ext<<"\n";
+    Vector2Nd zero_vector = Vector2Nd::Zero();
+    controllerPCC->updateBCG(zero_vector, zero_vector);
+    std::cout<< " J^T * f_ext=\n" << controllerPCC->J.transpose() * f_ext <<"\n";
+    std::cout << "There you go. Please compute alpha from '0 = alpha A_p2f_all * p + J^T * f_ext' yourself, with f being the force exerted to the tip of the arm.\n";//todo: change this
+    std::cout << "Put that alpha values to SoftArm.cpp, and run Manager.characterize_part2\n";
+}
 
-    std::cout << "Manager.characterize called. Computing characteristics of the SoftTrunk...\n";
+void Manager::characterize_part2() {
+
+    std::cout << "Manager.characterize_part2 called. This measures k and d. Make sure you've already set the proper value for alpha, using Manager.characterize_part1\n";
     logMode = true;
 
     const int historySize = 50; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
@@ -154,7 +174,7 @@ void Manager::characterize() {
     log_f.resize(2 * NUM_ELEMENTS, historySize);
     for (int l = 0; l < historySize; ++l) {
         controllerPCC->updateBCG(q_log.col(l), dq_log.col(l));
-        Vector2Nd tau = /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G;
+        Vector2Nd tau = /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G - softArm->alpha.asDiagonal()*softArm->A_p2f_all*pressure_log.col(l);
         log_f.col(l) = tau;
     }
 
