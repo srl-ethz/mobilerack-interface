@@ -3,7 +3,7 @@
 ## Overleaf
 ## Doxygen
 Uses Doxygen to generate documentation from inline comments in code.
-Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory to generate HTML(can be seen with browser at html/index.html) & LATEX output.
+Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory (`<3d_soft_trunk_contact_repo>/SoftTrunk`) to generate HTML (can be seen with browser at html/index.html) & LATEX output.
  
 [GraphViz](https://www.graphviz.org/download/) is required if you want to generate dependency graphs. 
 
@@ -31,7 +31,7 @@ See **Bill of materials.csv**
 1. run characterization process and update values with the results
 1. run experiment
 
-# OS
+# OS Notes
 Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore, the XACRO -> URDF conversion must be done on a Linux machine with ROS installed. It is also impossible to preview the URDF with Rviz.
 On macOS, install [homebrew](https://brew.sh/) or if already installed, run `brew update`.
 
@@ -102,10 +102,22 @@ sudo make install
 ```
 You need to install Eigen3 before installing RBDL.
 
-## Install Soft Trunk
+# Install this repository (3D Soft Trunk Contact)
 
 ```
 cd <3d_soft_trunk_contact_repo>/SoftTrunk
 cmake .
 make
 ```
+
+# Experiment Setup
+
+## Ethernet Connection.
+Connect Controller PC with software installed to the router (dlink-EADA) that is physically connected via ethernet to the Festo Valve Terminal and also to the windows machine running Motive (Optitrack cameras).
+
+## Motive
+Power on windows Machine and start the Motive Project that has the calibrated cameras and contains the number of segments plus 1 as rigid bodies to be streamed. IP of the Motive machine should most likely be 192.168.1.105.
+
+## Festo valves
+Power up the valves and make sure the terminal is connected to the router.
+
