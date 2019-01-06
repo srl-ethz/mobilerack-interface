@@ -7,16 +7,16 @@
 SoftArm::SoftArm(bool simulate) : simulate(simulate) {
     std::cout << "Setting up SoftArm...\n";
     // set up the impedance parameters (k&d), and actuation coefficient(alpha).
-    k(0) = 800;
+    k(0) = 340;
     k(1) = k(0);
-    k(2) = 860;
+    k(2) = 230;
     k(3) = k(2);
-    alpha(0) = 0.0106;
+    alpha(0) = 0.00988;
     alpha(1) = alpha(0);
-    alpha(2) = 0.0114;
+    alpha(2) = 0.0076;
     alpha(3) = alpha(2);
     for (int l = 0; l < 2*N_SEGMENTS; ++l)
-        d(l) = 15;
+        d(l) = 27;
 
     // set up the matrix that maps from f to p
     if (N_CHAMBERS==3) {

@@ -18,19 +18,22 @@
  * @param q this will be updated
  */
 void updateQ(double seconds, Vector2Nd * q){
-    int experiment_type = 3;
-    double maxTheta = 0.011;
+    int experiment_type = 1;
+    double maxTheta = 0.010;
     double T = 2.0;
     q->setZero();
     if (experiment_type==1){
         // draws circle
         (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
-        (*q)(2) = -maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(2) = (*q)(0);
+        if (seconds < T/2){
+            (*q)(0)=0.5*(*q)(0)-0.5*maxTheta; (*q)(2) =(*q)(0);
+        }
 //        (*q)(4) = maxTheta * cos(seconds*2.0*PI/T + PI * 2 / 3);
         (*q)(1) = maxTheta * sin(seconds*2.0*PI/T);
-        (*q)(3) = -maxTheta * sin(seconds*2.0*PI/T);
+        (*q)(3) = maxTheta * sin(seconds*2.0*PI/T);
 //        (*q)(5) = maxTheta * sin(seconds*2.0*PI/T + PI * 2 / 3);
-        //todo: ensure smooth transition from 0
+
     }
     else if(experiment_type==2){
         (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
