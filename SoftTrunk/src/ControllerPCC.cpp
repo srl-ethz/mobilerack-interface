@@ -25,7 +25,7 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *soft
                                                                                        sa(softArm) {
     std::cout<<"ControllerPCC created...\n";
     // set up PID controllers
-    for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
+    for (int j = 0; j < N_SEGMENTS*2; ++j) {
         miniPIDs.push_back(ZieglerNichols(30000,0.36));
     }
 }
@@ -33,7 +33,7 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *soft
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
                                             const Vector2Nd &dq_ref,
                                             const Vector2Nd &ddq_ref,
-                                            Vector2Nd *tau, bool simulate) {
+                                            Vector2Nd *f, bool simulate) {
     // variables to save the measured values.
     Vector2Nd q_meas;
     Vector2Nd dq_meas;
@@ -47,7 +47,7 @@ void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
         dq_meas = sa->curvatureCalculator->dq;
     }
     updateBCG(q_meas, dq_meas);
-    *tau = sa->k.asDiagonal() * q_ref + sa->d.asDiagonal() * dq_ref + G + C * dq_ref + B * ddq_ref;
+    *f = sa->k.asDiagonal() * q_ref + sa->d.asDiagonal() * dq_ref + G + C * dq_ref + B * ddq_ref;
 }
 
 void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
@@ -60,7 +60,7 @@ void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
 }
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *pressures) {
-    for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {
+    for (int i = 0; i < 2 * N_SEGMENTS; ++i) {
         (*pressures)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i),q_ref(i));
     }
 }

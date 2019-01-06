@@ -17,10 +17,10 @@ print("make sure that the number of chambers and segments are correct.")
 print("Number of segments\t", segments)
 print("Chambers per segment\t", chambers)
 
-f= read_csv("characterization_f.csv")[:,1:]
-q=read_csv("characterization_q.csv")[:,1:]
-dq=read_csv("characterization_dq.csv")[:,1:]
-p=read_csv("characterization_p.csv")[:,1:]
+f= read_csv("characterization_f.csv")[:,2:]
+q=read_csv("characterization_q.csv")[:,2:]
+dq=read_csv("characterization_dq.csv")[:,2:]
+p=read_csv("characterization_p.csv")[:,2:]
 
 if chambers == 3:
     A_p2f = np.matrix([[1, -1/2, -1/2],

@@ -83,28 +83,28 @@ public:
 
     std::vector<double> lengths = LENGTHS;
     std::vector<double> masses = MASSES;
-    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1> m;
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> m;
     /**
      * @brief the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2> Jm = Eigen::Matrix<double,
-            NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2>::Zero(); // Jacobian
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> Jm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // Jacobian
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2> dJm = Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * 2>::Zero(); // time derivative of Jacobian
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
     void update_Jxi(Vector2Nd q); // used for inverse kinematics
-    Eigen::Matrix<double, 3, NUM_ELEMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, NUM_ELEMENTS * JOINTS>::Zero();
+    Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
 
     /**
      * @brief inertia matrix
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * JOINTS> B_xi = Eigen::Matrix<double,
-            NUM_ELEMENTS * JOINTS, NUM_ELEMENTS * JOINTS>::Zero();
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS> B_xi = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS>::Zero();
     /**
      * @brief the gravity vector, i.e. the force at each joint when the arm is completely stationary at its current configuration.
      */
-    Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, NUM_ELEMENTS * JOINTS, 1>::Zero();
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1>::Zero();
 
     /**
      * @brief update the member variables based on current values

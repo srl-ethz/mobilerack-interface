@@ -36,18 +36,18 @@ public:
     /**
      * @brief Provides a mapping matrix from force to pressure.
      */
-    Eigen::Matrix<double, CHAMBERS, 2> A_f2p;
-    Eigen::Matrix<double, 2, CHAMBERS> A_p2f;
+    Eigen::Matrix<double, N_CHAMBERS, 2> A_f2p;
+    Eigen::Matrix<double, 2, N_CHAMBERS> A_p2f;
     /**
     * @brief extends A_p2f to all segments. Used in characterization.
     */
-    Eigen::Matrix<double, 2*NUM_ELEMENTS, CHAMBERS*NUM_ELEMENTS> A_p2f_all;
+    Eigen::Matrix<double, 2*N_SEGMENTS, N_CHAMBERS*N_SEGMENTS> A_p2f_all;
     /**
      * send the pressures to ForceController
      * @param pressures pressure values for each chamber
      * todo: elaborate on this in separate document
      */
-    void actuatePressure(Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> pressures); // actuate using pressures for each chamber
+    void actuatePressure(Eigen::Matrix<double, N_SEGMENTS*N_CHAMBERS, 1> pressures); // actuate using pressures for each chamber
 
     void stop();
 
@@ -59,7 +59,7 @@ public:
     /**
      * records pressure of each chamber.
      */
-    Eigen::Matrix<double, NUM_ELEMENTS*CHAMBERS, 1> p;
+    Eigen::Matrix<double, N_SEGMENTS*N_CHAMBERS, 1> p;
 
 };
 

@@ -1,6 +1,9 @@
 # Soft Trunk repository
 # Documentation
-## Overleaf
+## [Overleaf](https://www.overleaf.com/read/rsnsrjphmpxx)
+There is a report on Overleaf detailing how the C++ code is implemented, and how it has been changed since the RoboSoft paper.
+
+[![](./img/report.png)](https://www.overleaf.com/read/rsnsrjphmpxx)
 ## Doxygen
 Uses Doxygen to generate documentation from inline comments in code.
 Install [Doxygen](http://www.doxygen.nl), and run `doxygen` in this directory (`<3d_soft_trunk_contact_repo>/SoftTrunk`) to generate HTML (can be seen with browser at html/index.html) & LATEX output.

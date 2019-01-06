@@ -12,7 +12,11 @@
 /**
  * @brief how many PCC elements there are
  */
-#define NUM_ELEMENTS 2
+#define N_SEGMENTS 2
+/**
+ * @brief number of chambers in a single segment. 3 or 4 is supported.
+ */
+#define N_CHAMBERS 3
 /**
  * @brief IP address of this computer
  */
@@ -36,11 +40,7 @@
 /**
  * @brief does not use feedback, i.e. OptiTrack data is not used for control.
  */
-#define USE_FEEDFORWARD_CONTROL false
-/**
- * @brief number of chambers in a single segment. 3 or 4 is supported.
- */
-#define CHAMBERS 3
+#define USE_FEEDFORWARD_CONTROL true
 /**
  * @brief mass of each segment, in kg
  */
@@ -52,7 +52,7 @@
 /**
  * @brief radius of the soft trunk, in meters.
  */
-#define TRUNK_RADIUS 0.03
+#define R_TRUNK 0.03
 /**
  * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
  */
@@ -67,11 +67,11 @@
 /**
  * @brief defines a matrix of size (NUM_ELEMENTS*2,1), for convenience
  */
-typedef Eigen::Matrix<double, NUM_ELEMENTS * 2, 1> Vector2Nd;
+typedef Eigen::Matrix<double, N_SEGMENTS * 2, 1> Vector2Nd;
 /**
  * @brief defines a matrix of size (NUM_ELEMENTS*2,NUM_ELEMENTS*2), for convenience
  */
-typedef Eigen::Matrix<double, NUM_ELEMENTS * 2, NUM_ELEMENTS * 2> Matrix2Nd;
+typedef Eigen::Matrix<double, N_SEGMENTS * 2, N_SEGMENTS * 2> Matrix2Nd;
 
 #ifdef CATKIN_FOUND
 #define USE_ROS true  // do you want to publish joint states to ROS

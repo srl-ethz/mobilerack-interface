@@ -68,11 +68,12 @@ private:
     bool use_pid;
     std::vector<Vector2Nd> log_q_meas;
     std::vector<Vector2Nd> log_q_ref;
+    std::vector<Vector2Nd> log_f;
     std::vector<std::chrono::high_resolution_clock::duration> log_time;
     std::chrono::high_resolution_clock::time_point logBeginTime;
     int logNum = 0;
 
-    void log(Vector2Nd &, Vector2Nd &);
+    void log(Vector2Nd &, Vector2Nd &, Vector2Nd & f);
 
     void outputLog();
 };

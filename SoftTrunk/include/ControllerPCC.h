@@ -32,13 +32,13 @@ public:
      * @param q_ref
      * @param dq_ref
      * @param ddq_ref
-     * @param tau pointer to where you want the torque value to be saved.
+     * @param f pointer to where you want the torque value to be saved.
      */
     void curvatureDynamicControl(
             const Vector2Nd &q_ref,
             const Vector2Nd &dq_ref,
             const Vector2Nd &ddq_ref,
-            Vector2Nd *tau,
+            Vector2Nd *f,
             bool simulate = false);
 
     /**
@@ -57,7 +57,7 @@ public:
     Matrix2Nd B;
     Matrix2Nd C;
     Vector2Nd G;
-    Eigen::Matrix<double, 3, 2*NUM_ELEMENTS> J;
+    Eigen::Matrix<double, 3, 2*N_SEGMENTS> J;
 
 private:
     AugmentedRigidArm *ara;
