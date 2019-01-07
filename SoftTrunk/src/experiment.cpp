@@ -53,6 +53,7 @@ void updateQ(double seconds, Vector2Nd * q){
 int main() {
     bool log=true;
     bool use_pid = false;
-    Manager manager{log, use_pid}; // initialize Manager object
+    bool use_feedforward = false;
+    Manager manager{log, use_pid, use_feedforward}; // initialize Manager object
     manager.sendJointSpaceProfile((vFunctionCall)updateQ, 10); // move the arm according to the updateQ function
 }

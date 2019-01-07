@@ -1,11 +1,11 @@
 // Copyright 2018 ...
-#include "ForceController.h"
+#include "ValveController.h"
 
 
 #define USE_PID true
 #define LOG true
 
-ForceController::ForceController(int maxValveIndex, int maxPressure) : DoF(maxValveIndex), maxPressure(maxPressure) {
+ValveController::ValveController(int maxValveIndex, int maxPressure) : DoF(maxValveIndex), maxPressure(maxPressure) {
     run = true;
     std::cout << "Connecting to MPA." << '\n';
     if (!mpa.connect()) {
@@ -26,10 +26,10 @@ ForceController::ForceController(int maxValveIndex, int maxPressure) : DoF(maxVa
         pid[i].setOutputLimits(20);
         // setting a good output limit is important so as not to oscillate
     }
-    controller_thread = std::thread(&ForceController::controllerThread, this);
+    controller_thread = std::thread(&ValveController::controllerThread, this);
 }
 
-void ForceController::setSinglePressure(int index, int pressure) {
+void ValveController::setSinglePressure(int index, int pressure) {
     if (index < 0 || index >= DoF) {
         // wrong index
         return;
@@ -37,7 +37,7 @@ void ForceController::setSinglePressure(int index, int pressure) {
     commanded_pressures[index] = pressure;
 }
 
-void ForceController::controllerThread() {
+void ValveController::controllerThread() {
     std::vector<int> sensor_pressures(16);
     std::vector<int> output_pressures(16);
     logBeginTime = std::chrono::high_resolution_clock::now();
@@ -81,11 +81,11 @@ void ForceController::controllerThread() {
     mpa.disconnect();
 }
 
-void ForceController::disconnect() {
+void ValveController::disconnect() {
     run = false;
     controller_thread.join();
-    std::cout << "Stopped ForceController thread.\n";
-    std::cout << "Outputting log of ForceController to log_pressure.csv...\n";
+    std::cout << "Stopped ValveController thread.\n";
+    std::cout << "Outputting log of ValveController to log_pressure.csv...\n";
     std::ofstream log_file;
     log_file.open("log_pressure.csv");
     log_file << "time(millis)";

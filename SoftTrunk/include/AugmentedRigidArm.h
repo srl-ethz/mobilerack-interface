@@ -68,6 +68,7 @@ private:
     void update_Jm(Vector2Nd);
 
     void update_dJm(Vector2Nd, Vector2Nd);
+    void update_Jxi(Vector2Nd q);
     /**
     * @brief publish joint state to ROS
     */
@@ -83,6 +84,9 @@ public:
 
     std::vector<double> lengths = LENGTHS;
     std::vector<double> masses = MASSES;
+    /**
+     * @brief m is the map from q to the augmented model's parameters
+     */
     Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> m;
     /**
      * @brief the Jacobian that maps from q to xi
@@ -93,7 +97,7 @@ public:
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
     Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
-    void update_Jxi(Vector2Nd q); // used for inverse kinematics
+
     Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
 
     /**
@@ -110,8 +114,6 @@ public:
      * @brief update the member variables based on current values
      */
     void update(Vector2Nd, Vector2Nd);
-
-
 };
 
 #endif

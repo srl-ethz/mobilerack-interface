@@ -101,7 +101,6 @@ void CurvatureCalculator::stop() {
     run = false;
     calculatorThread.join();
     if (sensorType == USE_OPTITRACK) {
-        optiTrackClient->stop();
         delete optiTrackClient;
     }
 }

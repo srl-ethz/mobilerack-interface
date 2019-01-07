@@ -35,7 +35,7 @@
  * for DragonSkin 10, set to 150.
  * (not throughly examined- a larger or smaller value may be better)
  */
-#define PRESSURE_OFFSET 150
+#define P_OFFSET 150
 /**
  * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
  * for DragonSkin 30, set to 1200.
@@ -43,10 +43,6 @@
  * (not throughly examined- a larger or smaller value may be better)
  */
 #define MAX_PRESSURE 400
-/**
- * @brief does not use feedback, i.e. OptiTrack data is not used for control.
- */
-#define USE_FEEDFORWARD_CONTROL false
 /**
  * @brief mass of each segment, in kg
  */

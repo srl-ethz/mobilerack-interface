@@ -21,6 +21,10 @@ See **Soft Robot Fabrication.md**
 # Bill of materials
 See **Bill of materials.csv**
 
+# Compiling
+First, make sure that 
+In this directory (`<3d_soft_trunk_contact_repo>/SoftTrunk`), run `$ cmake .` to generate the Makefile. Then, compile the program you want to run, e.g.`$ make experiment`. Then run it, e.g. `$ ./experiment`. 
+
 # Setting up a new arm
 1. Fix arm in place, making sure to align the chambers with the X and Y axes in Motive.
 ![]()
@@ -44,6 +48,7 @@ See **Bill of materials.csv**
     1. The generated URDF file can be previewed with `roslaunch rviz.launch` in the /urdf directory
         1. add RobotModel, and choose base_frame as fixed frame to view robot. (By pressing ctrl-s in RVIZ, this configuration will be saved and you won't have to do it again)
         ![](./img/rviz.png)
+
 # Characterization
 This is required before being able to use the dynamic controller.
 
@@ -53,13 +58,14 @@ This is required before being able to use the dynamic controller.
 1. A matrix equation will be printed for you to solve, and get values for alpha. (the values in the direction you're not pulling is quite meaningless)
 
 ## Part 2
-1. Input the alpha values derived from part 1 into SoftArm.cpp.
+1. Input the alpha values derived from part 1 into SoftTrunkInterface.cpp.
 1. run characterize_part2.
 
-# Setting up Motive
+# Viewing logs
+
 
 # OS Notes
-Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore, the XACRO -> URDF conversion must be done on a Linux machine with ROS installed. It is also impossible to preview the URDF with Rviz.
+Works on Ubuntu and macOS. On macOS, the ROS features are unavailable- therefore, the XACRO -> URDF conversion must be done on a Linux machine with ROS installed. It is also impossible to preview the URDF with Rviz. (some pre-prepared urdf files are available in the /urdf directory.)
 On macOS, install [homebrew](https://brew.sh/) or if already installed, run `brew update`.
 
 # Installing necessary libraries

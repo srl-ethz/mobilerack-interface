@@ -18,11 +18,7 @@ class OptiTrackClient {
 public:
     OptiTrackClient(std::string localAddress, std::string serverAddress);
 
-    /**
-     * @brief disconnect from OptiTrack server.
-     * @return
-     */
-    int stop();
+    ~OptiTrackClient();
 
     /**
      * Try to get a new frame from the listener.

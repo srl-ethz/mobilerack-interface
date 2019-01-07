@@ -53,15 +53,15 @@ target_link_libraries(test_valve ${MODBUS_LIBRARIES} )
 
 
 # http://www.kaizou.org/2014/11/typical-cmake-project/
-add_library(ForceController SHARED src/ForceController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
-target_include_directories(ForceController PRIVATE ${MODBUS_DIRS})
-target_link_libraries(ForceController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
+add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
+target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(example_ForceController src/example_ForceController.cpp)
-target_link_libraries(example_ForceController ForceController)
+add_executable(example_ValveController src/example_ValveController.cpp)
+target_link_libraries(example_ValveController ValveController)
 
 add_executable(example_sinusoidal src/example_sinusoidal.cpp)
-target_link_libraries(example_sinusoidal ForceController -pthread)
+target_link_libraries(example_sinusoidal ValveController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
@@ -72,10 +72,10 @@ ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
 add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
-target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftArm)
+target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)
 
 add_library(Manager SHARED src/Manager.cpp)
-target_link_libraries(Manager SoftArm AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
+target_link_libraries(Manager SoftTrunkInterface AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
 
 add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
@@ -84,8 +84,8 @@ add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h
 target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${catkin_LIBRARIES})
 #${ROSCPP_LIBRARIES} ${SENSOR_MSGS_LIBRARIES})
 
-add_library(SoftArm SHARED src/SoftArm.cpp)
-target_link_libraries(SoftArm ForceController CurvatureCalculator)
+add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
+target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
 add_executable(create_xacro src/create_xacro.cpp)
 target_link_libraries(create_xacro AugmentedRigidArm)
@@ -94,7 +94,7 @@ add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
 add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
-target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftArm)
+target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)
 
 add_executable(characterize_part2 src/characterize_part2.cpp)
 target_link_libraries(characterize_part2 Manager)
@@ -106,6 +106,6 @@ add_executable(experiment src/experiment.cpp)
 target_link_libraries(experiment Manager -pthread)
 
 
-add_executable(example_SoftArm src/example_SoftArm.cpp)
-target_link_libraries(example_SoftArm SoftArm -pthread)
+add_executable(example_SoftTrunkInterface src/example_SoftTrunkInterface.cpp)
+target_link_libraries(example_SoftTrunkInterface SoftTrunkInterface -pthread)
 

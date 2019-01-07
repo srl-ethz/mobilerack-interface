@@ -24,10 +24,10 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
     return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
 }
 
-Manager::Manager(bool logMode, bool use_pid) : logMode(logMode), use_pid(use_pid) {
+Manager::Manager(bool logMode, bool use_pid, bool use_feedforward) : logMode(logMode), use_pid(use_pid), use_feedforward(use_feedforward) {
     std::cout << "Setting up Manager...\n";
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
-    softArm = new SoftArm{};
+    softArm = new SoftTrunkInterface{};
     augmentedRigidArm = new AugmentedRigidArm{};
     controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
 
@@ -38,7 +38,7 @@ Manager::Manager(bool logMode, bool use_pid) : logMode(logMode), use_pid(use_pid
 void Manager::curvatureControl(Vector2Nd q,
                                Vector2Nd dq,
                                Vector2Nd ddq) {
-    // gets values from ControllerPCC and relays that to SoftArm
+    // gets values from ControllerPCC and relays that to SoftTrunkInterface
     Vector2Nd output;
     if (use_pid) {
         controllerPCC->curvaturePIDControl(q, &output);
@@ -106,7 +106,7 @@ void Manager::characterize_part1() {
     controllerPCC->updateBCG(zero_vector, zero_vector);
     std::cout<< " M =\n" << (softArm->A_p2f_all*softArm->p).asDiagonal().inverse() * controllerPCC->J.transpose() <<"\n";
     std::cout << "There you go. Please compute alpha from yourself, with f being the force exerted to the tip of the arm.\n";
-    std::cout << "Put that alpha values to SoftArm.cpp, and run Manager.characterize_part2\n";
+    std::cout << "Put that alpha values to SoftTrunkInterface.cpp, and run Manager.characterize_part2\n";
 }
 
 void Manager::characterize_part2() {
@@ -120,17 +120,17 @@ void Manager::characterize_part2() {
     Eigen::MatrixXd pressures;
     pressures.resize(N_SEGMENTS * N_CHAMBERS,
                      steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
-    const double max_output = 0.8 * (MAX_PRESSURE - PRESSURE_OFFSET);
+    const double max_output = 0.8 * (MAX_PRESSURE - P_OFFSET);
 
     // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
     for (int k = 0; k < N_SEGMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
             for (int l = 0; l < N_CHAMBERS; ++l) {
-                pressures(N_CHAMBERS * k + l, j) = PRESSURE_OFFSET; //first set all to PRESSURE_OFFSET
+                pressures(N_CHAMBERS * k + l, j) = P_OFFSET; //first set all to P_OFFSET
             }
-            pressures(N_CHAMBERS * k + 0, j) = PRESSURE_OFFSET+fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
+            pressures(N_CHAMBERS * k + 0, j) = P_OFFSET+fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
                                                              max_output * (2 - (double) j * 2 / steps)));
-            pressures(N_CHAMBERS * k + 1, j) = 0.8*(pressures(N_CHAMBERS * k + 0, j) -PRESSURE_OFFSET) +PRESSURE_OFFSET;
+            pressures(N_CHAMBERS * k + 1, j) = 0.8*(pressures(N_CHAMBERS * k + 0, j) -P_OFFSET) +P_OFFSET;
         }
     }
     // log of pressure (take historySize number of samples)
@@ -197,7 +197,6 @@ void Manager::characterize_part2() {
 }
 
 Manager::~Manager() {
-    softArm->stop();
     if (logMode)
         outputLog();
 }
