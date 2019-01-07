@@ -19,34 +19,34 @@
  */
 void updateQ(double seconds, Vector2Nd * q){
     int experiment_type = 1;
-    double maxTheta = 0.010;
+    double maxValue = 0.01;
     double T = 2.0;
     q->setZero();
     if (experiment_type==1){
         // draws circle
-        (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(0) = maxValue * cos(seconds*2.0*PI/T);
         (*q)(2) = (*q)(0);
         if (seconds < T/2){
-            (*q)(0)=0.5*(*q)(0)-0.5*maxTheta; (*q)(2) =(*q)(0);
+            (*q)(0)=0.5*(*q)(0)-0.5*maxValue; (*q)(2) =(*q)(0);
         }
-//        (*q)(4) = maxTheta * cos(seconds*2.0*PI/T + PI * 2 / 3);
-        (*q)(1) = maxTheta * sin(seconds*2.0*PI/T);
-        (*q)(3) = maxTheta * sin(seconds*2.0*PI/T);
-//        (*q)(5) = maxTheta * sin(seconds*2.0*PI/T + PI * 2 / 3);
+//        (*q)(4) = maxValue * cos(seconds*2.0*PI/T + PI * 2 / 3);
+        (*q)(1) = maxValue * sin(seconds*2.0*PI/T);
+        (*q)(3) = maxValue * sin(seconds*2.0*PI/T);
+//        (*q)(5) = maxValue * sin(seconds*2.0*PI/T + PI * 2 / 3);
 
     }
     else if(experiment_type==2){
-        (*q)(0) = maxTheta * cos(seconds*2.0*PI/T);
-        (*q)(2) = maxTheta * cos(seconds*2.0*PI/T);
-//        (*q)(5) = maxTheta * cos(seconds*2.0*PI/T);
+        (*q)(0) = maxValue * cos(seconds*2.0*PI/T);
+        (*q)(2) = maxValue * cos(seconds*2.0*PI/T);
+//        (*q)(5) = maxValue * cos(seconds*2.0*PI/T);
     }
     else if(experiment_type==3){
-        (*q)(0) = 0.5*maxTheta * cos(seconds*2.0*PI/T);
-        (*q)(2) = 0.5*maxTheta * cos(seconds*2.0*PI/T + PI / 3);
-//        (*q)(4) = 0.5*maxTheta * cos(seconds*2.0*PI/T + PI * 2 / 3);
-        (*q)(1) = 0.5*maxTheta * (sin(seconds*2.0*PI/T)+1.0);
-        (*q)(3) = 0.5*maxTheta * (sin(seconds*2.0*PI/T + PI / 3)+1.0);
-//        (*q)(5) = 0.5*maxTheta * (sin(seconds*2.0*PI/T + PI * 2 / 3)+1.0);
+        (*q)(0) = 0.5*maxValue * cos(seconds*2.0*PI/T);
+        (*q)(2) = 0.5*maxValue * cos(seconds*2.0*PI/T + PI / 3);
+//        (*q)(4) = 0.5*maxValue * cos(seconds*2.0*PI/T + PI * 2 / 3);
+        (*q)(1) = 0.5*maxValue * (sin(seconds*2.0*PI/T)+1.0);
+        (*q)(3) = 0.5*maxValue * (sin(seconds*2.0*PI/T + PI / 3)+1.0);
+//        (*q)(5) = 0.5*maxValue * (sin(seconds*2.0*PI/T + PI * 2 / 3)+1.0);
     }
 }
 
