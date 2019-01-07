@@ -26,10 +26,11 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
 
 Manager::Manager(bool logMode, bool use_pid, bool use_feedforward) : logMode(logMode), use_pid(use_pid), use_feedforward(use_feedforward) {
     std::cout << "Setting up Manager...\n";
+    std::cout << "PID mode\t" <<use_pid <<"\nfeedforward mode\t"<<use_feedforward<<"\n";
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
     softArm = new SoftTrunkInterface{};
     augmentedRigidArm = new AugmentedRigidArm{};
-    controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
+    controllerPCC = new ControllerPCC{augmentedRigidArm, softArm, use_feedforward};
 
     logBeginTime = std::chrono::high_resolution_clock::now();
     std::cout << "Setup of Manager done.\n";
