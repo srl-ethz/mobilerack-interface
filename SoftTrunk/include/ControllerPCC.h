@@ -8,7 +8,7 @@
 #include "SoftTrunk_common_defs.h"
 #include <Eigen/Dense>
 #include <AugmentedRigidArm.h>
-#include "SoftArm.h"
+#include "SoftTrunkInterface.h"
 #include "MiniPID.h"
 
 
@@ -22,9 +22,9 @@ public:
     /**
      *
      * @param augmentedRigidArm pointer to instance of AugmentedRigidArm.
-     * @param softArm pointer to instance of SoftArm.
+     * @param softTrunkInterface pointer to instance of SoftArm.
      */
-    ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm);
+    ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftTrunkInterface *softTrunkInterface, bool use_feedforward=false, bool simulate = false);
 
     /**
      * compute the torque required to actuate the arm with a dynamic controller.
@@ -32,14 +32,13 @@ public:
      * @param q_ref
      * @param dq_ref
      * @param ddq_ref
-     * @param tau pointer to where you want the torque value to be saved.
+     * @param f pointer to where you want the torque value to be saved.
      */
     void curvatureDynamicControl(
             const Vector2Nd &q_ref,
             const Vector2Nd &dq_ref,
             const Vector2Nd &ddq_ref,
-            Vector2Nd *tau,
-            bool simulate = false);
+            Vector2Nd *f);
 
     /**
      * compute the pressures for good old PID control.
@@ -57,12 +56,14 @@ public:
     Matrix2Nd B;
     Matrix2Nd C;
     Vector2Nd G;
-    Eigen::Matrix<double, 3, 2*NUM_ELEMENTS> J;
+    Eigen::Matrix<double, 3, 2*N_SEGMENTS> J;
 
 private:
     AugmentedRigidArm *ara;
-    SoftArm *sa;
+    SoftTrunkInterface *sti;
     std::vector<MiniPID> miniPIDs;
+    bool use_feedforward;
+    bool simulate;
 
 };
 

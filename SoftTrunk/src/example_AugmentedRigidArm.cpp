@@ -17,7 +17,7 @@
 
 Vector2Nd q_update(double seconds) {
     Vector2Nd q = Vector2Nd::Zero();
-    for (int i = 0; i < NUM_ELEMENTS; i++) {
+    for (int i = 0; i < N_SEGMENTS; i++) {
         q(2 * i + 0) = 0.03 * sin(seconds * (1.5 + (double) i));
         q(2 * i + 1) = 0.03 * cos(seconds * (2.0 + (double) i));
     }

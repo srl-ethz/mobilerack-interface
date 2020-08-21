@@ -44,9 +44,6 @@ private:
      * @brief calculates q from the current frame values.
      */
     void calculateCurvature();
-    Vector2Nd presmooth_q = Vector2Nd::Zero();
-    Vector2Nd presmooth_dq = Vector2Nd::Zero();
-    Vector2Nd presmooth_ddq = Vector2Nd::Zero();
 
     Vector2Nd initial_q = Vector2Nd::Zero();
 

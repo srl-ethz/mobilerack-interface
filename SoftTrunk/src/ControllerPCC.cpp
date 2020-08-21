@@ -21,11 +21,11 @@ MiniPID ZieglerNichols(double Ku, double period) {
     return MiniPID(Kp, Ki, Kd);
 }
 
-ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *softArm) : ara(augmentedRigidArm),
-                                                                                       sa(softArm) {
+ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftTrunkInterface *softTrunkInterface, bool use_feedforward, bool simulate) : ara(augmentedRigidArm),
+                                                                                       sti(softTrunkInterface), use_feedforward(use_feedforward), simulate(simulate) {
     std::cout<<"ControllerPCC created...\n";
     // set up PID controllers
-    for (int j = 0; j < NUM_ELEMENTS*2; ++j) {
+    for (int j = 0; j < N_SEGMENTS*2; ++j) {
         miniPIDs.push_back(ZieglerNichols(30000,0.36));
     }
 }
@@ -33,21 +33,21 @@ ControllerPCC::ControllerPCC(AugmentedRigidArm *augmentedRigidArm, SoftArm *soft
 void ControllerPCC::curvatureDynamicControl(const Vector2Nd &q_ref,
                                             const Vector2Nd &dq_ref,
                                             const Vector2Nd &ddq_ref,
-                                            Vector2Nd *tau, bool simulate) {
+                                            Vector2Nd *f) {
     // variables to save the measured values.
     Vector2Nd q_meas;
     Vector2Nd dq_meas;
-    if (USE_FEEDFORWARD_CONTROL or simulate) {
+    if (use_feedforward or simulate) {
         // don't use the actual values, since it's doing feedforward control.
         q_meas = Vector2Nd(q_ref);
         dq_meas = Vector2Nd(dq_ref);
     } else {
-        // get the current configuration from SoftArm.
-        q_meas = sa->curvatureCalculator->q;
-        dq_meas = sa->curvatureCalculator->dq;
+        // get the current configuration from SoftTrunkInterface.
+        q_meas = sti->curvatureCalculator->q;
+        dq_meas = sti->curvatureCalculator->dq;
     }
     updateBCG(q_meas, dq_meas);
-    *tau = sa->k.asDiagonal() * q_ref + sa->d.asDiagonal() * dq_ref + G + C * dq_ref + B * ddq_ref;
+    *f = sti->k.asDiagonal() * q_ref + sti->d.asDiagonal() * dq_ref + G + C * dq_ref + B * ddq_ref;
 }
 
 void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
@@ -60,7 +60,7 @@ void ControllerPCC::updateBCG(const Vector2Nd &q, const Vector2Nd &dq) {
 }
 
 void ControllerPCC::curvaturePIDControl(const Vector2Nd &q_ref, Vector2Nd *pressures) {
-    for (int i = 0; i < 2 * NUM_ELEMENTS; ++i) {
-        (*pressures)(i) = miniPIDs[i].getOutput(sa->curvatureCalculator->q(i),q_ref(i));
+    for (int i = 0; i < 2 * N_SEGMENTS; ++i) {
+        (*pressures)(i) = miniPIDs[i].getOutput(sti->curvatureCalculator->q(i),q_ref(i));
     }
 }

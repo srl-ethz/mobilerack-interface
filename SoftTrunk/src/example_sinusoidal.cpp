@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "ForceController.h"
+#include "ValveController.h"
 #include <cmath>
 #include <iostream>
 #include <thread>
@@ -17,7 +17,7 @@ std::vector<int> valve_map = {0, 1, 2};
 int sinusoid(double t) { return 400 + 100 * sin(t); }
 
 int main() {
-    ForceController forceController(16, 1000);
+    ValveController forceController(16, 1000);
 
     for (double time = 0; time < DURATION; time += WAIT) {
         forceController.setSinglePressure(valve_map[0], sinusoid(time));

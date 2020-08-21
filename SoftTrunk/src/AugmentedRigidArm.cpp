@@ -18,7 +18,7 @@ AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
     ros::NodeHandle n;
     nodeHandle = &n;
     joint_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
-    for (int i = 0; i < NUM_ELEMENTS; i++) {
+    for (int i = 0; i < N_SEGMENTS; i++) {
         // set up joint names
         jointState.name.push_back(std::to_string(i) + "-base-ball-joint_x_joint");
         jointState.name.push_back(std::to_string(i) + "-base-ball-joint_y_joint");
@@ -32,7 +32,7 @@ AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
         jointState.name.push_back(std::to_string(i) + "-tip-ball-joint_y_joint");
         jointState.name.push_back(std::to_string(i) + "-tip-ball-joint_z_joint");
     }
-    for (int i = 0; i < NUM_ELEMENTS * JOINTS; i++)
+    for (int i = 0; i < N_SEGMENTS * JOINTS; i++)
         jointState.position.push_back(0.0);
     std::cout << "done.\n";
 #endif
@@ -55,7 +55,7 @@ void AugmentedRigidArm::create_xacro() {
                << "'/>" <<
                "<xacro:empty_link name='mid-0'/>";
     // iterate over all the other PCC elements
-    for (int i = 1; i < NUM_ELEMENTS; ++i) {
+    for (int i = 1; i < N_SEGMENTS; ++i) {
         xacro_file << "<xacro:PCC id='" << i << "' parent='" << "mid-" << i - 1 << "' child='" << "mid-" << i
                    << "' length='" << lengths[i] << "' mass='" << masses[i] << "'/>" <<
                    "<xacro:empty_link name='" << "mid-" << i << "'/>";
@@ -76,7 +76,7 @@ void AugmentedRigidArm::create_rbdl_model() {
     }
     int segments= rbdl_model->dof_count / JOINTS;
     std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << segments << "-segment arm.\n";
-    if (segments != NUM_ELEMENTS){
+    if (segments != N_SEGMENTS){
         std::cout <<"Error: Number of segments in URDF does not match that in code. \n";
         abort();
     }
@@ -97,7 +97,7 @@ void AugmentedRigidArm::update_m(Vector2Nd q) {
     double theta;
     double phi;
     double deltaL;
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+    for (int i = 0; i < N_SEGMENTS; ++i) {
         // use phi, theta parametrization because it's simpler for calculation
         if (q(2 * i) == 0) {
             if (q(2 * i + 1) == 0)
@@ -107,9 +107,9 @@ void AugmentedRigidArm::update_m(Vector2Nd q) {
         } else
             phi = atan(q(2 * i + 1) / q(2 * i));
         if (q(2 * i) == 0)
-            theta = -q(2 * i + 1) / (TRUNK_RADIUS * cos(PI / 2 - phi));
+            theta = -q(2 * i + 1) / (R_TRUNK * cos(PI / 2 - phi));
         else
-            theta = -q(2 * i) / (TRUNK_RADIUS * cos(phi));
+            theta = -q(2 * i) / (R_TRUNK * cos(phi));
         if (theta < 0) {
             theta = -theta;
             phi += PI;
@@ -138,17 +138,17 @@ void AugmentedRigidArm::update_Jm(Vector2Nd q) {
     Vector2Nd q_deltaX = Vector2Nd(q);
     Vector2Nd q_deltaY = Vector2Nd(q);
     double epsilon = 0.0001;
-    for (int i = 0; i < NUM_ELEMENTS; ++i) {
+    for (int i = 0; i < N_SEGMENTS; ++i) {
         q_deltaX(2 * i) += epsilon;
         q_deltaY(2 * i + 1) += epsilon;
     }
     update_m(q);
-    Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1> xi_current = Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1>(m);
+    Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1> xi_current = Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1>(m);
     update_m(q_deltaX);
-    Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1> xi_deltaX = Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1>(m);
+    Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1> xi_deltaX = Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1>(m);
     update_m(q_deltaY);
-    Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1> xi_deltaY = Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 1>(m);
-    for (int j = 0; j < NUM_ELEMENTS; ++j) {
+    Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1> xi_deltaY = Eigen::Matrix<double, JOINTS * N_SEGMENTS, 1>(m);
+    for (int j = 0; j < N_SEGMENTS; ++j) {
         Jm.block(JOINTS * j, 2 * j + 0, JOINTS, 1) = (xi_deltaX - xi_current).block(JOINTS * j, 0, JOINTS, 1) / epsilon;
         Jm.block(JOINTS * j, 2 * j + 1, JOINTS, 1) = (xi_deltaY - xi_current).block(JOINTS * j, 0, JOINTS, 1) / epsilon;
     }
@@ -160,11 +160,11 @@ void AugmentedRigidArm::update_dJm(Vector2Nd q, Vector2Nd dq) {
     Vector2Nd q_delta = Vector2Nd(q);
     q_delta += dq * epsilon;
     update_Jm(q);
-    Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 2 * NUM_ELEMENTS> Jxi_current = Eigen::Matrix<double,
-            JOINTS * NUM_ELEMENTS, 2 * NUM_ELEMENTS>(Jm);
+    Eigen::Matrix<double, JOINTS * N_SEGMENTS, 2 * N_SEGMENTS> Jxi_current = Eigen::Matrix<double,
+            JOINTS * N_SEGMENTS, 2 * N_SEGMENTS>(Jm);
     update_Jm(q_delta);
-    Eigen::Matrix<double, JOINTS * NUM_ELEMENTS, 2 * NUM_ELEMENTS> Jxi_delta = Eigen::Matrix<double,
-            JOINTS * NUM_ELEMENTS, 2 * NUM_ELEMENTS>(Jm);
+    Eigen::Matrix<double, JOINTS * N_SEGMENTS, 2 * N_SEGMENTS> Jxi_delta = Eigen::Matrix<double,
+            JOINTS * N_SEGMENTS, 2 * N_SEGMENTS>(Jm);
     dJm = (Jxi_delta - Jxi_current) / epsilon;
 }
 
@@ -172,8 +172,8 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
     update_m(q);
     MatrixNd Jxi_6D = MatrixNd::Constant (6, rbdl_model->dof_count, 0.);
     Jxi_6D.setZero();
-    CalcBodySpatialJacobian(*rbdl_model, m, JOINTS*NUM_ELEMENTS, Jxi_6D);
-    Jxi = Jxi_6D.block(3,0,3,NUM_ELEMENTS*JOINTS);
+    CalcBodySpatialJacobian(*rbdl_model, m, JOINTS*N_SEGMENTS, Jxi_6D);
+    Jxi = Jxi_6D.block(3,0,3,N_SEGMENTS*JOINTS);
 }
 
 void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
@@ -195,14 +195,14 @@ void AugmentedRigidArm::extract_B_G() {
     // the fun part- extracting the B_xi(inertia matrix) and G_xi(gravity) from RBDL, using unit vectors
 
     // first run Inverse Dynamics with dQ and ddQ as zero vectors (gives gravity vector)
-    VectorNd dQ_zeros = VectorNd::Zero(NUM_ELEMENTS * JOINTS);
-    VectorNd ddQ_zeros = VectorNd::Zero(NUM_ELEMENTS * JOINTS);
-    VectorNd tau = VectorNd::Zero(NUM_ELEMENTS * JOINTS);
+    VectorNd dQ_zeros = VectorNd::Zero(N_SEGMENTS * JOINTS);
+    VectorNd ddQ_zeros = VectorNd::Zero(N_SEGMENTS * JOINTS);
+    VectorNd tau = VectorNd::Zero(N_SEGMENTS * JOINTS);
     InverseDynamics(*rbdl_model, m, dQ_zeros, ddQ_zeros, tau);
     G_xi = tau;
 
     // next, iterate through by making ddQ_zeros a unit vector and get inertia matrix
-    for (int i = 0; i < NUM_ELEMENTS * JOINTS; ++i) {
+    for (int i = 0; i < N_SEGMENTS * JOINTS; ++i) {
         ddQ_zeros(i) = 0.1;
         InverseDynamics(*rbdl_model, m, dQ_zeros, ddQ_zeros, tau);
         B_xi.col(i) = (tau - G_xi) / ddQ_zeros(i);
@@ -220,7 +220,7 @@ AugmentedRigidArm::~AugmentedRigidArm() {
 void AugmentedRigidArm::joint_publish() {
 #if USE_ROS
     jointState.header.stamp = ros::Time::now();
-    for(int i=0; i<NUM_ELEMENTS*JOINTS; i++)
+    for(int i=0; i<N_SEGMENTS*JOINTS; i++)
       jointState.position[i] = m(i);
     joint_pub.publish(jointState);
     //  std::cout<<"publishing"<<jointState<<"\n";

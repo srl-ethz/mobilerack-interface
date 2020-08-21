@@ -56,7 +56,7 @@ std::vector<RigidBody> OptiTrackClient::getData() {
     return frame->rigidBodies();
 }
 
-int OptiTrackClient::stop() {
+OptiTrackClient::~OptiTrackClient() {
     std::cout << "Stopping OptiTrackClient.\n";
     frameListener->stop();
     commandListener->stop();
@@ -67,7 +67,6 @@ int OptiTrackClient::stop() {
 
     close(sdData);
     close(sdCommand);
-    return 0;
 }
 
 // int main() {return 1;}

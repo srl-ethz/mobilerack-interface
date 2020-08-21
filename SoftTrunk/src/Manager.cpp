@@ -24,12 +24,13 @@ pseudoinverse(const MatT &mat, typename MatT::Scalar tolerance = typename MatT::
     return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
 }
 
-Manager::Manager(bool logMode, bool use_pid) : logMode(logMode), use_pid(use_pid) {
+Manager::Manager(bool logMode, bool use_pid, bool use_feedforward) : logMode(logMode), use_pid(use_pid), use_feedforward(use_feedforward) {
     std::cout << "Setting up Manager...\n";
+    std::cout << "PID mode\t" <<use_pid <<"\nfeedforward mode\t"<<use_feedforward<<"\n";
     // set up CurvatureCalculator, AugmentedRigidArm, and ControllerPCC objects.
-    softArm = new SoftArm{};
+    softArm = new SoftTrunkInterface{};
     augmentedRigidArm = new AugmentedRigidArm{};
-    controllerPCC = new ControllerPCC{augmentedRigidArm, softArm};
+    controllerPCC = new ControllerPCC{augmentedRigidArm, softArm, use_feedforward};
 
     logBeginTime = std::chrono::high_resolution_clock::now();
     std::cout << "Setup of Manager done.\n";
@@ -38,18 +39,17 @@ Manager::Manager(bool logMode, bool use_pid) : logMode(logMode), use_pid(use_pid
 void Manager::curvatureControl(Vector2Nd q,
                                Vector2Nd dq,
                                Vector2Nd ddq) {
-    // gets values from ControllerPCC and relays that to SoftArm
+    // gets values from ControllerPCC and relays that to SoftTrunkInterface
+    Vector2Nd output;
     if (use_pid) {
-        Vector2Nd output;
         controllerPCC->curvaturePIDControl(q, &output);
         softArm->actuate(output, true);
     } else {
-        Vector2Nd f;
-        controllerPCC->curvatureDynamicControl(q, dq, ddq, &f);
-        softArm->actuate(f);
+        controllerPCC->curvatureDynamicControl(q, dq, ddq, &output);
+        softArm->actuate(output);
     }
     if (logMode)
-        log(softArm->curvatureCalculator->q, q);
+        log(softArm->curvatureCalculator->q, q, output);
 }
 
 void Manager::sendJointSpaceProfile(vFunctionCall updateQ, double duration) {
@@ -84,9 +84,10 @@ void Manager::sendJointSpaceProfile(vFunctionCall updateQ, double duration) {
     std::cout << "control loop took on average " << sum_duration / count << " microseconds.\n";
 }
 
-void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref) {
+void Manager::log(Vector2Nd &q_meas, Vector2Nd &q_ref, Vector2Nd &f) {
     log_q_meas.push_back(q_meas);
     log_q_ref.push_back(q_ref);
+    log_f.push_back(f);
     log_time.push_back(std::chrono::high_resolution_clock::now() - logBeginTime);
     logNum++;
 }
@@ -101,14 +102,12 @@ void Manager::characterize_part1() {
     sendJointSpaceProfile((vFunctionCall)doNothing, 15);
     std::cout<<"p=\n"<<softArm->p<<"\n";
     std::cout<<"A_p2f_all * p=\n"<<softArm->A_p2f_all*softArm->p<<"\n";
-    Eigen::Matrix<double, 3,1> f_ext = Eigen::Matrix<double, 3,1>::Zero();
-    f_ext(0) = 1;
-    std::cout << "f_ext=\n" <<f_ext<<"\n";
+    std::cout << "alpha = - M f\n";
     Vector2Nd zero_vector = Vector2Nd::Zero();
     controllerPCC->updateBCG(zero_vector, zero_vector);
-    std::cout<< " J^T * f_ext=\n" << controllerPCC->J.transpose() * f_ext <<"\n";
-    std::cout << "There you go. Please compute alpha from '0 = alpha A_p2f_all * p + J^T * f_ext' yourself, with f being the force exerted to the tip of the arm.\n";//todo: change this
-    std::cout << "Put that alpha values to SoftArm.cpp, and run Manager.characterize_part2\n";
+    std::cout<< " M =\n" << (softArm->A_p2f_all*softArm->p).asDiagonal().inverse() * controllerPCC->J.transpose() <<"\n";
+    std::cout << "There you go. Please compute alpha from yourself, with f being the force exerted to the tip of the arm.\n";
+    std::cout << "Put that alpha values to SoftTrunkInterface.cpp, and run Manager.characterize_part2\n";
 }
 
 void Manager::characterize_part2() {
@@ -116,44 +115,45 @@ void Manager::characterize_part2() {
     std::cout << "Manager.characterize_part2 called. This measures k and d. Make sure you've already set the proper value for alpha, using Manager.characterize_part1\n";
     logMode = true;
 
-    const int historySize = 50; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
+    const int historySize = 100; // how many samples to use when calculating (make it too big, and pseudoinverse cannot be calculated)
     const double duration = 4; // for how long the process takes
     const int steps = (int) (duration / CONTROL_PERIOD);
     Eigen::MatrixXd pressures;
-    pressures.resize(NUM_ELEMENTS * CHAMBERS,
+    pressures.resize(N_SEGMENTS * N_CHAMBERS,
                      steps); // https://stackoverflow.com/questions/23414308/matrix-with-unknown-number-of-rows-and-columns-eigen-library
-    const double max_output = 0.5 * (MAX_PRESSURE - PRESSURE_OFFSET);
+    const double max_output = 0.8 * (MAX_PRESSURE - P_OFFSET);
 
     // create pressure profile to send to arm. Pressure is monotonically increased then decreased.
-    for (int k = 0; k < NUM_ELEMENTS; ++k) {
+    for (int k = 0; k < N_SEGMENTS; ++k) {
         for (int j = 0; j < steps; ++j) {
-            for (int l = 0; l < CHAMBERS; ++l) {
-                pressures(CHAMBERS * k + l, j) = PRESSURE_OFFSET; //first set all to PRESSURE_OFFSET
+            for (int l = 0; l < N_CHAMBERS; ++l) {
+                pressures(N_CHAMBERS * k + l, j) = P_OFFSET; //first set all to P_OFFSET
             }
-            pressures(CHAMBERS * k + 0, j) = PRESSURE_OFFSET+fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
+            pressures(N_CHAMBERS * k + 0, j) = P_OFFSET+fmin(max_output, fmin(max_output * ((double) j * 2 / steps),
                                                              max_output * (2 - (double) j * 2 / steps)));
-            pressures(CHAMBERS * k + 1, j) = 0.6*(pressures(CHAMBERS * k + 0, j) -PRESSURE_OFFSET) +PRESSURE_OFFSET;
+            pressures(N_CHAMBERS * k + 1, j) = 0.8*(pressures(N_CHAMBERS * k + 0, j) -P_OFFSET) +P_OFFSET;
         }
     }
     // log of pressure (take historySize number of samples)
     Eigen::MatrixXd pressure_log;
-    pressure_log.resize(NUM_ELEMENTS * CHAMBERS, historySize);
+    pressure_log.resize(N_SEGMENTS * N_CHAMBERS, historySize);
     // log of q (take historySize number of samples)
     Eigen::MatrixXd q_log;
-    q_log.resize(NUM_ELEMENTS * 2, historySize);
+    q_log.resize(N_SEGMENTS * 2, historySize);
     // log of dq (take historySize number of samples)
     Eigen::MatrixXd dq_log;
-    dq_log.resize(NUM_ELEMENTS * 2, historySize);
+    dq_log.resize(N_SEGMENTS * 2, historySize);
 
     std::chrono::high_resolution_clock::time_point lastTime;
     int loop_time;
     int log_index = 0;
+    Vector2Nd emptyVec = Vector2Nd::Zero();
 
     // send that to arm and save the results.
     for (int l = 0; l < steps; ++l) {
         lastTime = std::chrono::high_resolution_clock::now();
         log(softArm->curvatureCalculator->q,
-            softArm->curvatureCalculator->dq); // hacking the logging mechanism to log dq as well(designed to log commanded q and measured q)
+            softArm->curvatureCalculator->dq, emptyVec); // hacking the logging mechanism to log dq as well(designed to log commanded q and measured q)
         softArm->actuatePressure(pressures.col(l));
         if (l % (steps / historySize) == 1) {
             // log the current state once every (steps / historySize) steps
@@ -171,7 +171,7 @@ void Manager::characterize_part2() {
 
     // compute the f for each sample
     Eigen::MatrixXd log_f;
-    log_f.resize(2 * NUM_ELEMENTS, historySize);
+    log_f.resize(2 * N_SEGMENTS, historySize);
     for (int l = 0; l < historySize; ++l) {
         controllerPCC->updateBCG(q_log.col(l), dq_log.col(l));
         Vector2Nd tau = /*controllerPCC->C*dq_log.col(l) + */controllerPCC->G - softArm->alpha.asDiagonal()*softArm->A_p2f_all*pressure_log.col(l);
@@ -198,7 +198,6 @@ void Manager::characterize_part2() {
 }
 
 Manager::~Manager() {
-    softArm->stop();
     if (logMode)
         outputLog();
 }
@@ -210,22 +209,28 @@ void Manager::outputLog() {
 
     // first the header row
     log_file << "time(millis)";
-    for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+    for (int k = 0; k < N_SEGMENTS * 2; ++k) {
         log_file << ", q_ref[" << k << "]";
     }
-    for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+    for (int k = 0; k < N_SEGMENTS * 2; ++k) {
         log_file << ", q_meas[" << k << "]";
+    }
+    for (int k = 0; k < N_SEGMENTS * 2; ++k) {
+        log_file << ", f[" << k << "]";
     }
     log_file << "\n";
 
     // log actual data
     for (int j = 0; j < logNum; ++j) {
         log_file << std::chrono::duration_cast<std::chrono::milliseconds>(log_time[j]).count();
-        for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+        for (int k = 0; k < N_SEGMENTS * 2; ++k) {
             log_file << ", " << log_q_ref[j](k);
         }
-        for (int k = 0; k < NUM_ELEMENTS * 2; ++k) {
+        for (int k = 0; k < N_SEGMENTS * 2; ++k) {
             log_file << ", " << log_q_meas[j](k);
+        }
+        for (int k = 0; k < N_SEGMENTS * 2; ++k) {
+            log_file << ", " << log_f[j](k);
         }
         log_file << "\n";
     }

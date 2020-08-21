@@ -14,10 +14,10 @@
 /**
  * @brief Interface for the pressure valve array. Implements an individual PID control for each valve.
  * The PID controller runs as a separate thread from the main code.
- * @details example_sinusoidal.cpp and example_forceController.cpp are demos of this library.
+ * @details example_sinusoidal.cpp and example_ValveController.cpp are demos of this library.
  *
  */
-class ForceController {
+class ValveController {
 private:
     /**
      * @brief thread on which the PID controllers run.
@@ -51,7 +51,7 @@ public:
      * @param maxValveIndex maximum valve index used in current state
      * @param maxPressure set the output limit of all the valves, for that arm won't pop
      */
-    explicit ForceController(int maxValveIndex, int maxPressure);
+    explicit ValveController(int maxValveIndex, int maxPressure);
 
     /**
      * @brief stops the PID controller and outputs log.

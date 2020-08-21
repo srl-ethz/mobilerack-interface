@@ -27,7 +27,7 @@ with open(filename) as csvfile:
     for row in reader:
         # first, if there were arguments designating which data to plot, remove the columns supposed to be removed
         newDict = dict(row)
-        if len(selectedData)>1:
+        if len(selectedData)>0:
             for key in row:
                 if not (key.replace(" ", "") in selectedData or key == 'time(millis)'):
                     del newDict[key]

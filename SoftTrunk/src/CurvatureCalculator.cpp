@@ -4,10 +4,10 @@
 CurvatureCalculator::CurvatureCalculator(int sensorType)
         : sensorType(sensorType) {
     // initialize size of arrays that record transforms
-    for (int i = 0; i <= NUM_ELEMENTS; i++) {
+    for (int i = 0; i <= N_SEGMENTS; i++) {
         abs_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
-    for (int j = 0; j < NUM_ELEMENTS; ++j) {
+    for (int j = 0; j < N_SEGMENTS; ++j) {
         rel_transforms.push_back(Eigen::Transform<double, 3, Eigen::Affine>().Identity());
     }
 }
@@ -69,18 +69,13 @@ void CurvatureCalculator::calculateCurvature() {
         std::vector<RigidBody> rigidBodies = optiTrackClient->getData();
         for (int i = 0; i < rigidBodies.size(); i++) {
             int id = rigidBodies[i].id();
-            if (0 <= id && id < NUM_ELEMENTS + 1) {
+            if (0 <= id && id < N_SEGMENTS + 1) {
                 Point3f position = rigidBodies[i].location();
 
                 Quaternion4f quaternion = rigidBodies[i].orientation();
-                Eigen::Quaterniond quaternion_eigen;
-
-                quaternion_eigen.x() = quaternion.qx;
-                quaternion_eigen.y() = quaternion.qy;
-                quaternion_eigen.z() = quaternion.qz;
-                quaternion_eigen.w() = quaternion.qw;
+                Eigen::Quaterniond quaternion_eigen{quaternion.qw, quaternion.qx, quaternion.qy, quaternion.qz};
                 quaternion_eigen.normalize();
-                abs_transforms[id] = quaternion_eigen * Eigen::Translation3d(position.x, position.y, position.z);
+                abs_transforms[id] = Eigen::Translation3d(position.x, position.y, position.z) *  quaternion_eigen;
             }
         }
     } else if (sensorType == USE_INTEGRATEDSENSOR) {
@@ -88,15 +83,15 @@ void CurvatureCalculator::calculateCurvature() {
     }
 
     // next, calculate the parameters
-    for (int i = 0; i < NUM_ELEMENTS; i++) {
-        rel_transforms[i] = abs_transforms[i + 1] * abs_transforms[i].inverse();
+    for (int i = 0; i < N_SEGMENTS; i++) {
+        rel_transforms[i] = abs_transforms[i].inverse()* abs_transforms[i + 1] ;
 
         Eigen::Transform<double, 3, Eigen::Affine>::MatrixType matrix = rel_transforms[i].matrix();
         phi = atan(matrix(1, 3) / matrix(0, 3)); // -PI/2 ~ PI/2
         theta = sign(matrix(0, 3)) * fabs(asin(sqrt(pow(matrix(0, 2), 2) + pow(matrix(1, 2), 2))));
 
-        q(2 * i) = -TRUNK_RADIUS * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
-        q(2 * i + 1) = -TRUNK_RADIUS * cos(PI / 2 - phi) * theta; // deltaLb
+        q(2 * i) = -R_TRUNK * cos(phi) * theta; // deltaLa (the difference in the length of La compared to neutral state)
+        q(2 * i + 1) = -R_TRUNK * cos(PI / 2 - phi) * theta; // deltaLb
     }
     q -= initial_q;
 }
@@ -106,7 +101,6 @@ void CurvatureCalculator::stop() {
     run = false;
     calculatorThread.join();
     if (sensorType == USE_OPTITRACK) {
-        optiTrackClient->stop();
         delete optiTrackClient;
     }
 }
