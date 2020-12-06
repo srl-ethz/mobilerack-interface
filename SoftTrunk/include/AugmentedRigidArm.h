@@ -1,15 +1,8 @@
-#ifndef ARMPCC_H
-#define ARMPCC_H
+#pragma once
 
+#include <drake/multibody/plant/multibody_plant.h>
 
-#include <rbdl/rbdl.h>
 #include "SoftTrunk_common_defs.h"
-
-#ifndef RBDL_BUILD_ADDON_URDFREADER
-#error "Error: RBDL addon URDFReader not enabled."
-#endif
-
-#include <rbdl/addons/urdfreader/urdfreader.h>
 
 #include <iostream>
 #include <fstream>
@@ -23,9 +16,6 @@
  * how many joints there are in one segment of the augmented rigid arm.
  */
 #define JOINTS 11
-
-using namespace RigidBodyDynamics;
-using namespace RigidBodyDynamics::Math;
 
 /**
  * @brief Represents the augmented rigid arm model.
@@ -46,11 +36,6 @@ private:
      * @brief extract inertia matrix(B) and gravity vector(G) of the current arm configuration(xi).
      */
     void extract_B_G();
-
-    /**
-     * @brief generate a file robot.urdf.xacro, using the lengths and masses of the actual robot.
-     */
-    void create_xacro();
 
 #if USE_ROS
     ros::Publisher joint_pub;
@@ -78,7 +63,7 @@ public:
     /**
      * @param is_create_xacro set to true if you only want to generate the model's xacro model
      */
-    explicit AugmentedRigidArm(bool is_create_xacro = false);
+    explicit AugmentedRigidArm();
 
     ~AugmentedRigidArm();
 
@@ -115,5 +100,3 @@ public:
      */
     void update(Vector2Nd, Vector2Nd);
 };
-
-#endif

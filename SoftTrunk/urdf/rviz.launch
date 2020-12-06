@@ -1,16 +1,18 @@
 <launch>
   <!--
+  use this to check generated URDF file
   $ roslaunch rviz.launch
--->
+  add RobotModel and set Fixed Frame to base_link
+  -->
     <!-- Generate/Load robot description file -->
-    <param name="robot_description" command="cat ./robot.urdf" />
-
-
+    <param name="robot_description" command="cat ./3segment_4chamber.urdf" />
 
     <!-- Robot state publisher subscribe to joint states and publish "tf" transforms -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
     <!-- Rviz to vizualize robot -->
-    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d './robot.rviz'"/>
+    <node name="rviz" pkg="rviz" type="rviz" output="screen"/>
+
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
 
 </launch>

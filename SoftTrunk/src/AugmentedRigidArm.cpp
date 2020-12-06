@@ -1,12 +1,7 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
 
-AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
-    rbdl_check_api_version(RBDL_API_VERSION);
-    if (is_create_xacro) {
-        create_xacro();
-        return;
-    }
+AugmentedRigidArm::AugmentedRigidArm() {
     create_rbdl_model();
 #if USE_ROS
     // ros::init() requires argc and argv for remapping, but since we're not using command line arguments for this, input placeholder values that won't be used.
@@ -36,34 +31,6 @@ AugmentedRigidArm::AugmentedRigidArm(bool is_create_xacro) {
         jointState.position.push_back(0.0);
     std::cout << "done.\n";
 #endif
-}
-
-
-void AugmentedRigidArm::create_xacro() {
-    std::cout << "generating XACRO file robot.urdf.xacro...\n";
-    std::ofstream xacro_file;
-
-    xacro_file.open("./urdf/robot.urdf.xacro");
-
-    // write outlog text to the file
-    xacro_file << "<?xml version='1.0'?><robot xmlns:xacro='http://www.ros.org/wiki/xacro' name='robot'>" <<
-               "<xacro:include filename='macro_definitions.urdf.xacro' /><xacro:empty_link name='base_link'/>";
-
-    // write out first PCC element
-    // this is written outside for loop because parent of first PCC element must be called base_link
-    xacro_file << "<xacro:PCC id='0' parent='base_link' child='mid-0' length='" << lengths[0] << "' mass='" << masses[0]
-               << "'/>" <<
-               "<xacro:empty_link name='mid-0'/>";
-    // iterate over all the other PCC elements
-    for (int i = 1; i < N_SEGMENTS; ++i) {
-        xacro_file << "<xacro:PCC id='" << i << "' parent='" << "mid-" << i - 1 << "' child='" << "mid-" << i
-                   << "' length='" << lengths[i] << "' mass='" << masses[i] << "'/>" <<
-                   "<xacro:empty_link name='" << "mid-" << i << "'/>";
-    }
-    xacro_file << "</robot>";
-
-    xacro_file.close();
-    std::cout << "Finished generation. Run ./create_urdf in /urdf directory to generate robot.urdf from robot.urdf.xacro.(requires ROS)\n";
 }
 
 void AugmentedRigidArm::create_rbdl_model() {

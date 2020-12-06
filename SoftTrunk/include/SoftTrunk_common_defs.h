@@ -3,12 +3,20 @@
  * @brief defines various definitions for the Soft Trunk that are used across different files.
  */
 
-#ifndef SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
-#define SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H
-
+#pragma once
 
 #include <Eigen/Dense>
+#include <iostream>
 
+/** robot-specific parameters SoftTrunk*/
+namespace st_params{
+    const std::string robot_name = "3segment_4chamber";
+    /** @brief mass of each segment, in kg */
+    const double masses[] = {0.12, 0.12, 0.12};
+    /** @brief length of each segment, in m */
+    const double lengths[] = {0.11, 0.11, 0.11};
+    const int num_segments = 2;
+}
 /**
  * @brief how many PCC elements there are
  */
@@ -82,5 +90,3 @@ typedef Eigen::Matrix<double, N_SEGMENTS * 2, N_SEGMENTS * 2> Matrix2Nd;
 #ifndef CATKIN_FOUND
 #define USE_ROS false
 #endif
-
-#endif //SOFTTRUNK_SOFTTRUNK_COMMON_DEFS_H

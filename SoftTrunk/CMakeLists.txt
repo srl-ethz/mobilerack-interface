@@ -1,9 +1,50 @@
-cmake_minimum_required (VERSION 3.0)
-set (CMAKE_CXX_STANDARD 11)
+cmake_minimum_required (VERSION 3.10.2)
 project(SoftTrunk)
+
+### find and setup for Drake
+# cf: https://github.com/RobotLocomotion/drake-external-examples/tree/master/drake_cmake_installed
+# N.B. This is a temporary flag. It only really applies to Linux, as Mac
+# does not need X11.
+option(RUN_X11_TESTS "Run tests that require X11" OFF)
+
+include(CTest)
+
+if(APPLE)
+  set(FIND_PYTHON_EXECUTABLE_PATHS /usr/local/opt/python@3.8/bin)
+  set(FIND_PYTHON_INTERP_VERSION 3.8)
+else()
+  set(FIND_PYTHON_EXECUTABLE_PATHS /usr/bin)
+  set(FIND_PYTHON_INTERP_VERSION 3.6)
+endif()
+find_program(PYTHON_EXECUTABLE NAMES python3
+  PATHS "${FIND_PYTHON_EXECUTABLE_PATHS}"
+  NO_DEFAULT_PATH
+)
+find_package(PythonInterp ${FIND_PYTHON_INTERP_VERSION} MODULE REQUIRED)
+
+execute_process(COMMAND ${PYTHON_EXECUTABLE}-config --exec-prefix
+  OUTPUT_VARIABLE PYTHON_EXEC_PREFIX
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+list(APPEND CMAKE_PREFIX_PATH "${PYTHON_EXEC_PREFIX}")
+find_package(PythonLibs ${FIND_PYTHON_INTERP_VERSION} MODULE REQUIRED)
+
+find_package(drake CONFIG REQUIRED)
+
+get_filename_component(PYTHONPATH
+  "${drake_DIR}/../../python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages"
+  REALPATH
+)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+### END OF find and setup for Drake
+
 include_directories(include src/MiniPID include/modbus)
 
-find_package(PythonLibs 2.7)
 FIND_PACKAGE(PkgConfig)
 
 # https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake
@@ -22,29 +63,8 @@ include(FindPackageHandleStandardArgs)
 # if all listed variables are TRUE
 find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRARIES MODBUS_INCLUDE_DIRS)
 
-
-
-# We need to add the project source path to the CMake module path so that
-# the FindRBDL.cmake script can be found.
-LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} )
-FIND_PACKAGE (RBDL COMPONENTS URDFReader REQUIRED)
-INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR})
-
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
-
-FIND_PACKAGE( Boost REQUIRED COMPONENTS program_options system thread REQUIRED)
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
-
-# including ROS
-# somewhat based on CMakeLists.txt here:
-# https://answers.ros.org/question/237494/fatal-error-rosrosh-no-such-file-or-directory/
-find_package(catkin QUIET COMPONENTS roscpp sensor_msgs)
-include_directories(${catkin_INCLUDE_DIRS})
-# if found, set the CATKIN_FOUND definition, which is read in SoftTrun_common_defs.h to set USE_ROS to true or false.
-if (catkin_FOUND)
-add_definitions(-DCATKIN_FOUND)
-endif()
 
 add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE)
@@ -57,55 +77,53 @@ add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp src/MiniP
 target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
 target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(example_ValveController src/example_ValveController.cpp)
-target_link_libraries(example_ValveController ValveController)
+# add_executable(example_ValveController src/example_ValveController.cpp)
+# target_link_libraries(example_ValveController ValveController)
 
-add_executable(example_sinusoidal src/example_sinusoidal.cpp)
-target_link_libraries(example_sinusoidal ValveController -pthread)
+# add_executable(example_sinusoidal src/example_sinusoidal.cpp)
+# target_link_libraries(example_sinusoidal ValveController -pthread)
 # http://www.kaizou.org/2014/11/typical-cmake-project/
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
-ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
-TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
+# ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
+# TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
 
-ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
-TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
+# ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
+# TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
 
-add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
-target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)
+# add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
+# target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)
 
-add_library(Manager SHARED src/Manager.cpp)
-target_link_libraries(Manager SoftTrunkInterface AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
+# add_library(Manager SHARED src/Manager.cpp)
+# target_link_libraries(Manager SoftTrunkInterface AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
 
-add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
-target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
+# add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
+# target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
-target_link_libraries(AugmentedRigidArm ${RBDL_LIBRARY} ${RBDL_URDFReader_LIBRARY} ${catkin_LIBRARIES})
-#${ROSCPP_LIBRARIES} ${SENSOR_MSGS_LIBRARIES})
+#add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
+#target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
 
-add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
-target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
+# add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
+# target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
-add_executable(create_xacro src/create_xacro.cpp)
-target_link_libraries(create_xacro AugmentedRigidArm)
+add_executable(create_xacro src/create_xacro.cpp src/fmt/format.cc)
 
-add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
-target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
+# add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
+# target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
-add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
-target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)
+# add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
+# target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)
 
-add_executable(characterize_part2 src/characterize_part2.cpp)
-target_link_libraries(characterize_part2 Manager)
+# add_executable(characterize_part2 src/characterize_part2.cpp)
+# target_link_libraries(characterize_part2 Manager)
 
-add_executable(characterize_part1 src/characterize_part1.cpp)
-target_link_libraries(characterize_part1 Manager)
+# add_executable(characterize_part1 src/characterize_part1.cpp)
+# target_link_libraries(characterize_part1 Manager)
 
-add_executable(experiment src/experiment.cpp)
-target_link_libraries(experiment Manager -pthread)
+# add_executable(experiment src/experiment.cpp)
+# target_link_libraries(experiment Manager -pthread)
 
 
-add_executable(example_SoftTrunkInterface src/example_SoftTrunkInterface.cpp)
-target_link_libraries(example_SoftTrunkInterface SoftTrunkInterface -pthread)
+# add_executable(example_SoftTrunkInterface src/example_SoftTrunkInterface.cpp)
+# target_link_libraries(example_SoftTrunkInterface SoftTrunkInterface -pthread)
 
