@@ -71,18 +71,15 @@ target_include_directories(test_valve PRIVATE)
 target_include_directories(test_valve PRIVATE ${MODBUS_DIRS})
 target_link_libraries(test_valve ${MODBUS_LIBRARIES} )
 
-
-# http://www.kaizou.org/2014/11/typical-cmake-project/
 add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
 target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
 target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
 
-# add_executable(example_ValveController src/example_ValveController.cpp)
-# target_link_libraries(example_ValveController ValveController)
+add_executable(example_ValveController src/example_ValveController.cpp)
+target_link_libraries(example_ValveController ValveController)
 
-# add_executable(example_sinusoidal src/example_sinusoidal.cpp)
-# target_link_libraries(example_sinusoidal ValveController -pthread)
-# http://www.kaizou.org/2014/11/typical-cmake-project/
+add_executable(example_ValveController_sinusoidal src/example_ValveController_sinusoidal.cpp)
+target_link_libraries(example_ValveController_sinusoidal ValveController)
 
 # compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
 # ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
@@ -100,16 +97,16 @@ target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRA
 # add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
 # target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
-#add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp include/Manager.h include/ControllerPCC.h include/SoftTrunk_common_defs.h)
-#target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
+add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp)
+target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
 
 # add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
 # target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
 add_executable(create_xacro src/create_xacro.cpp src/fmt/format.cc)
 
-# add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
-# target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
+add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
+target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
 # add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
 # target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)

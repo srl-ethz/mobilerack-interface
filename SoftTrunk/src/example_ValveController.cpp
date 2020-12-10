@@ -3,22 +3,22 @@
 #include <iostream>
 #include <thread>
 /**
- * @file example_forceController.cpp
- * @brief This program shows an example usage of the ForceController.
+ * @file example_ValveController.cpp
+ * @brief This program shows an example usage of the ValveController. Actuates through each valve defined in st_params::valve::map
  */
-void wait() { std::this_thread::sleep_for(std::chrono::milliseconds(2000)); }
+
 int main() {
-    ValveController forceController(16, 1000);
-    for (int i = 0; i < 20; i++) {
-        forceController.setSinglePressure(i % (N_SEGMENTS*N_CHAMBERS)+4, 300);
-        wait();
-        forceController.setSinglePressure(i % (N_SEGMENTS*N_CHAMBERS)+4, 0);
-        //forceController.setSinglePressure(i % 12, 0);
-        //forceController.setSinglePressure((i + 2) % 12, 0);
+    const int pressure = 300;
+    int valve_id;
+    ValveController vc{};
+    for (int i = 0; i < st_params::valve::map.size(); i++) {
+        valve_id = st_params::valve::map[i];
+        std::cout << "actuator ID:\t" << i << "\tvalve ID:\t" << valve_id << "\tpressure\t" << pressure << std::endl;
+        vc.setSinglePressure(i, pressure);
+        sleep(1);
+        vc.setSinglePressure(i, 0);
+        sleep(1);
     }
-
-    wait();
-    forceController.disconnect();
-
+    vc.disconnect();
     return 1;
 }

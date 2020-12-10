@@ -1,21 +1,44 @@
 /**
- * @file SoftTrunk_common_defs.h
- * @brief defines various definitions for the Soft Trunk that are used across different files.
+ * @file SoftTrunk_common.h
+ * @brief defines various constants and convenience functions for the Soft Trunk that are used across different files.
  */
 
 #pragma once
 
 #include <Eigen/Dense>
 #include <iostream>
+#include <thread>
 
 /** robot-specific parameters SoftTrunk*/
-namespace st_params{
+namespace st_params {
     const std::string robot_name = "3segment_4chamber";
     /** @brief mass of each segment, in kg */
     const double masses[] = {0.12, 0.12, 0.12};
     /** @brief length of each segment, in m */
     const double lengths[] = {0.11, 0.11, 0.11};
     const int num_segments = 2;
+
+    const std::string local_address = "192.168.1.111";
+    namespace valve {
+        /** @brief IP address of Festo valves */
+        const char* valve_address = "192.168.0.100";
+        /** @brief map[i] is the valve number for i-th actuator in controller */
+        const std::array map{0, 1, 2, 3};
+        const int num_valves = 16;
+
+        /** @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
+        * for DragonSkin 30, set to 1200.
+        * for DragonSkin 10, set to 400.
+        * (not throughly examined- a larger or smaller value may be better)
+        */
+        const int max_pressure = 400;
+        const bool use_pid = false;
+        const bool log = true;
+    }
+}
+
+void sleep(double sleep_secs) {
+    std::this_thread::sleep_for(std::chrono::milliseconds((int) (sleep_secs * 1000)));
 }
 /**
  * @brief how many PCC elements there are
@@ -34,39 +57,16 @@ namespace st_params{
  */
 #define MOTIVE_ADDRESS "192.168.1.105"
 /**
- * @brief IP address of Festo valves
- */
-#define VALVE_ADDRESS "192.168.1.101"
-/**
- * @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
- * for DragonSkin 30, set to 300.
- * for DragonSkin 10, set to 150.
- * (not throughly examined- a larger or smaller value may be better)
- */
+* @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
+* for DragonSkin 30, set to 300.
+* for DragonSkin 10, set to 150.
+* (not throughly examined- a larger or smaller value may be better)
+*/
 #define P_OFFSET 150
-/**
- * @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
- * for DragonSkin 30, set to 1200.
- * for DragonSkin 10, set to 400.
- * (not throughly examined- a larger or smaller value may be better)
- */
-#define MAX_PRESSURE 400
-/**
- * @brief mass of each segment, in kg
- */
-#define MASSES {0.12, 0.12, 0.12}
-/**
- * @brief length of each segment, in m
- */
-#define LENGTHS {0.11, 0.11, 0.11}
 /**
  * @brief radius of the soft trunk, in meters.
  */
 #define R_TRUNK 0.03
-/**
- * @brief Maps from index of each chamber to ID of valve array. Should be ordered in: {root stage(first is chamber along x positive axis, other chambers are counted clockwise from that) -> second stage ...}
- */
-#define VALVE_MAP {11, 4, 9, 10, 8, 6, 5, 7}
 
 #define PI 3.141592
 /**

@@ -1,5 +1,4 @@
-#ifndef FORCECONTROLLER_H
-#define FORCECONTROLLER_H
+#pragma once
 
 #include "MiniPID.h"
 #include "MPA.h"
@@ -8,13 +7,13 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include "SoftTrunk_common_defs.h"
+#include "SoftTrunk_common.h"
 #include <chrono>
 
 /**
- * @brief Interface for the pressure valve array. Implements an individual PID control for each valve.
+ * @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve.
  * The PID controller runs as a separate thread from the main code.
- * @details example_sinusoidal.cpp and example_ValveController.cpp are demos of this library.
+ * @details example_sinusoidal.cpp and example_ValveController.cpp show example usage of this library.
  *
  */
 class ValveController {
@@ -24,39 +23,36 @@ private:
      */
     void controllerThread();
 
-    /**
-     * @brief thread runs as long as this is set to true
-     */
+    /** @brief write CSV log to log_pressure.csv */
+    void write_log();
+
+    /** @brief thread runs as long as this is set to true */
     bool run;
-    std::vector<int> commanded_pressures;
-    int DoF;
+
+    /** @brief holds the desired pressure values for each actuator */
+    std::vector<int> desired_pressures;
     std::vector<MiniPID> pid;
-    MPA mpa{VALVE_ADDRESS, "502"};
+    MPA* mpa;
     std::thread controller_thread;
+
+    // variables used to save the log data
     std::vector<double> seconds_log;
-    std::vector<std::vector<int>> pressure_log;
-    std::vector<std::vector<int>> commandpressure_log;
-    int maxPressure;
+    std::vector<std::vector<int>> sensor_pressure_log;
+    std::vector<std::vector<int>> desired_pressure_log;
     std::chrono::high_resolution_clock::time_point logBeginTime;
 
 public:
     /**
      * @brief set pressure for a single valve.
-     * @param index valve id
+     * @param index ID of actuator (not ID of valve)
      * @param pressure pressure, in mbar.
      */
     void setSinglePressure(int index, int pressure);
 
-    /**
-     * @param maxValveIndex maximum valve index used in current state
-     * @param maxPressure set the output limit of all the valves, for that arm won't pop
-     */
-    explicit ValveController(int maxValveIndex, int maxPressure);
+    explicit ValveController();
 
     /**
      * @brief stops the PID controller and outputs log.
      */
     void disconnect();
 };
-
-#endif

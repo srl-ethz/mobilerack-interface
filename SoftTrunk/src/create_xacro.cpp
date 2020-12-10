@@ -1,7 +1,7 @@
 //
 // Created by yasu on 24/10/18.
 //
-#include "SoftTrunk_common_defs.h"
+#include "SoftTrunk_common.h"
 
 #include "fmt/core.h"
 #include <fstream>
