@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>
 
-/** robot-specific parameters SoftTrunk*/
+/** @brief robot-specific parameters SoftTrunk*/
 namespace st_params {
     const std::string robot_name = "3segment_4chamber";
     /** @brief mass of each segment, in kg */
@@ -19,19 +19,21 @@ namespace st_params {
     const int num_segments = 2;
 
     const std::string local_address = "192.168.1.111";
+
+    /** @brief valve-related parameters */
     namespace valve {
         /** @brief IP address of Festo valves */
         const char* valve_address = "192.168.0.100";
         /** @brief map[i] is the valve number for i-th actuator in controller */
-        const std::array map{0, 1, 2, 3};
+        const std::array map{0};
         const int num_valves = 16;
 
-        /** @brief define max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
+        /** @brief max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
         * for DragonSkin 30, set to 1200.
         * for DragonSkin 10, set to 400.
         * (not throughly examined- a larger or smaller value may be better)
         */
-        const int max_pressure = 400;
+        const int max_pressure = 500;
         const bool use_pid = false;
         const bool log = true;
     }

@@ -1,8 +1,17 @@
 #pragma once
 
+#include <drake/common/drake_assert.h>
+#include <drake/common/find_resource.h>
+#include <drake/geometry/drake_visualizer.h>
+#include <drake/geometry/scene_graph.h>
+#include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
+#include "drake/systems/analysis/simulator.h"
+#include <drake/systems/framework/diagram.h>
+#include <drake/systems/framework/diagram_builder.h>
 
-#include "SoftTrunk_common_defs.h"
+
+#include "SoftTrunk_common.h"
 
 #include <iostream>
 #include <fstream>
@@ -25,7 +34,12 @@
  */
 class AugmentedRigidArm {
 private:
-    Model *rbdl_model;
+    /** @brief this helps in adding & connecting system blocks */
+    drake::systems::DiagramBuilder<double> builder;
+    drake::geometry::SceneGraph<double>& scene_graph = *builder.AddSystem<drake::geometry::SceneGraph>();
+    drake::multibody::MultibodyPlant<double>* multibody_plant = builder.AddSystem<drake::multibody::MultibodyPlant<double>>(1.0e-3);
+
+    //drake::Model *rbdl_model;
 
     /**
      * @brief create a RBDL model and save it to member variable rbdl_model
@@ -67,8 +81,6 @@ public:
 
     ~AugmentedRigidArm();
 
-    std::vector<double> lengths = LENGTHS;
-    std::vector<double> masses = MASSES;
     /**
      * @brief m is the map from q to the augmented model's parameters
      */

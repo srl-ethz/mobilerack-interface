@@ -103,7 +103,7 @@ target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
 # add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
 # target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
-add_executable(create_xacro src/create_xacro.cpp src/fmt/format.cc)
+add_executable(create_urdf src/create_urdf.cpp src/fmt/format.cc)
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
