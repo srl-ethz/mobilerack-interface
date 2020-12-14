@@ -1,5 +1,6 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
+
 AugmentedRigidArm::AugmentedRigidArm() {
     setup_drake_model();
 
@@ -49,14 +50,17 @@ void AugmentedRigidArm::setup_drake_model() {
     multibody_plant->RegisterAsSourceForSceneGraph(&scene_graph);
 
     // load URDF into multibody_plant
-    drake::multibody::ModelInstanceIndex plant_model_instance_index = drake::multibody::Parser(multibody_plant, &scene_graph).AddModelFromFile(fmt::format("./urdf/{}.urdf", st_params::robot_name));
+    drake::multibody::ModelInstanceIndex plant_model_instance_index = drake::multibody::Parser(multibody_plant,
+                                                                                               &scene_graph).AddModelFromFile(
+            fmt::format("./urdf/{}.urdf", st_params::robot_name));
 
     // weld base link to world frame
     multibody_plant->WeldFrames(multibody_plant->world_frame(), multibody_plant->GetFrameByName("base_link"));
     multibody_plant->Finalize();
 
     // connect plant with scene_graph to get collision info
-    builder.Connect(multibody_plant->get_geometry_poses_output_port(), scene_graph.get_source_pose_port(multibody_plant->get_source_id().value()));
+    builder.Connect(multibody_plant->get_geometry_poses_output_port(),
+                    scene_graph.get_source_pose_port(multibody_plant->get_source_id().value()));
     builder.Connect(scene_graph.get_query_output_port(), multibody_plant->get_geometry_query_input_port());
 
     drake::geometry::DrakeVisualizer::AddToBuilder(&builder, scene_graph);
@@ -67,7 +71,8 @@ void AugmentedRigidArm::setup_drake_model() {
     // This is supposed to be required to visualize without simulation, but it does work without one...
     // drake::geometry::DrakeVisualizer::DispatchLoadMessage(scene_graph, lcm);
 
-    drake::systems::Context<double>& plant_context = diagram->GetMutableSubsystemContext(*multibody_plant, diagram_context.get());
+    drake::systems::Context<double> &plant_context = diagram->GetMutableSubsystemContext(*multibody_plant,
+                                                                                         diagram_context.get());
     Eigen::VectorXd pos = Eigen::VectorXd::Zero(22);
     multibody_plant->SetPositions(&plant_context, pos);
     diagram->Publish(*diagram_context);
@@ -209,7 +214,7 @@ void AugmentedRigidArm::extract_B_G() {
 //    }
 }
 
-void AugmentedRigidArm::simulate(){
+void AugmentedRigidArm::simulate() {
     drake::systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
     simulator.set_publish_every_time_step(true);
     simulator.set_target_realtime_rate(1.0);

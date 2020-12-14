@@ -34,11 +34,12 @@ private:
     /** @brief SceneGraph manages all the systems that uses geometry
      * https://drake.mit.edu/doxygen_cxx/classdrake_1_1geometry_1_1_scene_graph.html
      * */
-    drake::geometry::SceneGraph<double>& scene_graph = *builder.AddSystem<drake::geometry::SceneGraph>();
+    drake::geometry::SceneGraph<double> &scene_graph = *builder.AddSystem<drake::geometry::SceneGraph>();
     /** @brief MultibodyPlant is the model of interconnected bodies.
      * https://drake.mit.edu/doxygen_cxx/classdrake_1_1multibody_1_1_multibody_plant.html
      */
-    drake::multibody::MultibodyPlant<double>* multibody_plant = builder.AddSystem<drake::multibody::MultibodyPlant<double>>(1.0e-3);
+    drake::multibody::MultibodyPlant<double> *multibody_plant = builder.AddSystem<drake::multibody::MultibodyPlant<double>>(
+            1.0e-3);
     std::unique_ptr<drake::systems::Diagram<double>> diagram;
     std::unique_ptr<drake::systems::Context<double>> diagram_context;
     // drake::geometry::DrakeVisualizerParams drakevisualizer_params{};
@@ -70,7 +71,9 @@ private:
     void update_Jm(Vector2Nd);
 
     void update_dJm(Vector2Nd, Vector2Nd);
+
     void update_Jxi(Vector2Nd q);
+
     /**
     * @brief publish joint state to ROS
     */
@@ -96,7 +99,8 @@ public:
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
+    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
 
     Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
 
