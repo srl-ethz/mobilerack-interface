@@ -7,14 +7,14 @@
 #include <fstream>
 
 /**
- * @file create_xacro.cpp
+ * @file create_urdf.cpp
  * @brief generates a URDF model of augmented rigid arm using parameters defined in SoftTrunk_common_defs.h. XACRO (and ROS) must be installed on the system.
  */
 int main() {
     std::string xacro_filename = fmt::format("./urdf/{}.urdf.xacro", st_params::robot_name);
     std::string urdf_filename = fmt::format("./urdf/{}.urdf", st_params::robot_name);
 
-    std::cout << "generating XACRO file:\t" << xacro_filename << std::endl;
+    fmt::print("generating XACRO file:\t{}\n", xacro_filename);
     std::ofstream xacro_file;
 
     xacro_file.open(xacro_filename);
@@ -40,9 +40,9 @@ int main() {
     xacro_file << "</robot>";
 
     xacro_file.close();
-    std::cout << "XACRO file generated." << std::endl;
+    fmt::print("XACRO file generated.\n");
 
-    std::cout << "generating URDF file (ROS and XACRO must be installed):\t" << urdf_filename << std::endl;
+    fmt::print("generating URDF file (ROS and XACRO must be installed):\t{}\n", urdf_filename);
     std::system(fmt::format("rosrun xacro xacro -o {} {}", urdf_filename, xacro_filename).c_str());
-    std::cout << "URDF file generated." << std::endl;
+    fmt::print("URDF file generated.\n");
 }

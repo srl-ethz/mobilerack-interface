@@ -26,6 +26,7 @@ Vector2Nd q_update(double seconds) {
 
 int main() {
     AugmentedRigidArm augmentedRigidArm{};
+    augmentedRigidArm.simulate();
 
     // calculate the state of arm at a particular value of q and print out the various parameters
     Vector2Nd q = Vector2Nd::Zero();

@@ -10,11 +10,7 @@
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/framework/diagram_builder.h>
 
-
 #include "SoftTrunk_common.h"
-
-#include <iostream>
-#include <fstream>
 
 #if USE_ROS
 #include <ros/ros.h>
@@ -30,21 +26,28 @@
  * @brief Represents the augmented rigid arm model.
  * @details The rigid arm model  approximates the soft arm. (see paper etc. for more info on how this is so)
  * This class can calculate the kinematics & dynamics of the augmented arm using RBDL.
- * It can also generate XACRO files based on the parameters of the robot. This should then be converted to URDF with ./create_urdf.sh
  */
 class AugmentedRigidArm {
 private:
-    /** @brief this helps in adding & connecting system blocks */
+    /** @brief this builder helps in adding & connecting system blocks */
     drake::systems::DiagramBuilder<double> builder;
+    /** @brief SceneGraph manages all the systems that uses geometry
+     * https://drake.mit.edu/doxygen_cxx/classdrake_1_1geometry_1_1_scene_graph.html
+     * */
     drake::geometry::SceneGraph<double>& scene_graph = *builder.AddSystem<drake::geometry::SceneGraph>();
+    /** @brief MultibodyPlant is the model of interconnected bodies.
+     * https://drake.mit.edu/doxygen_cxx/classdrake_1_1multibody_1_1_multibody_plant.html
+     */
     drake::multibody::MultibodyPlant<double>* multibody_plant = builder.AddSystem<drake::multibody::MultibodyPlant<double>>(1.0e-3);
+    std::unique_ptr<drake::systems::Diagram<double>> diagram;
+    std::unique_ptr<drake::systems::Context<double>> diagram_context;
+    // drake::geometry::DrakeVisualizerParams drakevisualizer_params{};
 
-    //drake::Model *rbdl_model;
 
     /**
-     * @brief create a RBDL model and save it to member variable rbdl_model
+     * @brief load from URDF and set up Drake model
      */
-    void create_rbdl_model();
+    void setup_drake_model();
 
     /**
      * @brief extract inertia matrix(B) and gravity vector(G) of the current arm configuration(xi).
@@ -111,4 +114,7 @@ public:
      * @brief update the member variables based on current values
      */
     void update(Vector2Nd, Vector2Nd);
+
+    /** @brief simulate the rigid body model in Drake. The prismatic joints are broken... */
+    void simulate();
 };

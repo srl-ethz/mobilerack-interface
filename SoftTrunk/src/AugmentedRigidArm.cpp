@@ -1,48 +1,8 @@
 // Copyright 2018 ...
 #include "AugmentedRigidArm.h"
 AugmentedRigidArm::AugmentedRigidArm() {
-    // load robot model into Drake
-    // cf: https://drake.guzhaoyuan.com/thing-to-do-in-drake/create-a-urdf-sdf-robot
-    // https://github.com/RobotLocomotion/drake/blob/fc77701531605956fc3f6979c9bd2a156e354039/examples/multibody/cart_pole/cart_pole_passive_simulation.cc
-    scene_graph.set_name("test");
-    multibody_plant->set_name("3segment_4chamber");
-    multibody_plant->RegisterAsSourceForSceneGraph(&scene_graph);
+    setup_drake_model();
 
-    drake::multibody::ModelInstanceIndex plant_model_instance_index = drake::multibody::Parser(multibody_plant, &scene_graph).AddModelFromFile("./urdf/3segment_4chamber.urdf");
-
-    // weld base link to world frame
-    multibody_plant->WeldFrames(multibody_plant->world_frame(), multibody_plant->GetFrameByName("base_link"));
-    multibody_plant->Finalize();
-
-    // connect plant with scene_graph to get collision info
-    builder.Connect(multibody_plant->get_geometry_poses_output_port(), scene_graph.get_source_pose_port(multibody_plant->get_source_id().value()));
-    builder.Connect(scene_graph.get_query_output_port(), multibody_plant->get_geometry_query_input_port());
-
-    // ???
-//    auto torque_source =
-//            builder.AddSystem<drake::systems::ConstantVectorSource>(0);
-//    torque_source->set_name("Applied Torque");
-//    builder.Connect(torque_source->get_output_port(), multibody_plant->get_actuation_input_port());
-
-    drake::geometry::DrakeVisualizer::AddToBuilder(&builder, scene_graph);
-
-    auto diagram = builder.Build();
-    std::unique_ptr<drake::systems::Context<double>> diagram_context = diagram->CreateDefaultContext();
-    drake::systems::Context<double>& plant_context = diagram->GetMutableSubsystemContext(*multibody_plant, diagram_context.get());
-
-    Eigen::VectorXd pos = Eigen::VectorXd::Zero(22);
-    pos[0] = 0.3;
-    pos[3] = 0.3;
-    pos[10] = 0.3;
-    multibody_plant->SetPositions(&plant_context, pos);
-
-    std::cout << "loaded model with pose \n" << multibody_plant->GetPositions(plant_context) << std::endl;
-
-    drake::systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
-    simulator.set_publish_every_time_step(true);
-    simulator.set_target_realtime_rate(1.0);
-    simulator.Initialize();
-    simulator.AdvanceTo(10);
 //    int segments= rbdl_model->dof_count / JOINTS;
 //    std::cout << "Robot model created, with " << rbdl_model->dof_count << " DoF. It is a " << segments << "-segment arm.\n";
 //    if (segments != N_SEGMENTS){
@@ -80,8 +40,37 @@ AugmentedRigidArm::AugmentedRigidArm() {
 #endif
 }
 
-void AugmentedRigidArm::create_rbdl_model() {
+void AugmentedRigidArm::setup_drake_model() {
+    // load robot model into Drake
+    // cf: https://drake.guzhaoyuan.com/thing-to-do-in-drake/create-a-urdf-sdf-robot
+    // https://github.com/RobotLocomotion/drake/blob/fc77701531605956fc3f6979c9bd2a156e354039/examples/multibody/cart_pole/cart_pole_passive_simulation.cc
+    scene_graph.set_name("scene_graph");
+    multibody_plant->set_name(st_params::robot_name);
+    multibody_plant->RegisterAsSourceForSceneGraph(&scene_graph);
 
+    // load URDF into multibody_plant
+    drake::multibody::ModelInstanceIndex plant_model_instance_index = drake::multibody::Parser(multibody_plant, &scene_graph).AddModelFromFile(fmt::format("./urdf/{}.urdf", st_params::robot_name));
+
+    // weld base link to world frame
+    multibody_plant->WeldFrames(multibody_plant->world_frame(), multibody_plant->GetFrameByName("base_link"));
+    multibody_plant->Finalize();
+
+    // connect plant with scene_graph to get collision info
+    builder.Connect(multibody_plant->get_geometry_poses_output_port(), scene_graph.get_source_pose_port(multibody_plant->get_source_id().value()));
+    builder.Connect(scene_graph.get_query_output_port(), multibody_plant->get_geometry_query_input_port());
+
+    drake::geometry::DrakeVisualizer::AddToBuilder(&builder, scene_graph);
+
+    // drake::geometry::DrakeVisualizer::SendLoadMessage(scene_graph.model_inspector(), drakevisualizer_params, )
+
+    diagram = builder.Build();
+    diagram_context = diagram->CreateDefaultContext();
+
+    drake::systems::Context<double>& plant_context = diagram->GetMutableSubsystemContext(*multibody_plant, diagram_context.get());
+    Eigen::VectorXd pos = Eigen::VectorXd::Zero(22);
+    multibody_plant->SetPositions(&plant_context, pos);
+    fmt::print("loaded model with pose {}", multibody_plant->GetPositions(plant_context));
+    sleep(1);
 }
 
 Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
@@ -209,6 +198,14 @@ void AugmentedRigidArm::extract_B_G() {
 //        B_xi.col(i) = (tau - G_xi) / ddQ_zeros(i);
 //        ddQ_zeros(i) = 0;
 //    }
+}
+
+void AugmentedRigidArm::simulate(){
+    drake::systems::Simulator<double> simulator(*diagram, std::move(diagram_context));
+    simulator.set_publish_every_time_step(true);
+    simulator.set_target_realtime_rate(1.0);
+    simulator.Initialize();
+    simulator.AdvanceTo(10);
 }
 
 AugmentedRigidArm::~AugmentedRigidArm() {
