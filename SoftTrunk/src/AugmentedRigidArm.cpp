@@ -61,15 +61,24 @@ void AugmentedRigidArm::setup_drake_model() {
 
     drake::geometry::DrakeVisualizer::AddToBuilder(&builder, scene_graph);
 
-    // drake::geometry::DrakeVisualizer::SendLoadMessage(scene_graph.model_inspector(), drakevisualizer_params, )
-
     diagram = builder.Build();
     diagram_context = diagram->CreateDefaultContext();
+
+    // This is supposed to be required to visualize without simulation, but it does work without one...
+    // drake::geometry::DrakeVisualizer::DispatchLoadMessage(scene_graph, lcm);
 
     drake::systems::Context<double>& plant_context = diagram->GetMutableSubsystemContext(*multibody_plant, diagram_context.get());
     Eigen::VectorXd pos = Eigen::VectorXd::Zero(22);
     multibody_plant->SetPositions(&plant_context, pos);
+    diagram->Publish(*diagram_context);
     fmt::print("loaded model with pose {}", multibody_plant->GetPositions(plant_context));
+
+    sleep(1);
+    pos[0] = 0.3;
+    pos[10] = 0.3;
+    pos[1] = 0.3;
+    multibody_plant->SetPositions(&plant_context, pos);
+    diagram->Publish(*diagram_context);
     sleep(1);
 }
 
