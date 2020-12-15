@@ -2,7 +2,7 @@
 #include "ValveController.h"
 
 ValveController::ValveController(){
-    mpa = new MPA(st_params::valve::valve_address, "502");
+    mpa = new MPA(st_params::valve::address, "502");
     desired_pressures.resize(st_params::valve::map.size());
     std::cout << "Connecting to MPA." << std::endl;
     if (!mpa->connect()) {

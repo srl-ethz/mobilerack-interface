@@ -23,9 +23,9 @@ namespace st_params {
     /** @brief valve-related parameters */
     namespace valve {
         /** @brief IP address of Festo valves */
-        const char* valve_address = "192.168.0.100";
+        const char* address = "192.168.0.100";
         /** @brief map[i] is the valve number for i-th actuator in controller */
-        const std::array map{0};
+        const std::array map{1,2,3,4};
         const int num_valves = 16;
 
         /** @brief max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
@@ -33,9 +33,14 @@ namespace st_params {
         * for DragonSkin 10, set to 400.
         * (not throughly examined- a larger or smaller value may be better)
         */
-        const int max_pressure = 500;
+        const int max_pressure = 400;
         const bool use_pid = false;
         const bool log = true;
+    }
+    /** @brief qualisys-related parameters */
+    namespace qualisys{
+        const char* address = "127.0.0.1";
+        const unsigned short port = 2222;
     }
 }
 
