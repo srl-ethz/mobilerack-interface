@@ -44,6 +44,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ### END OF find and setup for Drake
 
 include_directories(include src/MiniPID include/modbus)
+add_subdirectory(qualisys_cpp_sdk)
 
 FIND_PACKAGE(PkgConfig)
 
@@ -81,9 +82,11 @@ target_link_libraries(example_ValveController ValveController)
 add_executable(example_ValveController_sinusoidal src/example_ValveController_sinusoidal.cpp)
 target_link_libraries(example_ValveController_sinusoidal ValveController)
 
-# compiling the OptiTrackClient as STATIC(default) causes errors with "multiple definitions"...
-# ADD_LIBRARY( OptiTrackClient SHARED "src/OptiTrackClient.cpp" )
-# TARGET_LINK_LIBRARIES( OptiTrackClient ${Boost_LIBRARIES} )
+add_library( QualisysClient SHARED src/QualisysClient.cpp src/fmt/format.cc)
+target_link_libraries( QualisysClient qualisys_cpp_sdk )
+
+add_executable(example_QualisysClient src/example_QualisysClient.cpp)
+target_link_libraries(example_QualisysClient QualisysClient)
 
 # ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
 # TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
