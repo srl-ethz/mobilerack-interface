@@ -48,9 +48,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include_directories(include src/MiniPID include/modbus)
+include_directories(include src/MiniPID subm/fmt/include)
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
-add_subdirectory(qualisys_cpp_sdk)
+add_subdirectory(subm/qualisys_cpp_sdk)
 
 FIND_PACKAGE(PkgConfig)
 
@@ -88,7 +88,7 @@ target_link_libraries(example_ValveController ValveController)
 add_executable(example_ValveController_sinusoidal src/example_ValveController_sinusoidal.cpp)
 target_link_libraries(example_ValveController_sinusoidal ValveController)
 
-add_library( QualisysClient SHARED src/QualisysClient.cpp src/fmt/format.cc)
+add_library( QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
 target_link_libraries( QualisysClient qualisys_cpp_sdk )
 
 add_executable(example_QualisysClient src/example_QualisysClient.cpp)
@@ -112,7 +112,7 @@ target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
 # add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
 # target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
-add_executable(create_urdf src/create_urdf.cpp src/fmt/format.cc)
+add_executable(create_urdf src/create_urdf.cpp subm/fmt/src/format.cc)
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)

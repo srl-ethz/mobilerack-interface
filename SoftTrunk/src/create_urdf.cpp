@@ -9,6 +9,8 @@
 /**
  * @file create_urdf.cpp
  * @brief generates a URDF model of augmented rigid arm using parameters defined in SoftTrunk_common_defs.h. XACRO (and ROS) must be installed on the system.
+ * Currently this must be run from the top of the SoftTrunk project (`./bin/create_urdf`).
+ * @todo fix so it can be run from anywhere
  */
 int main() {
     std::string xacro_filename = fmt::format("./urdf/{}.urdf.xacro", st_params::robot_name);
