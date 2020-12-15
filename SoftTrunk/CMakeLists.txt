@@ -43,7 +43,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ### END OF find and setup for Drake
 
+# setup output directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 include_directories(include src/MiniPID include/modbus)
+set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(qualisys_cpp_sdk)
 
 FIND_PACKAGE(PkgConfig)
