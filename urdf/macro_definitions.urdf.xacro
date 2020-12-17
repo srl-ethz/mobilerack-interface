@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+
+<!--
+this file defines the xacro macros that can be used to create PCC augmented models
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot">
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  <xacro:property name="PI" value="3.1415" />
+  <xacro:macro name="ball-joint" params="id parent child">
+    <!--creates a ball joint, called from the PCC macro..-->
+    <joint name="${id}-ball-joint_x_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${id}-ball-joint_link_0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="${-PI/4}" upper="${PI/4}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-ball-joint_link_0">
+      <xacro:default_inertial/>
+    </link>
+    <joint name="${id}-ball-joint_y_joint" type="revolute">
+      <parent link="${id}-ball-joint_link_0"/>
+      <child link="${id}-ball-joint_link_1"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${-PI/4}" upper="${PI/4}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-ball-joint_link_1">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <box size="${length/10} ${length/10} ${length/10}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+    <joint name="${id}-ball-joint_z_joint" type="revolute">
+      <parent link="${id}-ball-joint_link_1"/>
+      <child link="${child}"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-PI/4}" upper="${PI/4}" effort="1000" velocity="1000"/>
+    </joint>
+  </xacro:macro>
+
+
+  <xacro:macro name="rod" params="length direction=1">
+    <!--creates a visual of a rod.-->
+    <visual>
+      <geometry>
+        <cylinder radius="${length/50}" length="${length/2}"/>
+      </geometry>
+      <material name="white"/>
+      <origin xyz="0 0 ${direction*length/4}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="default_inertial">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="PCC" params="id parent child length mass">
+    <!--creates a PCC piece-->
+    <xacro:ball-joint id="${id}-base" parent="${parent}" child="${id}-a"/>
+    <link name="${id}-a">
+      <xacro:default_inertial/>
+      <xacro:rod length="${length}"/>
+    </link>
+    <joint name="${id}-a-b_joint" type="prismatic">
+      <parent link="${id}-a"/>
+      <child link="${id}-b"/>
+      <axis xyz="0 0 -1"/>
+      <origin xyz="0 0 ${length/2}"/>
+      <limit lower="0" upper="${length/2}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-b">
+      <visual>
+        <geometry>
+          <box size="${length/4} ${length/4} ${length/4}"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <inertial>
+        <mass value="${mass}"/>
+        <inertia ixx="0.0001" ixy="0.000" ixz="0.000" iyy="0.0001" iyz="0.000" izz="0.0001"/>
+      </inertial>
+    </link>
+    <xacro:ball-joint id="${id}-middle" parent="${id}-b" child="${id}-c"/>
+    <link name="${id}-c">
+      <xacro:default_inertial/>
+    </link>
+    <joint name="${id}-c-d_joint" type="prismatic">
+      <parent link="${id}-c"/>
+      <child link="${id}-d"/>
+      <axis xyz="0 0 -1"/>
+      <origin xyz="0 0 ${length/2}"/>
+      <limit lower="0" upper="${length/2}" effort="1000" velocity="1000"/>
+    </joint>
+    <link name="${id}-d">
+      <xacro:default_inertial/>
+      <xacro:rod length="${length}" direction="-1"/>
+    </link>
+
+    <xacro:ball-joint id="${id}-tip" parent="${id}-d" child="${child}"/>
+  </xacro:macro>
+
+  <xacro:macro name="empty_link" params="name">
+    <link name="${name}">
+      <xacro:default_inertial/>
+    </link>
+  </xacro:macro>
+</robot>

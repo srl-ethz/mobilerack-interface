@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+<!-- This file has been generated automatically from create_xacro.cpp, do not edit by hand -->
+<robot xmlns:xacro='http://www.ros.org/wiki/xacro' name='3segment_4chamber'>
+<xacro:include filename='macro_definitions.urdf.xacro' />
+<xacro:empty_link name='base_link'/>
+<xacro:PCC id='0' parent='base_link' child='mid-0' length='0.11' mass='0.12'/>
+<xacro:empty_link name='mid-0'/>
+<xacro:PCC id='1' parent='mid-0' child='mid-1' length='0.11' mass='0.12'/>
+<xacro:empty_link name='mid-1'/>
+</robot>
