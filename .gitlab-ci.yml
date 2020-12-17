@@ -1,0 +1,10 @@
+image: robotlocomotion/drake:latest
+before_script:
+  - apt-get update --yes
+  - apt-get install --yes build-essential cmake libmodbus-dev
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+build:
+  script:
+    - cmake -DCMAKE_PREFIX_PATH=/opt/drake .
+    - make
