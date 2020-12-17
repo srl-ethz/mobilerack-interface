@@ -7,7 +7,7 @@ project(SoftTrunk)
 # does not need X11.
 option(RUN_X11_TESTS "Run tests that require X11" OFF)
 
-include(CTest)
+# include(CTest)
 
 if(APPLE)
   set(FIND_PYTHON_EXECUTABLE_PATHS /usr/local/opt/python@3.8/bin)
