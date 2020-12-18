@@ -8,6 +8,25 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <thread>
+#include <assert.h>
+
+using namespace Eigen;
+
+/** @brief which type of parametrization is used to describe the PCC configuration. */
+enum class ParametrizationType {
+    phi_theta /** as used in Katzschmann2019 */,
+    longitudinal /** see yasu's report & DellaSantina2020 */
+    };
+/** @brief the link structure of the rigid model */
+enum class RigidModelType {
+    original /** as proposed in Katzschmann2019 */,
+    straw_bend /** see yasu's report */
+    };
+/** @brief placement of arm */
+enum class ArmConfigurationType {
+    stalactite /** hanging from ceiling- stick "tight" to the ceiling */,
+    stalagmite /** placed on floor- rise "might"ily from the floor */
+    };
 
 /** @brief robot-specific parameters SoftTrunk*/
 namespace st_params {
@@ -16,9 +35,19 @@ namespace st_params {
     const double masses[] = {0.12, 0.12, 0.12};
     /** @brief length of each segment, in m */
     const double lengths[] = {0.11, 0.11, 0.11};
-    const int num_segments = 2;
+    const int num_segments = 3;
 
     const std::string local_address = "192.168.1.111";
+
+    /** @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
+     * for DragonSkin 30, set to 300.
+     * for DragonSkin 10, set to 150.
+     * (not throughly examined- a larger or smaller value may be better)
+    */
+    const int p_offset = 150;
+
+    /** @brief radius of the soft trunk, in meters. */
+    const double r_trunk = 0.03;
 
     /** @brief valve-related parameters */
     namespace valve {
@@ -39,9 +68,13 @@ namespace st_params {
     }
     /** @brief qualisys-related parameters */
     namespace qualisys{
-        const char* address = "127.0.0.1";
-        const unsigned short port = 2222;
+        const char* address = "172.17.126.97";
+        const unsigned short port = 22222;
     }
+
+    const ParametrizationType parametrization = ParametrizationType::phi_theta;
+    const RigidModelType rigidModel = RigidModelType::straw_bend;
+    const ArmConfigurationType armConfiguration = ArmConfigurationType::stalactite;
 }
 
 void sleep(double sleep_secs) {
@@ -59,21 +92,6 @@ void sleep(double sleep_secs) {
  * @brief IP address of this computer
  */
 #define LOCAL_ADDRESS "192.168.1.111"
-/**
- * @brief IP address of computer running Motive
- */
-#define MOTIVE_ADDRESS "192.168.1.105"
-/**
-* @brief baseline pressure of arm. The average of the pressures sent to a segment should be this pressure.
-* for DragonSkin 30, set to 300.
-* for DragonSkin 10, set to 150.
-* (not throughly examined- a larger or smaller value may be better)
-*/
-#define P_OFFSET 150
-/**
- * @brief radius of the soft trunk, in meters.
- */
-#define R_TRUNK 0.03
 
 #define PI 3.141592
 /**

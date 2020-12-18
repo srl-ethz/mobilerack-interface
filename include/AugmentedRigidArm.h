@@ -42,13 +42,13 @@ private:
             1.0e-3);
     std::unique_ptr<drake::systems::Diagram<double>> diagram;
     std::unique_ptr<drake::systems::Context<double>> diagram_context;
-    // drake::geometry::DrakeVisualizerParams drakevisualizer_params{};
-
 
     /**
      * @brief load from URDF and set up Drake model
      */
     void setup_drake_model();
+
+    int joints_per_segment;
 
     /**
      * @brief extract inertia matrix(B) and gravity vector(G) of the current arm configuration(xi).
@@ -64,9 +64,9 @@ private:
     /**
      * @brief convert phi-theta bend to joint angles for a straw-bend joint.
      */
-    Eigen::Matrix<double, 3, 1> straw_bend_joint(double phi, double theta);
+    VectorXd straw_bend_joint(double phi, double theta);
 
-    void update_m(Vector2Nd);
+    void update_m(VectorXd&);
 
     void update_Jm(Vector2Nd);
 
@@ -90,7 +90,7 @@ public:
     /**
      * @brief m is the map from q to the augmented model's parameters
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> m;
+    VectorXd m;
     /**
      * @brief the Jacobian that maps from q to xi
      */
@@ -117,7 +117,7 @@ public:
     /**
      * @brief update the member variables based on current values
      */
-    void update(Vector2Nd, Vector2Nd);
+    void update(VectorXd& q, VectorXd& dq);
 
     /** @brief simulate the rigid body model in Drake. The prismatic joints are broken... */
     void simulate();

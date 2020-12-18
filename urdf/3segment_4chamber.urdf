@@ -392,4 +392,191 @@
       <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
     </inertial>
   </link>
+  <!--creates a ball joint, called from the PCC macro..-->
+  <joint name="2-base-ball-joint_x_joint" type="revolute">
+    <parent link="mid-1"/>
+    <child link="2-base-ball-joint_link_0"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-base-ball-joint_link_0">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </link>
+  <joint name="2-base-ball-joint_y_joint" type="revolute">
+    <parent link="2-base-ball-joint_link_0"/>
+    <child link="2-base-ball-joint_link_1"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-base-ball-joint_link_1">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.011 0.011 0.011"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="2-base-ball-joint_z_joint" type="revolute">
+    <parent link="2-base-ball-joint_link_1"/>
+    <child link="2-a"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-a">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+    <!--creates a visual of a rod.-->
+    <visual>
+      <geometry>
+        <cylinder length="0.055" radius="0.0022"/>
+      </geometry>
+      <material name="white"/>
+      <origin xyz="0 0 0.0275"/>
+    </visual>
+  </link>
+  <joint name="2-a-b_joint" type="prismatic">
+    <parent link="2-a"/>
+    <child link="2-b"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0.055"/>
+    <limit effort="1000" lower="0" upper="0.055" velocity="1000"/>
+  </joint>
+  <link name="2-b">
+    <visual>
+      <geometry>
+        <box size="0.0275 0.0275 0.0275"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <inertial>
+      <mass value="0.12"/>
+      <inertia ixx="0.0001" ixy="0.000" ixz="0.000" iyy="0.0001" iyz="0.000" izz="0.0001"/>
+    </inertial>
+  </link>
+  <!--creates a ball joint, called from the PCC macro..-->
+  <joint name="2-middle-ball-joint_x_joint" type="revolute">
+    <parent link="2-b"/>
+    <child link="2-middle-ball-joint_link_0"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-middle-ball-joint_link_0">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </link>
+  <joint name="2-middle-ball-joint_y_joint" type="revolute">
+    <parent link="2-middle-ball-joint_link_0"/>
+    <child link="2-middle-ball-joint_link_1"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-middle-ball-joint_link_1">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.011 0.011 0.011"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="2-middle-ball-joint_z_joint" type="revolute">
+    <parent link="2-middle-ball-joint_link_1"/>
+    <child link="2-c"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-c">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </link>
+  <joint name="2-c-d_joint" type="prismatic">
+    <parent link="2-c"/>
+    <child link="2-d"/>
+    <axis xyz="0 0 -1"/>
+    <origin xyz="0 0 0.055"/>
+    <limit effort="1000" lower="0" upper="0.055" velocity="1000"/>
+  </joint>
+  <link name="2-d">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+    <!--creates a visual of a rod.-->
+    <visual>
+      <geometry>
+        <cylinder length="0.055" radius="0.0022"/>
+      </geometry>
+      <material name="white"/>
+      <origin xyz="0 0 -0.0275"/>
+    </visual>
+  </link>
+  <!--creates a ball joint, called from the PCC macro..-->
+  <joint name="2-tip-ball-joint_x_joint" type="revolute">
+    <parent link="2-d"/>
+    <child link="2-tip-ball-joint_link_0"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-tip-ball-joint_link_0">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </link>
+  <joint name="2-tip-ball-joint_y_joint" type="revolute">
+    <parent link="2-tip-ball-joint_link_0"/>
+    <child link="2-tip-ball-joint_link_1"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="2-tip-ball-joint_link_1">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.011 0.011 0.011"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="2-tip-ball-joint_z_joint" type="revolute">
+    <parent link="2-tip-ball-joint_link_1"/>
+    <child link="mid-2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000" lower="-0.785375" upper="0.785375" velocity="1000"/>
+  </joint>
+  <link name="mid-2">
+    <!--since the RBDL needs a inertial info for each link, just assign a really small value to links where we don't have to consider inertia.-->
+    <inertial>
+      <mass value="0.00001"/>
+      <inertia ixx="0.00001" ixy="0.0000" ixz="0.0000" iyy="0.00001" iyz="0.0000" izz="0.00001"/>
+    </inertial>
+  </link>
 </robot>

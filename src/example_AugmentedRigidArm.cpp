@@ -15,24 +15,26 @@
  * for ROS_enabled systems, also animates the arm and published /joint_states ROS topics that can be viewed with RViz.
  */
 
-Vector2Nd q_update(double seconds) {
-    Vector2Nd q = Vector2Nd::Zero();
-    for (int i = 0; i < N_SEGMENTS; i++) {
-        q(2 * i + 0) = 0.03 * sin(seconds * (1.5 + (double) i));
-        q(2 * i + 1) = 0.03 * cos(seconds * (2.0 + (double) i));
+void q_update(double seconds, VectorXd& q) {
+    for (int i = 0; i < st_params::num_segments; i++) {
+        if (st_params::parametrization == ParametrizationType::phi_theta){
+            q(2*i + 0) = seconds + 1.1 * i;
+            q(2*i + 1) = 0.35 + 0.3 * sin(seconds);
+        }
+        else if (st_params::parametrization == ParametrizationType::longitudinal){
+            q(2 * i + 0) = 0.03 * sin(seconds * (1.5 + (double) i));
+            q(2 * i + 1) = 0.03 * cos(seconds * (2.0 + (double) i));
+        }
     }
-    return q;
 }
 
 int main() {
     AugmentedRigidArm augmentedRigidArm{};
-    augmentedRigidArm.simulate();
 
     // calculate the state of arm at a particular value of q and print out the various parameters
-    Vector2Nd q = Vector2Nd::Zero();
-    Vector2Nd dq = Vector2Nd::Zero();
-//    q(0) = 0.02;
-//    dq(0) = 0.01;
+    VectorXd q = VectorXd::Zero(2 * st_params::num_segments);
+    VectorXd dq = VectorXd::Zero(2 * st_params::num_segments);
+
     std::cout << "\tq:\n" << q << "\n\tdq:\n" << dq << "\n";
     augmentedRigidArm.update(q, dq);
     std::cout << "\tm:\n" << augmentedRigidArm.m << "\n";
@@ -42,15 +44,15 @@ int main() {
     std::cout << "\tB:\n" << augmentedRigidArm.B_xi << "\n";
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
 
-    if (!USE_ROS)
-        return 1;
-
-    // animate the arm step by step and publish to /joint_states ros topic
-    double step = 0.1;
-    for (double t = 0; t < 10; t += step) {
-        augmentedRigidArm.update(q_update(t),
-                                 dq); // don't care about updating dq, since this is just to check if m values are appropriate
-        std::this_thread::sleep_for(std::chrono::milliseconds((int) (step * 1000)));
+    double delta_t = 0.03;
+    for (double t = 0; t<10; t+=delta_t) {
+        q_update(t, q);
+        augmentedRigidArm.update(q, dq);
+        fmt::print("q:{}\nm:{}\n", q.transpose(), augmentedRigidArm.m.transpose());
+        sleep(delta_t);
     }
+
+    fmt::print("switching to simulation mode...\n");
+    augmentedRigidArm.simulate();
     return 1;
 }
