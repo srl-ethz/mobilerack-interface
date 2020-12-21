@@ -32,12 +32,12 @@ enum class ArmConfigurationType {
 
 /** @brief robot-specific parameters SoftTrunk*/
 namespace st_params {
-    const std::string robot_name = "3segment_4chamber";
+    const std::string robot_name = "1segment_4chamber";
     /** @brief mass of each segment, in kg */
-    std::array<double, 3> masses = {0.12, 0.12, 0.12};
+    std::array<double, 1> masses = {0.12};
     /** @brief length of each segment, in m */
-    std::array<double, 3> lengths = {0.11, 0.11, 0.11};
-    const int num_segments = 3;
+    std::array<double, 1> lengths = {0.11};
+    const int num_segments = 1;
 
     const std::string local_address = "192.168.1.111";
 
@@ -69,9 +69,10 @@ namespace st_params {
         const bool log = true;
     }
     /** @brief qualisys-related parameters */
-    namespace qualisys{
+    namespace qualisys {
         const char *address = "172.17.12.81";
         const unsigned short port = 22222;
+        const bool log = true; /** @brief log curvature values */
     }
 
     const ParametrizationType parametrization = ParametrizationType::phi_theta;

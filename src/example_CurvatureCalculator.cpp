@@ -3,9 +3,6 @@
 //
 
 #include "CurvatureCalculator.h"
-#include <chrono>
-//#include <thread>
-//#include <iostream>
 
 /**
  * @file example_CurvatureCalculator.cpp
@@ -14,16 +11,11 @@
  */
 
 int main() {
-    CurvatureCalculator curvatureCalculator = CurvatureCalculator(USE_OPTITRACK);
-    curvatureCalculator.setupOptiTrack(LOCAL_ADDRESS, MOTIVE_ADDRESS);
-    curvatureCalculator.start(); // start the thread that continuously calculates the configuration and its time derivative.
+    CurvatureCalculator cc{};
 
-    for (int i = 0; i < 500; ++i) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        std::cout << "q (deltaLa[0], deltaLb[0], deltaLa[1], deltaLb[1], ...)\n" << curvatureCalculator.q << "\n";
-        std::cout << "dq\n" << curvatureCalculator.dq << "\n";
-
+    while (true) {
+        fmt::print("==========\nq:\t{}\ndq:\t{}\nddq:\t{}\n", cc.q, cc.dq, cc.ddq);
+        sleep(0.1);
     }
-    curvatureCalculator.stop();
     return 1;
 }

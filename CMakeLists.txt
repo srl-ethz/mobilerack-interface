@@ -94,8 +94,8 @@ target_link_libraries(QualisysClient qualisys_cpp_sdk -pthread)
 add_executable(example_QualisysClient src/example_QualisysClient.cpp)
 target_link_libraries(example_QualisysClient QualisysClient)
 
-# ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
-# TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} QualisysClient)
+ADD_LIBRARY(CurvatureCalculator SHARED src/CurvatureCalculator.cpp subm/fmt/src/format.cc)
+TARGET_LINK_LIBRARIES(CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} QualisysClient)
 
 # add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 # target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)
@@ -103,8 +103,8 @@ target_link_libraries(example_QualisysClient QualisysClient)
 # add_library(Manager SHARED src/Manager.cpp)
 # target_link_libraries(Manager SoftTrunkInterface AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
 
-# add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
-# target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
+add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
+target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
 add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp)
 target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
@@ -117,6 +117,8 @@ add_executable(create_urdf src/create_urdf.cpp subm/fmt/src/format.cc)
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
+add_executable(example_realtime_visualize src/example_realtime_visualize.cpp)
+target_link_libraries(example_realtime_visualize AugmentedRigidArm CurvatureCalculator)
 # add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
 # target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)
 

@@ -4,31 +4,40 @@
 QualisysClient::QualisysClient(int num_frames) {
     fmt::print("setting up QualisysClient\n");
     _frames.resize(num_frames); // for base + each segment
-    connect();
+    connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
     fmt::print("finished setup of QualisysClient.\n");
 }
 
-bool QualisysClient::connect(){
+bool QualisysClient::connect_and_setup() {
     // loop until connected to server
     for (int i = 0; i < 10; ++i) {
         rtProtocol.Connect(st_params::qualisys::address, st_params::qualisys::port, &udpPort, majorVersion,
                            minorVersion, bigEndian);
         if (rtProtocol.Connected()) {
             fmt::print("connected to Qualisys server at {}\n", st_params::qualisys::address);
-            return true;
+            break;
         }
         fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
                    st_params::qualisys::address);
         sleep(1);
     }
-    fmt::print("could not connect to Qualisys server 10 times in a row, aborting...\n");
-    return false;
+    bool dataAvailable = false;
+    while (!dataAvailable) {
+        if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
+            printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
+            sleep(1);
+            continue;
+        }
+    }
+    while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, CRTProtocol::cComponent6d)) {
+        printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
+        sleep(1);
+    }
+    fmt::print("Starting to stream 6DOF data\n");
 }
 
 void QualisysClient::motiontrack_loop() {
-    bool dataAvailable = false;
-    bool streamFrames = false;
     CRTPacket::EPacketType packetType;
     float fX, fY, fZ;
     float rotationMatrix[9];
@@ -36,23 +45,7 @@ void QualisysClient::motiontrack_loop() {
     while (true) {
         if (!rtProtocol.Connected()) {
             fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
-            connect();
-        }
-        if (!dataAvailable) {
-            if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
-                printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
-                sleep(1);
-                continue;
-            }
-        }
-        if (!streamFrames) {
-            if (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, CRTProtocol::cComponent6d)) {
-                printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
-                sleep(1);
-                continue;
-            }
-            streamFrames = true;
-            fmt::print("Starting to stream 6DOF data\n");
+            connect_and_setup();
         }
 
         if (rtProtocol.ReceiveRTPacket(packetType, true) > 0) {
@@ -75,20 +68,23 @@ void QualisysClient::motiontrack_loop() {
                                         _frames[id](row, column) = rotationMatrix[row * 3 + column];
                                     }
                                 }
+                                // @todo this is weird that we have to do that, rotation matrix is from frame to origin?? look into docs
+                                _frames[id].matrix().block(0, 0, 3, 3) = _frames[id].matrix().block(0, 0, 3,
+                                                                                                    3).inverse();
                             }
                         }
-
+                        _timestamp = rtPacket->GetTimeStamp();
                     }
                 }
             }
         }
-
-
     }
 }
 
-void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames) {
+void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames,
+                             unsigned long long int &timestamp) {
     frames = _frames;
+    timestamp = _timestamp;
 }
 
 QualisysClient::~QualisysClient() {
