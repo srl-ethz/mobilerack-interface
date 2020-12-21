@@ -12,7 +12,7 @@
  * @brief demo of AugmentedRigidArm class.
  *
  * creates an augmented rigid arm model, then gives it some values (q and dq, the soft robot's configurations) so it can update its internal variables, then prints them out.
- * for ROS_enabled systems, also animates the arm and published /joint_states ROS topics that can be viewed with RViz.
+ * also updates the drake visualization, so run drake-visualization to see the rigid body model update itself in real time
  */
 
 void q_update(double seconds, VectorXd& q) {

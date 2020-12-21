@@ -143,7 +143,7 @@ void AugmentedRigidArm::update_m(VectorXd& q) {
 
         joint_id_head = joints_per_segment * segment_id;
         if (st_params::rigidModel == RigidModelType::straw_bend){
-            double b = st_params::lengths[segment_id]/2;
+            double b = st_params::lengths[segment_id] / 2.;
             if (theta != 0)
                 b = st_params::lengths[segment_id] / theta * sqrt(1. + 4. * sin(theta/2.) / theta * (sin(theta/2.) / theta - cos(theta / 2.)));
             double nu = 0;
