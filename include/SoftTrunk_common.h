@@ -10,6 +10,7 @@
 #include <iostream>
 #include <thread>
 #include <assert.h>
+#include <array>
 
 using namespace Eigen;
 
@@ -33,9 +34,9 @@ enum class ArmConfigurationType {
 namespace st_params {
     const std::string robot_name = "3segment_4chamber";
     /** @brief mass of each segment, in kg */
-    const double masses[] = {0.12, 0.12, 0.12};
+    std::array<double, 3> masses = {0.12, 0.12, 0.12};
     /** @brief length of each segment, in m */
-    const double lengths[] = {0.11, 0.11, 0.11};
+    std::array<double, 3> lengths = {0.11, 0.11, 0.11};
     const int num_segments = 3;
 
     const std::string local_address = "192.168.1.111";
@@ -55,7 +56,7 @@ namespace st_params {
         /** @brief IP address of Festo valves */
         const char* address = "192.168.0.100";
         /** @brief map[i] is the valve number for i-th actuator in controller */
-        const std::array map{1,2,3,4};
+        std::array<int, 4> map = {1,2,3,4};
         const int num_valves = 16;
 
         /** @brief max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.

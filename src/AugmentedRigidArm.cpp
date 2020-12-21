@@ -82,6 +82,10 @@ void AugmentedRigidArm::setup_drake_model() {
     int num_joints = multibody_plant->num_joints() - 1; // @todo: but why??
     fmt::print("model has {} joints\n", num_joints);
     joints_per_segment = num_joints / st_params::num_segments;
+
+    // check that parameters make sense, just in case
+    assert(st_params::num_segments == st_params::masses.size());
+    assert(st_params::num_segments == st_params::lengths.size());
     assert(num_joints % st_params::num_segments == 0);
     if (st_params::rigidModel == RigidModelType::straw_bend)
         assert(joints_per_segment == 11);

@@ -16,6 +16,9 @@ int main() {
     std::string xacro_filename = fmt::format("./urdf/{}.urdf.xacro", st_params::robot_name);
     std::string urdf_filename = fmt::format("./urdf/{}.urdf", st_params::robot_name);
 
+    assert(st_params::num_segments == st_params::lengths.size());
+    assert(st_params::num_segments == st_params::masses.size());
+
     fmt::print("generating XACRO file:\t{}\n", xacro_filename);
     std::ofstream xacro_file;
 
