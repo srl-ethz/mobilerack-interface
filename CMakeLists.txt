@@ -88,14 +88,14 @@ target_link_libraries(example_ValveController ValveController)
 add_executable(example_ValveController_sinusoidal src/example_ValveController_sinusoidal.cpp)
 target_link_libraries(example_ValveController_sinusoidal ValveController)
 
-add_library( QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
-target_link_libraries( QualisysClient qualisys_cpp_sdk )
+add_library(QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
+target_link_libraries(QualisysClient qualisys_cpp_sdk -pthread)
 
 add_executable(example_QualisysClient src/example_QualisysClient.cpp)
 target_link_libraries(example_QualisysClient QualisysClient)
 
 # ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
-# TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
+# TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} QualisysClient)
 
 # add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
 # target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)

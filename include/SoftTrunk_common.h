@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <iostream>
 #include <thread>
 #include <assert.h>
@@ -68,7 +69,7 @@ namespace st_params {
     }
     /** @brief qualisys-related parameters */
     namespace qualisys{
-        const char* address = "172.17.126.97";
+        const char *address = "172.17.12.81";
         const unsigned short port = 22222;
     }
 

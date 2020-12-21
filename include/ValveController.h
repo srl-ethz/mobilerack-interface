@@ -6,7 +6,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <thread>
 #include "SoftTrunk_common.h"
 #include <chrono>
 
