@@ -66,13 +66,13 @@ private:
      */
     VectorXd straw_bend_joint(double phi, double theta);
 
-    void update_m(VectorXd&);
+    void update_m(const VectorXd&);
 
-    void update_Jm(Vector2Nd);
+    void update_Jm(const VectorXd);
 
-    void update_dJm(Vector2Nd, Vector2Nd);
+    void update_dJm(const VectorXd, const VectorXd);
 
-    void update_Jxi(Vector2Nd q);
+    void update_Jxi(const VectorXd q);
 
     /**
     * @brief publish joint state to ROS
@@ -94,30 +94,35 @@ public:
     /**
      * @brief the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> Jm = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // Jacobian
+    MatrixXd Jm;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> Jm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // Jacobian */
+    
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
-
-    Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
+    MatrixXd dJm;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian */
+    MatrixXd Jxi;
+    // Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
 
     /**
      * @brief inertia matrix
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS> B_xi = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS>::Zero();
+    MatrixXd B_xi;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS> B_xi = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS>::Zero(); */
     /**
      * @brief the gravity vector, i.e. the force at each joint when the arm is completely stationary at its current configuration.
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1>::Zero();
+    MatrixXd G_xi;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1>::Zero(); */
 
     /**
      * @brief update the member variables based on current values
      */
-    void update(VectorXd& q, VectorXd& dq);
+    void update(const VectorXd& q, const VectorXd& dq);
 
     /** @brief simulate the rigid body model in Drake. The prismatic joints are broken... */
     void simulate();

@@ -106,7 +106,7 @@ VectorXd AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
     return angles;
 }
 
-void AugmentedRigidArm::update_m(VectorXd& q) {
+void AugmentedRigidArm::update_m(const VectorXd& q) {
     // useful placeholder variables
     double q_0;
     double q_1;
@@ -166,7 +166,7 @@ void AugmentedRigidArm::update_m(VectorXd& q) {
     diagram->Publish(*diagram_context);
 }
 
-void AugmentedRigidArm::update_Jm(Vector2Nd q) {
+void AugmentedRigidArm::update_Jm(const VectorXd q) {
     // brute force calculate Jacobian numerically lol
     //todo: verify that this numerical method is actually okay
     // this particular implementation only works because m of each element is totally independent of other elements
@@ -189,7 +189,7 @@ void AugmentedRigidArm::update_Jm(Vector2Nd q) {
 //    }
 }
 
-void AugmentedRigidArm::update_dJm(Vector2Nd q, Vector2Nd dq) {
+void AugmentedRigidArm::update_dJm(const VectorXd q, const VectorXd dq) {
     //todo: verify this numerical method too
 //    double epsilon = 0.1;
 //    Vector2Nd q_delta = Vector2Nd(q);
@@ -203,7 +203,7 @@ void AugmentedRigidArm::update_dJm(Vector2Nd q, Vector2Nd dq) {
 //    dJm = (Jxi_delta - Jxi_current) / epsilon;
 }
 
-void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
+void AugmentedRigidArm::update_Jxi(const VectorXd q) {
 //    update_m(q);
 //    MatrixNd Jxi_6D = MatrixNd::Constant (6, rbdl_model->dof_count, 0.);
 //    Jxi_6D.setZero();
@@ -211,7 +211,7 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 //    Jxi = Jxi_6D.block(3,0,3,N_SEGMENTS*JOINTS);
 }
 
-void AugmentedRigidArm::update(VectorXd& q, VectorXd& dq) {
+void AugmentedRigidArm::update(const VectorXd& q, const VectorXd& dq) {
     assert(q.size() % st_params::num_segments == 0);
     assert(dq.size() % st_params::num_segments == 0);
 

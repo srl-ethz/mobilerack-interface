@@ -56,7 +56,7 @@ public:
     void setupIntegratedSensor();
 
     /** @brief PCC configuration of each segment of soft arm. depends on st_params::parametrization */
-    VectorXd q = Vector2Nd::Zero();
-    VectorXd dq = Vector2Nd::Zero();
-    VectorXd ddq = Vector2Nd::Zero();
+    VectorXd q;
+    VectorXd dq;
+    VectorXd ddq;
 };

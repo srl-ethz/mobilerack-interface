@@ -83,33 +83,12 @@ namespace st_params {
 void sleep(double sleep_secs) {
     std::this_thread::sleep_for(std::chrono::milliseconds((int) (sleep_secs * 1000)));
 }
-/**
- * @brief how many PCC elements there are
- */
-#define N_SEGMENTS 2
-/**
- * @brief number of chambers in a single segment. 3 or 4 is supported.
- */
-#define N_CHAMBERS 4
-/**
- * @brief IP address of this computer
- */
-#define LOCAL_ADDRESS "192.168.1.111"
 
 #define PI 3.141592
 /**
  * @brief period of one control step, in seconds. must be a value longer than the control loop.
  */
 #define CONTROL_PERIOD 0.005
-
-/**
- * @brief defines a matrix of size (NUM_ELEMENTS*2,1), for convenience
- */
-typedef Eigen::Matrix<double, N_SEGMENTS * 2, 1> Vector2Nd;
-/**
- * @brief defines a matrix of size (NUM_ELEMENTS*2,NUM_ELEMENTS*2), for convenience
- */
-typedef Eigen::Matrix<double, N_SEGMENTS * 2, N_SEGMENTS * 2> Matrix2Nd;
 
 // set up ROS automatically if ROS is found
 #ifdef CATKIN_FOUND
