@@ -66,12 +66,10 @@ void QualisysClient::motiontrack_loop() {
                                 _frames[id](2, 3) = fZ;
                                 for (int row = 0; row < 3; ++row) {
                                     for (int column = 0; column < 3; ++column) {
-                                        _frames[id](row, column) = rotationMatrix[row * 3 + column];
+                                        // column-major order
+                                        _frames[id](row, column) = rotationMatrix[column * 3 + row];
                                     }
                                 }
-                                // @todo this is weird that we have to do that, rotation matrix is from frame to origin?? look into docs
-                                _frames[id].matrix().block(0, 0, 3, 3) = _frames[id].matrix().block(0, 0, 3,
-                                                                                                    3).inverse();
                             }
                         }
                         _timestamp = rtPacket->GetTimeStamp();
