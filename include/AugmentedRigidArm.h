@@ -42,13 +42,13 @@ private:
             1.0e-3);
     std::unique_ptr<drake::systems::Diagram<double>> diagram;
     std::unique_ptr<drake::systems::Context<double>> diagram_context;
-    // drake::geometry::DrakeVisualizerParams drakevisualizer_params{};
-
 
     /**
      * @brief load from URDF and set up Drake model
      */
     void setup_drake_model();
+
+    int joints_per_segment;
 
     /**
      * @brief extract inertia matrix(B) and gravity vector(G) of the current arm configuration(xi).
@@ -64,15 +64,15 @@ private:
     /**
      * @brief convert phi-theta bend to joint angles for a straw-bend joint.
      */
-    Eigen::Matrix<double, 3, 1> straw_bend_joint(double phi, double theta);
+    VectorXd straw_bend_joint(double phi, double theta);
 
-    void update_m(Vector2Nd);
+    void update_m(const VectorXd&);
 
-    void update_Jm(Vector2Nd);
+    void update_Jm(const VectorXd);
 
-    void update_dJm(Vector2Nd, Vector2Nd);
+    void update_dJm(const VectorXd, const VectorXd);
 
-    void update_Jxi(Vector2Nd q);
+    void update_Jxi(const VectorXd q);
 
     /**
     * @brief publish joint state to ROS
@@ -90,34 +90,39 @@ public:
     /**
      * @brief m is the map from q to the augmented model's parameters
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> m;
+    VectorXd m;
     /**
      * @brief the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> Jm = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // Jacobian
+    MatrixXd Jm;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> Jm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // Jacobian */
+    
     /**
      * @brief the time derivative of the Jacobian that maps from q to xi
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian
-
-    Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
+    MatrixXd dJm;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * 2> dJm = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * 2>::Zero(); // time derivative of Jacobian */
+    MatrixXd Jxi;
+    // Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS> Jxi = Eigen::Matrix<double, 3, N_SEGMENTS * JOINTS>::Zero();
 
     /**
      * @brief inertia matrix
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS> B_xi = Eigen::Matrix<double,
-            N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS>::Zero();
+    MatrixXd B_xi;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS> B_xi = Eigen::Matrix<double,
+            N_SEGMENTS * JOINTS, N_SEGMENTS * JOINTS>::Zero(); */
     /**
      * @brief the gravity vector, i.e. the force at each joint when the arm is completely stationary at its current configuration.
      */
-    Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1>::Zero();
+    MatrixXd G_xi;
+    /* Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1> G_xi = Eigen::Matrix<double, N_SEGMENTS * JOINTS, 1>::Zero(); */
 
     /**
      * @brief update the member variables based on current values
      */
-    void update(Vector2Nd, Vector2Nd);
+    void update(const VectorXd& q, const VectorXd& dq);
 
     /** @brief simulate the rigid body model in Drake. The prismatic joints are broken... */
     void simulate();

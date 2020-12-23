@@ -48,7 +48,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include_directories(include src/MiniPID subm/fmt/include)
+include_directories(include subm/MiniPID subm/fmt/include)
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(subm/qualisys_cpp_sdk)
 
@@ -73,12 +73,12 @@ find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRA
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
-add_executable(test_valve src/test_valve.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+add_executable(test_valve src/test_valve.cpp src/MPA.cpp subm/MiniPID/MiniPID.cpp)
 target_include_directories(test_valve PRIVATE)
 target_include_directories(test_valve PRIVATE ${MODBUS_DIRS})
 target_link_libraries(test_valve ${MODBUS_LIBRARIES} )
 
-add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp src/MiniPID/MiniPID.cpp)
+add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp subm/MiniPID/MiniPID.cpp)
 target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
 target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
 
@@ -88,34 +88,34 @@ target_link_libraries(example_ValveController ValveController)
 add_executable(example_ValveController_sinusoidal src/example_ValveController_sinusoidal.cpp)
 target_link_libraries(example_ValveController_sinusoidal ValveController)
 
-add_library( QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
-target_link_libraries( QualisysClient qualisys_cpp_sdk )
+add_library(QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
+target_link_libraries(QualisysClient qualisys_cpp_sdk -pthread)
 
 add_executable(example_QualisysClient src/example_QualisysClient.cpp)
 target_link_libraries(example_QualisysClient QualisysClient)
 
-# ADD_LIBRARY( CurvatureCalculator SHARED "src/CurvatureCalculator.cpp")
-# TARGET_LINK_LIBRARIES( CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} OptiTrackClient)
-
-# add_library(ControllerPCC SHARED src/ControllerPCC.cpp src/MiniPID/MiniPID.cpp)
-# target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm SoftTrunkInterface)
+ADD_LIBRARY(CurvatureCalculator SHARED src/CurvatureCalculator.cpp subm/fmt/src/format.cc)
+TARGET_LINK_LIBRARIES(CurvatureCalculator ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} QualisysClient)
 
 # add_library(Manager SHARED src/Manager.cpp)
 # target_link_libraries(Manager SoftTrunkInterface AugmentedRigidArm ControllerPCC ${EIGEN3_LIBRARIES} -pthread)
 
-# add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
-# target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
+add_executable(example_CurvatureCalculator src/example_CurvatureCalculator.cpp)
+target_link_libraries(example_CurvatureCalculator CurvatureCalculator)
 
 add_library(AugmentedRigidArm SHARED src/AugmentedRigidArm.cpp)
 target_link_libraries(AugmentedRigidArm drake::drake ${catkin_LIBRARIES})
-
-# add_library(SoftTrunkInterface SHARED src/SoftTrunkInterface.cpp)
-# target_link_libraries(SoftTrunkInterface ValveController CurvatureCalculator)
 
 add_executable(create_urdf src/create_urdf.cpp subm/fmt/src/format.cc)
 
 add_executable(example_AugmentedRigidArm src/example_AugmentedRigidArm.cpp)
 target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
+
+add_executable(example_realtime_visualize src/example_realtime_visualize.cpp)
+target_link_libraries(example_realtime_visualize AugmentedRigidArm CurvatureCalculator)
+
+add_library(ControllerPCC SHARED src/ControllerPCC.cpp subm/MiniPID/MiniPID.cpp)
+target_link_libraries(ControllerPCC ${EIGEN3_LIBRARIES} AugmentedRigidArm CurvatureCalculator ValveController)
 
 # add_executable(example_ControllerPCC src/example_ControllerPCC.cpp)
 # target_link_libraries(example_ControllerPCC AugmentedRigidArm ControllerPCC SoftTrunkInterface)
@@ -128,8 +128,3 @@ target_link_libraries(example_AugmentedRigidArm AugmentedRigidArm)
 
 # add_executable(experiment src/experiment.cpp)
 # target_link_libraries(experiment Manager -pthread)
-
-
-# add_executable(example_SoftTrunkInterface src/example_SoftTrunkInterface.cpp)
-# target_link_libraries(example_SoftTrunkInterface SoftTrunkInterface -pthread)
-

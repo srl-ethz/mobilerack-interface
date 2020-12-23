@@ -1,40 +1,35 @@
-#ifndef SOFTTRUNK_INCLUDE_CurvatureCalculator_H_
-#define SOFTTRUNK_INCLUDE_CurvatureCalculator_H_
+#pragma once
 
-#define USE_OPTITRACK 0
-#define USE_INTEGRATEDSENSOR 1
-
-#include "OptiTrackClient.h"
-#include "SoftTrunk_common_defs.h"
+#include "QualisysClient.h"
+#include "SoftTrunk_common.h"
 
 #include <Eigen/Geometry>
 #include <cmath>
-#include <iostream>
+#include <fstream>
 #include <thread>
 #include <cmath>
 
 /**
- * @brief Calculates the current configuration(deltaLx, deltaLy of each segment) of each soft arm segment based on the OptiTrack measurements of the base and tip of a segment.
- * @details The frames have to be set up properly in Motive first. id conventions: base of robot is 0, frame that is between first and second segment is 1, and so on....
+ * @brief Calculates the PCC configuration of each soft arm segment based on motion track / internal sensor measurement.
+ * @details For Qualisys mode, the frames have to be set up properly in QTM (using Rigid Body) first.
+ * Rigid Body label conventions: base of robot is 0, tip of first segment is 1, and so on...
+ * Z axis of each frame is parallel to lengthwise direction of the arm, and origin of each frame is at center of tip of segment
+ * @todo cannot gracefully deal with missed frames etc when there are occlusions.
  */
 class CurvatureCalculator {
 private:
-    int sensorType;
-    OptiTrackClient *optiTrackClient;
+    std::unique_ptr<QualisysClient> optiTrackClient;
+    unsigned long long int timestamp;
     /**
-     * @brief record data from OptiTrack. Saves absolute transforms for each frame.
+     * @brief recorded data from motion tracking system. Saves absolute transforms for each frame.
      */
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> abs_transforms;
-    /**
-     * @brief derived from abs_transforms. Saves relative transforms between frames.
-     */
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> rel_transforms;
     std::thread calculatorThread;
 
     /**
      * @brief background process that calculates curvature
      */
-    void calculatorThreadFunction();
+    void calculator_loop();
     /**
      * @brief thread runs while this is true
      */
@@ -45,42 +40,23 @@ private:
      */
     void calculateCurvature();
 
-    Vector2Nd initial_q = Vector2Nd::Zero();
-
-    double phi;
-    double theta;// used while calculating. phi, theta is the commonly used parametrization in PCC
+    VectorXd initial_q;
 
 public:
-    /**
-     *
-     * @param sensorType USE_OPTITRACK or USE_INTEGRATEDSENSOR
-     */
-    explicit CurvatureCalculator(int sensorType);
-    /**
-     * @brief     uses the optitrack system to measure curvature.
-     * id conventions
-     * * base is 0
-     * * first frame after that is 1, and so on...
-     */
-    void setupOptiTrack(std::string localAddress, std::string serverAddress);
+    explicit CurvatureCalculator();
+
+    // @todo is this actually called at the end??
+    ~CurvatureCalculator();
+
+    void setupQualisys();
 
     /**
      * @brief for future, if you want to use sensors embedded in arm.
      */
     void setupIntegratedSensor();
-    /**
-     * @brief calling this starts a thread that continuously calculates q, dq, and ddq
-     */
-    void start();
-    void stop(); // stops the thread, disconnects.
 
-    /**
-     * @brief [deltaLa0, deltaLb0, deltaLa1, ...]
-     * (La, Lb: length of a line along the surface of arm)
-     */
-    Vector2Nd q = Vector2Nd::Zero();
-    Vector2Nd dq = Vector2Nd::Zero();
-    Vector2Nd ddq = Vector2Nd::Zero();
+    /** @brief PCC configuration of each segment of soft arm. depends on st_params::parametrization */
+    VectorXd q;
+    VectorXd dq;
+    VectorXd ddq;
 };
-
-#endif // SOFTTRUNK_INCLUDE_CurvatureCalculator_H_

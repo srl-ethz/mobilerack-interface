@@ -55,7 +55,10 @@ void AugmentedRigidArm::setup_drake_model() {
             fmt::format("./urdf/{}.urdf", st_params::robot_name));
 
     // weld base link to world frame
-    multibody_plant->WeldFrames(multibody_plant->world_frame(), multibody_plant->GetFrameByName("base_link"));
+    drake::math::RigidTransform<double> world_to_base{};
+    if (st_params::armConfiguration == ArmConfigurationType::stalactite)
+        world_to_base.set_rotation(drake::math::RollPitchYaw(PI, 0., 0.));
+    multibody_plant->WeldFrames(multibody_plant->world_frame(), multibody_plant->GetFrameByName("base_link"), world_to_base);
     multibody_plant->Finalize();
 
     // connect plant with scene_graph to get collision info
@@ -73,69 +76,97 @@ void AugmentedRigidArm::setup_drake_model() {
 
     drake::systems::Context<double> &plant_context = diagram->GetMutableSubsystemContext(*multibody_plant,
                                                                                          diagram_context.get());
-    Eigen::VectorXd pos = Eigen::VectorXd::Zero(22);
-    multibody_plant->SetPositions(&plant_context, pos);
-    diagram->Publish(*diagram_context);
+    diagram->Publish(*diagram_context); // this updates the visualization
     fmt::print("loaded model with pose {}", multibody_plant->GetPositions(plant_context));
 
-    sleep(1);
-    pos[0] = 0.3;
-    pos[10] = 0.3;
-    pos[1] = 0.3;
-    multibody_plant->SetPositions(&plant_context, pos);
-    diagram->Publish(*diagram_context);
-    sleep(1);
+    int num_joints = multibody_plant->num_joints() - 1; // @todo: but why??
+    fmt::print("model has {} joints\n", num_joints);
+    joints_per_segment = num_joints / st_params::num_segments;
+
+    // check that parameters make sense, just in case
+    assert(st_params::num_segments == st_params::masses.size());
+    assert(st_params::num_segments == st_params::lengths.size());
+    assert(num_joints % st_params::num_segments == 0);
+    if (st_params::rigidModel == RigidModelType::straw_bend)
+        assert(joints_per_segment == 11);
+    else
+        assert(0); // not implemented yet
+
+    // initialize variables
+    m = VectorXd::Zero(num_joints);
 }
 
-Eigen::Matrix<double, 3, 1> AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
-    Eigen::Matrix<double, 3, 1> angles = Eigen::Matrix<double, 3, 1>::Zero();
-//    if (theta == 0)
-//        return angles;
-//    angles(0) = -atan(tan(theta) * sin(phi));
-//    angles(1) = asin(sin(theta) * cos(phi));
-//    angles(2) = -asin((cos(phi) * sin(phi) * cos(theta) - sin(phi) * cos(phi)) / cos(angles(1)));
+VectorXd AugmentedRigidArm::straw_bend_joint(double phi, double theta) {
+    VectorXd angles = VectorXd::Zero(3);
+    if (theta == 0)
+        return angles;
+    angles(0) = -atan(tan(theta) * sin(phi));
+    angles(1) = asin(sin(theta) * cos(phi));
+    angles(2) = -asin((cos(phi) * sin(phi) * cos(theta) - sin(phi) * cos(phi)) / cos(angles(1)));
     return angles;
 }
 
-void AugmentedRigidArm::update_m(Vector2Nd q) {
+void AugmentedRigidArm::update_m(const VectorXd& q) {
+    // useful placeholder variables
+    double q_0;
+    double q_1;
+    int joint_id_head;
     double theta;
     double phi;
     double deltaL;
-//    for (int i = 0; i < N_SEGMENTS; ++i) {
-//        // use phi, theta parametrization because it's simpler for calculation
-//        if (q(2 * i) == 0) {
-//            if (q(2 * i + 1) == 0)
-//                phi = 0;
-//            else
-//                phi = PI / 2;
-//        } else
-//            phi = atan(q(2 * i + 1) / q(2 * i));
-//        if (q(2 * i) == 0)
-//            theta = -q(2 * i + 1) / (R_TRUNK * cos(PI / 2 - phi));
-//        else
-//            theta = -q(2 * i) / (R_TRUNK * cos(phi));
-//        if (theta < 0) {
-//            theta = -theta;
-//            phi += PI;
-//        }
-//        double b = lengths[i] / 2;
-//        if (theta != 0)
-//            b = lengths[i] / theta *
-//                sqrt(1.0 + 4.0 * sin(theta / 2.0) / theta * (sin(theta / 2.0) / theta - cos(theta / 2.0)));
-//        double nu = 0;
-//        if (theta != 0)
-//            nu = acos(1.0 / b * lengths[i] / theta * sin(theta / 2.0));
-//
-//        deltaL = lengths[i] / 2.0 - b;
-//        m.block(JOINTS * i + 0, 0, 3, 1) = straw_bend_joint(phi, theta / 2 - nu);
-//        m(JOINTS * i + 3) = deltaL;
-//        m.block(JOINTS * i + 4, 0, 3, 1) = straw_bend_joint(phi, 2 * nu);
-//        m(JOINTS * i + 7) = deltaL;
-//        m.block(JOINTS * i + 8, 0, 3, 1) = m.block(JOINTS * i + 0, 0, 3, 1);
-//    }
+    for (int segment_id = 0; segment_id < st_params::num_segments; ++segment_id) {
+        q_0 = q(2*segment_id);
+        q_1 = q(2*segment_id + 1);
+        if (st_params::parametrization == ParametrizationType::phi_theta){
+            phi = q_0;
+            theta = q_1;
+        }
+        else if (st_params::parametrization == ParametrizationType::longitudinal){
+            // use phi, theta parametrization because it's simpler for calculation
+            if (q_0 == 0){
+                if (q_1 == 0)
+                    phi = 0;
+                else
+                    phi = PI / 2;
+            }
+            else
+                phi = atan(q_1 / q_0);
+            if (q_0 == 0)
+                theta = -q_1 / (st_params::r_trunk * cos(PI/2 - phi));
+            else
+                theta = -q_0 / (st_params::r_trunk * cos(phi));
+            if (theta < 0){
+                theta = -theta;
+                phi += PI;
+            }
+        }
+
+        joint_id_head = joints_per_segment * segment_id;
+        if (st_params::rigidModel == RigidModelType::straw_bend){
+            double b = st_params::lengths[segment_id] / 2.;
+            if (theta != 0)
+                b = st_params::lengths[segment_id] / theta * sqrt(1. + 4. * sin(theta/2.) / theta * (sin(theta/2.) / theta - cos(theta / 2.)));
+            double nu = 0;
+            if (theta != 0)
+                nu = acos(1. / b * st_params::lengths[segment_id] / theta * sin(theta / 2.));
+            deltaL = st_params::lengths[segment_id] / 2. - b;
+
+            m.segment(joint_id_head, 3) = straw_bend_joint(phi, theta / 2 - nu);
+            m(joints_per_segment * segment_id + 3) = deltaL;
+            m.segment(joint_id_head + 4, 3) = straw_bend_joint(phi, 2 * nu);
+            m(joints_per_segment * segment_id + 7) = deltaL;
+            m.segment(joint_id_head + 8, 3) = m.segment(joint_id_head, 3);
+        }
+    }
+
+    // update drake model and drake visualization
+    drake::systems::Context<double> &plant_context = diagram->GetMutableSubsystemContext(*multibody_plant,
+                                                                                         diagram_context.get());
+    multibody_plant->SetPositions(&plant_context, m);
+    diagram->Publish(*diagram_context);
 }
 
-void AugmentedRigidArm::update_Jm(Vector2Nd q) {
+void AugmentedRigidArm::update_Jm(const VectorXd q) {
     // brute force calculate Jacobian numerically lol
     //todo: verify that this numerical method is actually okay
     // this particular implementation only works because m of each element is totally independent of other elements
@@ -158,7 +189,7 @@ void AugmentedRigidArm::update_Jm(Vector2Nd q) {
 //    }
 }
 
-void AugmentedRigidArm::update_dJm(Vector2Nd q, Vector2Nd dq) {
+void AugmentedRigidArm::update_dJm(const VectorXd q, const VectorXd dq) {
     //todo: verify this numerical method too
 //    double epsilon = 0.1;
 //    Vector2Nd q_delta = Vector2Nd(q);
@@ -172,7 +203,7 @@ void AugmentedRigidArm::update_dJm(Vector2Nd q, Vector2Nd dq) {
 //    dJm = (Jxi_delta - Jxi_current) / epsilon;
 }
 
-void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
+void AugmentedRigidArm::update_Jxi(const VectorXd q) {
 //    update_m(q);
 //    MatrixNd Jxi_6D = MatrixNd::Constant (6, rbdl_model->dof_count, 0.);
 //    Jxi_6D.setZero();
@@ -180,10 +211,12 @@ void AugmentedRigidArm::update_Jxi(Vector2Nd q) {
 //    Jxi = Jxi_6D.block(3,0,3,N_SEGMENTS*JOINTS);
 }
 
-void AugmentedRigidArm::update(Vector2Nd q, Vector2Nd dq) {
+void AugmentedRigidArm::update(const VectorXd& q, const VectorXd& dq) {
+    assert(q.size() % st_params::num_segments == 0);
+    assert(dq.size() % st_params::num_segments == 0);
 
     // first update m (augmented model parameters)
-//    update_m(q);
+    update_m(q);
 //    update_Jxi(q);
 //    extract_B_G();
 //    joint_publish();
