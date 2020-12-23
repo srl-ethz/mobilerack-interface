@@ -2,7 +2,6 @@
 #include "QualisysClient.h"
 
 QualisysClient::QualisysClient(int num_frames) {
-    fmt::print("setting up QualisysClient\n");
     _frames.resize(num_frames); // for base + each segment
     connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
@@ -10,6 +9,7 @@ QualisysClient::QualisysClient(int num_frames) {
 }
 
 bool QualisysClient::connect_and_setup() {
+    fmt::print("trying to connect to Qualisys server at {}...\n", st_params::qualisys::address);
     // loop until connected to server
     for (int i = 0; i < 10; ++i) {
         rtProtocol.Connect(st_params::qualisys::address, st_params::qualisys::port, &udpPort, majorVersion,

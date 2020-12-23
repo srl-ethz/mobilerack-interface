@@ -12,10 +12,10 @@
 
 int main() {
     CurvatureCalculator cc{};
-
+    Rate r{5};
     while (true) {
-        fmt::print("==========\nq:\t{}\ndq:\t{}\nddq:\t{}\n", cc.q, cc.dq, cc.ddq);
-        sleep(0.1);
+        fmt::print("==========\nq:\t{}\ndq:\t{}\nddq:\t{}\n", cc.q.transpose(), cc.dq.transpose(), cc.ddq.transpose());
+        r.sleep();
     }
     return 1;
 }

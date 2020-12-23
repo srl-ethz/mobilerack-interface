@@ -45,11 +45,12 @@ int main() {
     std::cout << "\tG:\n" << augmentedRigidArm.G_xi << "\n";
 
     double delta_t = 0.03;
+    Rate r{1. / delta_t};
     for (double t = 0; t<10; t+=delta_t) {
         q_update(t, q);
         augmentedRigidArm.update(q, dq);
         fmt::print("q:{}\nm:{}\n", q.transpose(), augmentedRigidArm.m.transpose());
-        sleep(delta_t);
+        r.sleep();
     }
 
     fmt::print("switching to simulation mode...\n");

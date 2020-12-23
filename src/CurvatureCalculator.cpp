@@ -32,7 +32,9 @@ void CurvatureCalculator::setupIntegratedSensor() {
 void CurvatureCalculator::calculator_loop() {
     std::ofstream log_file;
     if (st_params::qualisys::log) {
-        log_file.open("log_curvature.csv");
+        std::string filename = "log_curvature.csv";
+        fmt::print("logging to {}\n", filename);
+        log_file.open(filename);
         log_file << "timestamp";
     }
     for (int i = 0; i < st_params::num_segments; ++i) {
