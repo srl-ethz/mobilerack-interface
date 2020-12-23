@@ -35,6 +35,7 @@ bool QualisysClient::connect_and_setup() {
         sleep(1);
     }
     fmt::print("Starting to stream 6DOF data\n");
+    return true;
 }
 
 void QualisysClient::motiontrack_loop() {
