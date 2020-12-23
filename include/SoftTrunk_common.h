@@ -32,12 +32,12 @@ enum class ArmConfigurationType {
 
 /** @brief robot-specific parameters SoftTrunk*/
 namespace st_params {
-    const std::string robot_name = "1segment_4chamber";
+    const std::string robot_name = "3segment_4chamber";
     /** @brief mass of each segment, in kg */
-    std::array<double, 1> masses = {0.12};
+    std::array<double, 3> masses = {0.12, 0.12, 0.12};
     /** @brief length of each segment, in m */
-    std::array<double, 1> lengths = {0.11};
-    const int num_segments = 1;
+    std::array<double, 3> lengths = {0.11, 0.11, 0.11};
+    const int num_segments = 3;
 
     const std::string local_address = "192.168.1.111";
 
@@ -70,7 +70,7 @@ namespace st_params {
     }
     /** @brief qualisys-related parameters */
     namespace qualisys {
-        const char *address = "172.17.12.81";
+        const char *address = "192.168.102.1";
         const unsigned short port = 22222;
         const bool log = true; /** @brief log curvature values */
     }
@@ -83,6 +83,23 @@ namespace st_params {
 void sleep(double sleep_secs) {
     std::this_thread::sleep_for(std::chrono::milliseconds((int) (sleep_secs * 1000)));
 }
+
+/** @brief use this to run a loop at a fixed rate, regardless of processing time in between. emulates the ros::Rate class. */
+class Rate {
+    double hz;
+    std::chrono::microseconds step;
+    std::chrono::time_point<std::chrono::steady_clock> next;
+public:
+    Rate(double hz) : hz(hz) {
+        step = std::chrono::microseconds((int) (1000000. / hz));
+        next = std::chrono::steady_clock::now() + step;
+    };
+
+    void sleep() {
+        std::this_thread::sleep_until(next);
+        next += step;
+    }
+};
 /**
  * @brief how many PCC elements there are
  */

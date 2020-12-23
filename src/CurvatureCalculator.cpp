@@ -43,7 +43,8 @@ void CurvatureCalculator::calculator_loop() {
 
     VectorXd prev_q = VectorXd::Zero(q.size());
     VectorXd prev_dq = VectorXd::Zero(dq.size());
-    double interval = 0.01; // loop interval
+    double interval = 0.01;
+    Rate rate{1. / interval};
     run = true;
     while (run) {
         // this loop continuously monitors the current state.
@@ -62,7 +63,7 @@ void CurvatureCalculator::calculator_loop() {
             }
             log_file << "\n";
         }
-        sleep(interval);
+        rate.sleep();
     }
     if (st_params::qualisys::log)
         log_file.close();
