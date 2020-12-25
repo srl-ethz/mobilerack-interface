@@ -1,22 +1,14 @@
 #pragma once
 
+#include "common.h"
+
 #include "MiniPID.h"
 #include "MPA.h"
-#include <thread>
-#include <vector>
-#include <iostream>
 #include <fstream>
-#include "common.h"
-#include <chrono>
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 
-/**
- * @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve.
- * The PID controller runs as a separate thread from the main code.
- * @details example_sinusoidal.cpp and example_ValveController.cpp show example usage of this library.
- *
- */
+/** @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve. */
 class ValveController {
 private:
     /**
@@ -36,11 +28,10 @@ private:
     MPA *mpa;
     std::thread controller_thread;
 
-    const int num_valves_total = 16;
-    const char *address;
+    const int num_valves_total = 16; /** @brief total number of valves in the Festo valve array setup */
     const std::vector<int> &map;
     const int max_pressure;
-    const bool use_pid = false;
+    const bool use_pid = false; /** @brief use PID control for pressure (kind of pointless since it's already done by valves */
     const bool log = true;
 
     // variables used to save the log data
@@ -58,17 +49,16 @@ public:
     void setSinglePressure(int index, int pressure);
 
     /**
-     * @param address
-     * @param map
+     * @param address IP address of Festo valves.
+     * @param map map[i] is the valve ID for i-th actuator.
      * @param max_pressure max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
-     * for DragonSkin 30, set to 1200.
-     * for DragonSkin 10, set to 400.
+     * 1200 for DragonSkin 30, 400 for DragonSkin 10 is recommended.
      * (not throughly examined- a larger or smaller value may be better)
      */
-    explicit ValveController(const char *address, const std::vector<int> &map, const int max_pressure);
+    ValveController(const char *address, const std::vector<int> &map, const int max_pressure);
 
     /**
-     * @brief stops the PID controller and outputs log.
+     * @brief disconnects from valve, and outputs log.
      */
     void disconnect();
 };

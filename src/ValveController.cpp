@@ -2,7 +2,7 @@
 #include "ValveController.h"
 
 ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure) :
-        address(address), map(map), max_pressure(max_pressure) {
+        map(map), max_pressure(max_pressure) {
     fmt::print("connecting to valves at {}...\n", address);
     mpa = new MPA(address, "502");
     desired_pressures.resize(map.size());
@@ -10,7 +10,7 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
         fmt::print("Failed to connect to valves at {}.\n", address);
         return;
     }
-    fmt::print("Successfully connected to MPA.");
+    fmt::print("Successfully connected to MPA at {}.\n", address);
 
     if (use_pid) {
         // Ziegler-Nichols method

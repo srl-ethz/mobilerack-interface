@@ -13,7 +13,7 @@ int sinusoid(double phase) { return 150 + 150 * sin(phase); }
 
 int main() {
     std::vector<int> map = {0, 1, 2, 3};
-    ValveController vc{"192.168.0.0", map, 400};
+    ValveController vc{"192.168.0.100", map, 400};
     double phase;
     Rate r{1. / timestep};
     for (double time = 0; time < duration; time += timestep) {

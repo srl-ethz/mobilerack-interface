@@ -11,6 +11,8 @@
 #include <thread>
 #include <assert.h>
 #include <array>
+#include <vector>
+
 
 #define PI 3.141592
 

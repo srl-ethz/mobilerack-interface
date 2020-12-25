@@ -1,16 +1,13 @@
 // Copyright 2018 Yasu
 #pragma once
 
-#include <stdio.h>
-#include <thread>
+#include "common.h"
 
 #include "RTProtocol.h"
 #include "RTPacket.h"
 
 #include "fmt/core.h"
 #include "fmt/ostream.h"
-
-#include "common.h"
 
 /**
  * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data
@@ -27,7 +24,7 @@ public:
     ~QualisysClient();
 
     /**
-     * Get a new frame from the listener.
+     * Get the latest frame data.
      * @todo implement mutex lock
      * @param frames vector of frames received from motion track. index corresponds to frame label.
      * @param timestamp timestamp obtained from QTM
