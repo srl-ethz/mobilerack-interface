@@ -7,6 +7,7 @@
 #include <fstream>
 #include "fmt/core.h"
 #include "fmt/ostream.h"
+#include <mutex>
 
 /** @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve. */
 class ValveController {
@@ -27,9 +28,10 @@ private:
     std::vector<MiniPID> pid;
     MPA *mpa;
     std::thread controller_thread;
+    std::mutex mtx;
 
     const int num_valves_total = 16; /** @brief total number of valves in the Festo valve array setup */
-    const std::vector<int> &map;
+    const std::vector<int> map;
     const int max_pressure;
     const bool use_pid = false; /** @brief use PID control for pressure (kind of pointless since it's already done by valves */
     const bool log = true;
