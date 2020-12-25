@@ -1,6 +1,6 @@
 image: alpine:latest
 before_script:
-  - apk update --yes
+  - apk update
   - apk add build-essential cmake
   - apk add libmodbus-dev eigen
 variables:
