@@ -1,5 +1,5 @@
 // Copyright 2018 Yasu
-#include "QualisysClient.h"
+#include "mobilerack-interface/QualisysClient.h"
 
 QualisysClient::QualisysClient(const char *address, const unsigned short port, int num_frames) :
         address(address), port(port) {

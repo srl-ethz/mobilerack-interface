@@ -1,5 +1,5 @@
 // Copyright 2018 ...
-#include "ValveController.h"
+#include "mobilerack-interface/ValveController.h"
 
 ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure) :
         map(map), max_pressure(max_pressure) {
