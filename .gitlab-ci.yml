@@ -1,0 +1,11 @@
+image: ubuntu:bionic
+before_script:
+  - apt-get update --yes
+  - apt-get install --yes build-essential cmake
+  - apt-get install --yes libmodbus-dev libeigen3-dev
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+build:
+  script:
+    - cmake .
+    - make
