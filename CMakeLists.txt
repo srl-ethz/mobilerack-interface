@@ -15,7 +15,7 @@ include_directories(include subm/MiniPID subm/fmt/include)
 
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(subm/qualisys_cpp_sdk)
-
+add_subdirectory(subm/fmt)
 
 FIND_PACKAGE(PkgConfig)
 # https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake

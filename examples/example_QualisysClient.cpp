@@ -2,7 +2,7 @@
 // Created by yasu on 15/12/2020.
 //
 
-#include "QualisysClient.h"
+#include "mobilerack-interface/QualisysClient.h"
 
 int main(){
     int num_frames = 2;
