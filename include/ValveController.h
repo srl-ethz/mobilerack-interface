@@ -6,8 +6,10 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "SoftTrunk_common.h"
+#include "common.h"
 #include <chrono>
+#include "fmt/core.h"
+#include "fmt/ostream.h"
 
 /**
  * @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve.
@@ -31,8 +33,15 @@ private:
     /** @brief holds the desired pressure values for each actuator */
     std::vector<int> desired_pressures;
     std::vector<MiniPID> pid;
-    MPA* mpa;
+    MPA *mpa;
     std::thread controller_thread;
+
+    const int num_valves_total = 16;
+    const char *address;
+    const std::vector<int> &map;
+    const int max_pressure;
+    const bool use_pid = false;
+    const bool log = true;
 
     // variables used to save the log data
     std::vector<double> seconds_log;
@@ -48,7 +57,15 @@ public:
      */
     void setSinglePressure(int index, int pressure);
 
-    explicit ValveController();
+    /**
+     * @param address
+     * @param map
+     * @param max_pressure max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
+     * for DragonSkin 30, set to 1200.
+     * for DragonSkin 10, set to 400.
+     * (not throughly examined- a larger or smaller value may be better)
+     */
+    explicit ValveController(const char *address, const std::vector<int> &map, const int max_pressure);
 
     /**
      * @brief stops the PID controller and outputs log.

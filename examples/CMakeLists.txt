@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.10.2)
+project(MobileRackInterface-examples)
+
+add_executable(example_QualisysClient example_QualisysClient.cpp)
+target_link_libraries(example_QualisysClient QualisysClient)
+
+add_executable(example_ValveController_sinusoidal example_ValveController_sinusoidal.cpp)
+target_link_libraries(example_ValveController_sinusoidal ValveController)
+
+add_executable(example_ValveController example_ValveController.cpp)
+target_link_libraries(example_ValveController ValveController)

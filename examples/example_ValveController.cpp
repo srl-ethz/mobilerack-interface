@@ -10,9 +10,10 @@
 int main() {
     const int pressure = 300;
     int valve_id;
-    ValveController vc{};
-    for (int i = 0; i < st_params::valve::map.size(); i++) {
-        valve_id = st_params::valve::map[i];
+    std::vector<int> map = {0, 1, 2, 3};
+    ValveController vc{"192.168.0.0", map, 400};
+    for (int i = 0; i < map.size(); i++) {
+        valve_id = map[i];
         std::cout << "actuator ID:\t" << i << "\tvalve ID:\t" << valve_id << "\tpressure\t" << pressure << std::endl;
         vc.setSinglePressure(i, pressure);
         sleep(1);

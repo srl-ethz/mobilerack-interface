@@ -10,7 +10,7 @@
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 
-#include "SoftTrunk_common.h"
+#include "common.h"
 
 /**
  * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data
@@ -22,7 +22,7 @@ public:
      * @param num_frames how many _frames you want to track. The frame labels should be "0", "1", ..., "<num_frames>".
      * Can't read 2 (or more) digit labels for now.
      */
-    QualisysClient(int num_frames);
+    QualisysClient(const char *address, const unsigned short port, int num_frames);
 
     ~QualisysClient();
 
@@ -40,6 +40,9 @@ private:
     const int minorVersion = 19;
     const bool bigEndian = false;
     unsigned short udpPort = 6734;
+
+    const char *address;
+    const unsigned short port;
 
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> _frames;
     unsigned long long int _timestamp;

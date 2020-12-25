@@ -1,7 +1,8 @@
 // Copyright 2018 Yasu
 #include "QualisysClient.h"
 
-QualisysClient::QualisysClient(int num_frames) {
+QualisysClient::QualisysClient(const char *address, const unsigned short port, int num_frames) :
+        address(address), port(port) {
     _frames.resize(num_frames); // for base + each segment
     connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
@@ -9,17 +10,17 @@ QualisysClient::QualisysClient(int num_frames) {
 }
 
 bool QualisysClient::connect_and_setup() {
-    fmt::print("trying to connect to Qualisys server at {}...\n", st_params::qualisys::address);
+    fmt::print("trying to connect to Qualisys server at {}...\n", address);
     // loop until connected to server
     for (int i = 0; i < 10; ++i) {
-        rtProtocol.Connect(st_params::qualisys::address, st_params::qualisys::port, &udpPort, majorVersion,
+        rtProtocol.Connect(address, port, &udpPort, majorVersion,
                            minorVersion, bigEndian);
         if (rtProtocol.Connected()) {
-            fmt::print("connected to Qualisys server at {}\n", st_params::qualisys::address);
+            fmt::print("connected to Qualisys server at {}\n", address);
             break;
         }
         fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
-                   st_params::qualisys::address);
+                   address);
         sleep(1);
     }
     bool dataAvailable = false;
