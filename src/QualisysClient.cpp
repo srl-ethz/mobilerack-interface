@@ -1,9 +1,9 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(const char *address, const unsigned short port, int num_frames) :
+QualisysClient::QualisysClient(const char *address, const unsigned short port, int numframes) :
         address(address), port(port) {
-    _frames.resize(num_frames); // for base + each segment
+    frames.resize(numframes); // for base + each segment
     connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
     fmt::print("finished setup of QualisysClient.\n");
@@ -45,6 +45,8 @@ void QualisysClient::motiontrack_loop() {
     float rotationMatrix[9];
 
     while (true) {
+        sleep(0.001);
+        std::lock_guard<std::mutex> lock(mtx);
         if (!rtProtocol.Connected()) {
             fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
             connect_and_setup();
@@ -59,21 +61,22 @@ void QualisysClient::motiontrack_loop() {
                         if (pTmpStr) {
                             // convert the ID to an integer
                             // @todo fix implementation to allow more than 1 digit for ID.
+                            // @todo better processing for when frame is missed (value becomes nan)
                             int id = pTmpStr[0] - '0';
-                            if (0 <= id && id < _frames.size()) {
+                            if (0 <= id && id < frames.size() && !std::isnan(fX)) {
                                 // assign value to each frame
-                                _frames[id](0, 3) = fX;
-                                _frames[id](1, 3) = fY;
-                                _frames[id](2, 3) = fZ;
+                                frames[id](0, 3) = fX;
+                                frames[id](1, 3) = fY;
+                                frames[id](2, 3) = fZ;
                                 for (int row = 0; row < 3; ++row) {
                                     for (int column = 0; column < 3; ++column) {
                                         // column-major order
-                                        _frames[id](row, column) = rotationMatrix[column * 3 + row];
+                                        frames[id](row, column) = rotationMatrix[column * 3 + row];
                                     }
                                 }
                             }
                         }
-                        _timestamp = rtPacket->GetTimeStamp();
+                        timestamp = rtPacket->GetTimeStamp();
                     }
                 }
             }
@@ -83,8 +86,9 @@ void QualisysClient::motiontrack_loop() {
 
 void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames,
                              unsigned long long int &timestamp) {
-    frames = _frames;
-    timestamp = _timestamp;
+    std::lock_guard<std::mutex> lock(mtx);
+    frames = this->frames;
+    timestamp = this->timestamp;
 }
 
 QualisysClient::~QualisysClient() {

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "common.h"
+#include <mutex>
 
 #include "RTProtocol.h"
 #include "RTPacket.h"
@@ -41,9 +42,10 @@ private:
     const char *address;
     const unsigned short port;
 
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> _frames;
-    unsigned long long int _timestamp;
+    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
+    unsigned long long int timestamp;
     std::thread motiontrack_thread;
+    std::mutex mtx;
 
     void motiontrack_loop();
 

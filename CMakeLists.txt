@@ -17,14 +17,17 @@ set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(subm/qualisys_cpp_sdk)
 add_subdirectory(subm/fmt)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+
 FIND_PACKAGE(PkgConfig)
 # https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake
 pkg_check_modules(PC_MODBUS QUIET libmodbus)
 set(MODBUS_DEFINITIONS ${PC_LIBMODBUS_CFLAGS_OTHER})
 
 find_path(MODBUS_INCLUDE_DIRS modbus/modbus.h
-          HINTS ${PC_LIBMODBUS_INCLUDEDIR} ${PC_LIBMODBUS_INCLUDE_DIRS}
-          PATH_SUFFIXES modbus )
+        HINTS ${PC_LIBMODBUS_INCLUDEDIR} ${PC_LIBMODBUS_INCLUDE_DIRS}
+        PATH_SUFFIXES modbus)
 
 find_library(MODBUS_LIBRARIES NAMES modbus libmodbus
              HINTS ${PC_LIBMODBUS_LIBDIR} ${PC_LIBMODBUS_LIBRARY_DIRS} )
@@ -39,9 +42,9 @@ INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
 add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp subm/MiniPID/MiniPID.cpp subm/fmt/src/format.cc)
 target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
-target_link_libraries(ValveController -pthread ${MODBUS_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(ValveController Threads::Threads ${MODBUS_LIBRARIES})
 
 add_library(QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
-target_link_libraries(QualisysClient qualisys_cpp_sdk -pthread)
+target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads)
 
 add_subdirectory(examples)

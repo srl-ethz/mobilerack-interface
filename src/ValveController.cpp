@@ -31,6 +31,7 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
 }
 
 void ValveController::setSinglePressure(int index, int pressure) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (0 <= index && index < map.size())
         desired_pressures[index] = pressure;
     else
@@ -45,10 +46,11 @@ void ValveController::controllerThread() {
     for (int i = 0; i < num_valves_total; i++) {
         output_pressures[i] = 0;
     }
-    int i = 0;
     int valve_id;
+    Rate r{30};
     while (run) {
-        i++;
+        r.sleep();
+        std::lock_guard<std::mutex> lock(mtx);
         mpa->get_all_pressures(&sensor_pressures);
         for (int i = 0; i < map.size(); i++) {
             valve_id = map[i];
