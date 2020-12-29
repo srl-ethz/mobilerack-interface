@@ -1,11 +1,12 @@
-#! /usr/local/bin/python3
+#! /usr/bin/env python3
 import csv
 import matplotlib.pyplot as plt
 import sys
 
 """
-This is a Python3 script to plot the logged data.")
-Use with filename after command, such as '$python3 plotGraph.py log.csv'
+This is a Python3 script to plot the logged data.
+Use with filename after command, such as '$./plotGraph.py log.csv'
+Assumes the first column is the x values (usually the time) and the subsequent columns are y values. 
 """
 x_label = "" # label for leftmost column (usually the time)
 x_data = [] # data for the leftmost column
@@ -28,8 +29,11 @@ with open(filename) as csvfile:
             for i in range(1, len(row)):
                 label_array.append(row[i])
                 data_array.append([])
-            print(f"plotting x axis:\t{x_label} and values:\t{label_array}")
+            print(f"plotting x axis: \"{x_label}\", and values: {label_array}")
             is_first_row = False
+            continue
+        if len(row) < len(label_array) + 1:
+            print(f"WARNING: ignoring a row because it contains only {len(row)} elements.")
             continue
         x_data.append(float(row[0]))
         for i in range(len(label_array)):
