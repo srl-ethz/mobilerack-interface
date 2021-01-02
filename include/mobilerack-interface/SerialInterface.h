@@ -12,6 +12,12 @@
 
 /** @brief wrapper for libserial library to make it easier to read out serial data from Arduino.
  * WSL2 doesn't support USB devices, so can only be run on Linux (and maybe macOS).
+ *
+ * might be better to use external library for reading from serial data- some candidates are
+ * - https://github.com/araffin/cpp-arduino-serial
+ * - https://github.com/manashmandal/SerialPort
+ * - https://github.com/imabot2/serialib
+ * - https://github.com/wjwwood/serial
  */
 class SerialInterface{
 public:

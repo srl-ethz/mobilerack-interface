@@ -17,6 +17,7 @@ include_directories(include)
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(subm/qualisys_cpp_sdk)
 add_subdirectory(subm/fmt)
+add_subdirectory(subm/libserial)
 add_library(MiniPID subm/MiniPID/MiniPID.cpp)
 target_include_directories(MiniPID PUBLIC subm/MiniPID)
 
