@@ -4,10 +4,19 @@
 
 #include "mobilerack-interface/SerialInterface.h"
 
-SerialInterface::SerialInterface(std::string port) {
-    fmt::print("opening port {}\n", port);
-    serialStream.Open(port);
-    serialStream.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
+SerialInterface::SerialInterface(std::string portname) {
+    fmt::print("opening port {}\n", portname);
+    sp_return error = sp_get_port_by_name(portname.c_str(),&port);
+    if (error == SP_OK) {
+        error = sp_open(port,SP_MODE_READ);
+        if (error == SP_OK) {
+            fmt::print("succeeded opening serial device {}\n", portname);
+            sp_set_baudrate(port,115200);
+        } else 
+        fmt::print("Error opening serial device: {}\n", portname);
+    } 
+    else 
+        fmt::print("Error finding serial device: {}\n", portname);
     serial_thread = std::thread(&SerialInterface::serial_loop, this);
 }
 
@@ -20,13 +29,27 @@ void SerialInterface::getData(std::vector<float>& data){
 
 void SerialInterface::serial_loop(){
     const int read_size = 10;
-    while(true){
-        while (current_buffer_size + read_size > max_buffer_size){
-            // clear the buffer until there's enough space to read next batch of data
-            memmove(buffer, &buffer[read_size], max_buffer_size-read_size);
-            current_buffer_size -= read_size;
+          while(true) {
+        sleep(0.5); // can do something else in mean time
+        int bytes_waiting = sp_input_waiting(port);
+        if (bytes_waiting > 0) {
+          printf("Bytes waiting %i\n", bytes_waiting);
+          char byte_buff[512];
+          int byte_num = 0;
+          byte_num = sp_nonblocking_read(port,byte_buff,512);
+          // parse_serial(byte_buff,byte_num);
         }
-        serialStream.read(&buffer[current_buffer_size], read_size);
+        fflush(stdout);
+      }
+
+      sp_close(port);
+    while(true){
+        // while (serialStream.IsDataAvailable()){
+        //     // clear the buffer until there's enough space to read next batch of data
+        //     current_buffer_size -= read_size;
+        // }
+        std::string data_string;
+        // serialStream.ReadLine(data_string);
         current_buffer_size += read_size;
         parse_latest_data();
     }

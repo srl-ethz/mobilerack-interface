@@ -5,8 +5,7 @@
 
 #include "common.h"
 #include <mutex>
-#include "libserial/SerialStream.h"
-#include "libserial/SerialPort.h"
+#include <libserialport.h>
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 
@@ -18,17 +17,19 @@
  * - https://github.com/manashmandal/SerialPort
  * - https://github.com/imabot2/serialib
  * - https://github.com/wjwwood/serial
+ * 
+ * cf: https://gist.github.com/Nixes/78e401234e66aa131547d7b78135271c
  */
 class SerialInterface{
 public:
-    SerialInterface(std::string port);
+    SerialInterface(std::string portname);
     /** @brief get latest data from the serial port.
      * @param data
      */
     void getData(std::vector<float>& data);
 
 private:
-    LibSerial::SerialStream serialStream;
+    struct sp_port *port;
     std::thread serial_thread;
     std::mutex mtx;
     void serial_loop();

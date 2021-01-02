@@ -19,12 +19,6 @@ add_subdirectory(subm/qualisys_cpp_sdk)
 
 add_subdirectory(subm/fmt)
 
-set(LIBSERIAL_ENABLE_TESTING OFF)
-set(LIBSERIAL_BUILD_EXAMPLES OFF)
-set(LIBSERIAL_PYTHON_ENABLE OFF)
-set(LIBSERIAL_BUILD_DOCS OFF)
-add_subdirectory(subm/libserial)
-
 add_library(MiniPID subm/MiniPID/MiniPID.cpp)
 target_include_directories(MiniPID PUBLIC subm/MiniPID)
 
@@ -48,7 +42,7 @@ include(FindPackageHandleStandardArgs)
 # if all listed variables are TRUE
 find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRARIES MODBUS_INCLUDE_DIRS)
 
-pkg_check_modules(SERIAL libserial)
+pkg_check_modules(SERIALPORT REQUIRED libserialport)
 
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
@@ -61,7 +55,7 @@ add_library(QualisysClient SHARED src/QualisysClient.cpp)
 target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)
 
 add_library(SerialInterface SHARED src/SerialInterface.cpp)
-target_include_directories(SerialInterface PRIVATE ${SERIAL_INCLUDE_DIRS})
-target_link_libraries(SerialInterface ${SERIAL_LDFLAGS} Threads::Threads fmt)
+target_include_directories(SerialInterface PUBLIC ${SERIALPORT_INCLUDE_DIRS})
+target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt)
 
 add_subdirectory(examples)
