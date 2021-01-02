@@ -3,6 +3,7 @@ before_script:
   - apt-get update --yes
   - apt-get install --yes build-essential cmake
   - apt-get install --yes libmodbus-dev libeigen3-dev
+  - apt-get install --yes libserial-dev # compilation will probably fail, latest ver must be compiled from source
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 build:

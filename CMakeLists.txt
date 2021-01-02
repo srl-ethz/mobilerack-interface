@@ -40,6 +40,8 @@ include(FindPackageHandleStandardArgs)
 # if all listed variables are TRUE
 find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRARIES MODBUS_INCLUDE_DIRS)
 
+pkg_check_modules(SERIAL libserial)
+
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
@@ -49,5 +51,9 @@ target_link_libraries(ValveController Threads::Threads ${MODBUS_LIBRARIES} MiniP
 
 add_library(QualisysClient SHARED src/QualisysClient.cpp)
 target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)
+
+add_library(SerialInterface SHARED src/SerialInterface.cpp)
+target_include_directories(SerialInterface PRIVATE ${SERIAL_INCLUDE_DIRS})
+target_link_libraries(SerialInterface ${SERIAL_LDFLAGS} Threads::Threads fmt)
 
 add_subdirectory(examples)
