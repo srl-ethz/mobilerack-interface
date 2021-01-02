@@ -11,11 +11,14 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include_directories(include subm/MiniPID subm/fmt/include)
+include_directories(include)
 
+### compile the submodules
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
 add_subdirectory(subm/qualisys_cpp_sdk)
 add_subdirectory(subm/fmt)
+add_library(MiniPID subm/MiniPID/MiniPID.cpp)
+target_include_directories(MiniPID PUBLIC subm/MiniPID)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
@@ -40,11 +43,11 @@ find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRA
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
-add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp subm/MiniPID/MiniPID.cpp subm/fmt/src/format.cc)
-target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
-target_link_libraries(ValveController Threads::Threads ${MODBUS_LIBRARIES})
+add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp)
+# target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
+target_link_libraries(ValveController Threads::Threads ${MODBUS_LIBRARIES} MiniPID fmt)
 
-add_library(QualisysClient SHARED src/QualisysClient.cpp subm/fmt/src/format.cc)
-target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads)
+add_library(QualisysClient SHARED src/QualisysClient.cpp)
+target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)
 
 add_subdirectory(examples)
