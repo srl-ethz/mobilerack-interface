@@ -27,6 +27,7 @@ SerialInterface::~SerialInterface(){
 }
 
 void SerialInterface::getData(std::vector<float>& data){
+    std::lock_guard<std::mutex> lock(mtx);
     data.resize(sizeof(this->data)/sizeof(this->data[0]));
     for (int i = 0; i < data.size(); ++i) {
         data[i] = this->data[i];
@@ -70,9 +71,12 @@ void SerialInterface::parse_latest_data(){
         return; // did not find newline
     int data_begin_index = last_newline_index - sizeof(data);
     // read out the data
-    for (int i = 0; i < sizeof(data)/sizeof(data[0]); i++)
     {
-        memcpy(&data[i], &buffer[data_begin_index + sizeof(data[0])*i], sizeof(data[0]));
+        std::lock_guard<std::mutex> lock(mtx);
+        for (int i = 0; i < sizeof(data)/sizeof(data[0]); i++)
+        {
+            memcpy(&data[i], &buffer[data_begin_index + sizeof(data[0])*i], sizeof(data[0]));
+        }
     }
 
     // remove the read part from the buffer
