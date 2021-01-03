@@ -19,18 +19,18 @@ git submodule update
 ```
 
 ## install necessary packages
+(also check .gitlab-ci.yml for how to setup Ubuntu)
 
 for Ubuntu
 
 ```bash
-sudo apt install libmodbus-dev libeigen3-dev
+sudo apt install libmodbus-dev libeigen3-dev libserialport-dev
 ```
 
 for macOS (todo: unverified)
 
 ```bash
-brew install libmodbus
-# also install eigen
+brew install libmodbus eigen libserialport
 ```
 
 ## Compile
