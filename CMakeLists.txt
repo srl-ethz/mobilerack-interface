@@ -26,30 +26,16 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 
 FIND_PACKAGE(PkgConfig)
-# https://github.com/AgileManufacturing/Avans/blob/master/cmake/FindModbus.cmake
-pkg_check_modules(PC_MODBUS QUIET libmodbus)
-set(MODBUS_DEFINITIONS ${PC_LIBMODBUS_CFLAGS_OTHER})
 
-find_path(MODBUS_INCLUDE_DIRS modbus/modbus.h
-        HINTS ${PC_LIBMODBUS_INCLUDEDIR} ${PC_LIBMODBUS_INCLUDE_DIRS}
-        PATH_SUFFIXES modbus)
-
-find_library(MODBUS_LIBRARIES NAMES modbus libmodbus
-             HINTS ${PC_LIBMODBUS_LIBDIR} ${PC_LIBMODBUS_LIBRARY_DIRS} )
-
-include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set MODBUS_FOUND to TRUE
-# if all listed variables are TRUE
-find_package_handle_standard_args(MODBUS "Could not find libmodbus" MODBUS_LIBRARIES MODBUS_INCLUDE_DIRS)
-
+pkg_check_modules(MODBUS REQUIRED libmodbus)
 pkg_check_modules(SERIALPORT REQUIRED libserialport)
 
 FIND_PACKAGE (Eigen3 REQUIRED)
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 
 add_library(ValveController SHARED src/ValveController.cpp src/MPA.cpp)
-# target_include_directories(ValveController PRIVATE ${MODBUS_DIRS})
-target_link_libraries(ValveController Threads::Threads ${MODBUS_LIBRARIES} MiniPID fmt)
+target_include_directories(ValveController PUBLIC ${MODBUS_INCLUDE_DIRS})
+target_link_libraries(ValveController Threads::Threads ${MODBUS_LDFLAGS} MiniPID fmt)
 
 add_library(QualisysClient SHARED src/QualisysClient.cpp)
 target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)

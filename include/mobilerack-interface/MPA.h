@@ -3,7 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "modbus/modbus.h"
+#include "modbus.h"
+#include "modbus-tcp.h"
 
 /**
  * @brief low-level control for the Festo valve array
