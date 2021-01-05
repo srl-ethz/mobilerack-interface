@@ -6,8 +6,7 @@ tracking system. Code common across different projects using THE RACK can be kep
 ## Generating Documentation
 
 Uses Doxygen to generate documentation from inline comments in code. Install [Doxygen](http://www.doxygen.nl), and
-run `doxygen` in this directory to generate HTML (can be seen with browser at html/index.html) & LATEX output.
-[GraphViz](https://www.graphviz.org/download/) is required if you want to generate dependency graphs.
+run `doxygen Doxyfile` in this directory to generate HTML files (can be seen with browser at html/index.html).
 
 ## get submodules
 
@@ -19,18 +18,18 @@ git submodule update
 ```
 
 ## install necessary packages
+(also check .gitlab-ci.yml for hints on how to setup Ubuntu)
 
 for Ubuntu
 
 ```bash
-sudo apt install libmodbus-dev libeigen3-dev
+sudo apt install libmodbus-dev libeigen3-dev libserialport-dev
 ```
 
 for macOS (todo: unverified)
 
 ```bash
-brew install libmodbus
-# also install eigen
+brew install libmodbus eigen libserialport
 ```
 
 ## Compile

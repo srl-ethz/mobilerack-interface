@@ -26,7 +26,6 @@ public:
 
     /**
      * Get the latest frame data.
-     * @todo implement mutex lock
      * @param frames vector of frames received from motion track. index corresponds to frame label.
      * @param timestamp timestamp obtained from QTM
      */
