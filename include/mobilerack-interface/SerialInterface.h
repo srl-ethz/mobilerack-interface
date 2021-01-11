@@ -12,14 +12,9 @@
 
 /** @brief wrapper for libserial library to make it easier to read out serial data from Arduino.
  * WSL2 doesn't support USB devices, so can only be run on Linux and macOS.
- * data byte array format is:
- * 1. [0 - 23]: 6 float values (each is 4 bytes)
- * 1. [24]: 13 (carriage return character, '\r')
- * 1. [25]: 10 (newline character, '\\n')
+ * currently only supports 6 float values, send as string
+ * "a3.14,1,2,3,4,5\n"
  * 
- * last 2 bytes are taken from behavior of [println()](https://www.arduino.cc/reference/en/language/functions/communication/serial/println/) on Arduino. 
- * 
- * @todo possibly messes up if footer 2 bytes appear with float encoded segment, must be made more robust
  * @todo support more formats for data, not just 6 floats
  * @todo this is a rather rough implementation, so always make sure the data seems appropriate.
  *
