@@ -48,9 +48,11 @@ executables are output to bin/.
 Uses Doxygen to generate documentation from inline comments in code. Install [Doxygen](http://www.doxygen.nl), and
 run `doxygen Doxyfile` in this directory to generate HTML files (can be seen with browser at html/index.html).
 
-## setup for Qualisys Track Manager
+## setup for Qualisys Track Manager (QTM)
 
-todo...
+The QualisysClient class tracks each RigidBody (labels must be an integer between 0 - 9 in order for the QualisysClient to read it).
+Before running sample program, update the IP address of the PC running QTM, in examples/example_QualisysClient.cpp.
+When on WSL, set IP address to be the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
 
 ## Festo valves
 
