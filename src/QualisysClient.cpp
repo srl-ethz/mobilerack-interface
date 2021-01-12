@@ -31,11 +31,34 @@ bool QualisysClient::connect_and_setup() {
             continue;
         }
     }
-    while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, CRTProtocol::cComponent6d)) {
+
+    // camera capture can only be started when the program takes control over QTM
+    if(!rtProtocol.TakeControl("gait1"))
+        fmt::print("becoming master failed, {}\n", rtProtocol.GetErrorString());
+
+    // set to stream images from camera
+    unsigned int nCameraId = 9; // corresponds with QTM
+    bool enable = true;
+    unsigned int nFormat = CRTPacket::EImageFormat::FormatJPG;
+    unsigned int w = 320;
+    unsigned int h = 200;
+    float fLeftCrop = 0; float fTopCrop = 0;
+    float fRightCrop = 1; float fBottomCrop = 1;
+    if (rtProtocol.SetImageSettings(nCameraId, &enable, (CRTPacket::EImageFormat*)&nFormat, &w, &h, &fLeftCrop, &fTopCrop, &fRightCrop, &fBottomCrop))
+        fmt::print("change image settings succeeded\n");
+    else
+        fmt::print("change image settings failed, {}\n", rtProtocol.GetErrorString());
+
+    // set to stream 6D frames & images
+    std::string str = "Image 6D";
+    while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
         sleep(1);
     }
     fmt::print("Starting to stream 6DOF data\n");
+
+    if(!rtProtocol.ReleaseControl())
+        fmt::print("releasing control failed, {}\n", rtProtocol.GetErrorString());
     return true;
 }
 
@@ -78,6 +101,11 @@ void QualisysClient::motiontrack_loop() {
                         }
                         timestamp = rtPacket->GetTimeStamp();
                     }
+                }
+                for (unsigned int i = 0; i < rtPacket->GetImageCameraCount(); ++i) {
+                    unsigned int w, h;
+                    rtPacket->GetImageSize(i, w, h);
+                    fmt::print("found image, id:{}\twidth:{}\theight:{}\n", i, w, h);
                 }
             }
         }
