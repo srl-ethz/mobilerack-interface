@@ -12,8 +12,11 @@
 
 /** @brief wrapper for libserial library to make it easier to read out serial data from Arduino.
  * WSL2 doesn't support USB devices, so can only be run on Linux and macOS.
- * currently only supports 6 float values, send as string
- * "a3.14,1,2,3,4,5\n"
+ * Currently only supports 6 float values.
+ * 
+ * send serial data from arduino as ascii string beginning with 'a', values separated by comma, and end with a newline character, with no spaces, i.e. "a3.14,1,2,3,4,5\n"
+ * 
+ * Of course it's more efficient to send the actual data rather than as ASCII string, but then it's tricky how to recoginize where data starts & ends (cf: https://forum.arduino.cc/index.php?topic=628401.0 )
  * 
  * @todo support more formats for data, not just 6 floats
  * @todo this is a rather rough implementation, so always make sure the data seems appropriate.
