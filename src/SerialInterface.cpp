@@ -63,23 +63,47 @@ void SerialInterface::serial_loop(){
 void SerialInterface::parse_latest_data(){
     // first, find the last newline character in buffer
     int last_newline_index = -1;
-    for (int i = 0; i < current_buffer_size - 1; ++i) {
-        if (buffer[i] == 13 && buffer[i+1] == 10)
+    for (int i = 0; i < current_buffer_size; ++i) {
+        if (buffer[i] == '\n')
             last_newline_index = i;
     }
     if (last_newline_index < 0)
         return; // did not find newline
-    int data_begin_index = last_newline_index - sizeof(data);
-    // read out the data
+    // find beginning of data, marked by 'a'
+    int data_begin_index = -1;
+    for (int i = last_newline_index-1; 0 <= i; i-=1)
+    {
+        if (buffer[i] == '\n')
+            return; // this is an error because there should always be 'a' somewhere between '\n'
+        if (buffer[i] == 'a'){
+            data_begin_index = i;
+            break;
+        }
+    }
+    if (data_begin_index < 0)
+        return;
+    
+    int float_head_index[6]; // stores the index of where each float value starts
+    float_head_index[0] = data_begin_index+1;
+    int count = 1;
+    // find all the commas, which separate the float values
+    for (int i = float_head_index[0] ; i < last_newline_index-1; i++)
+    {
+        if (buffer[i] == ',')
+        {
+            float_head_index[count] = i+1;
+            count++;
+        }
+    }
+    assert(count == 6);
+
+    for (int i = 0; i < 6; i++)
     {
         std::lock_guard<std::mutex> lock(mtx);
-        for (int i = 0; i < sizeof(data)/sizeof(data[0]); i++)
-        {
-            memcpy(&data[i], &buffer[data_begin_index + sizeof(data[0])*i], sizeof(data[0]));
-        }
+        data[i] = std::atof(&buffer[float_head_index[i]]);
     }
 
     // remove the read part from the buffer
-    memmove(buffer, &buffer[last_newline_index+2], max_buffer_size - (last_newline_index+2));
-    current_buffer_size -= last_newline_index+2;
+    memmove(buffer, &buffer[last_newline_index+1], max_buffer_size - (last_newline_index+1));
+    current_buffer_size -= last_newline_index+1;
 }

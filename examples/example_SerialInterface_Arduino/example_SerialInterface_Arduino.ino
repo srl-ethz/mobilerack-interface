@@ -3,41 +3,32 @@ Sample sketch for Arduino on how to send data over serial. Use together with exa
 Arduino resets after communication?
 */
 
-// 6 * [4 bytes for float], [2 bytes for marking end of transmission]
-#define DATA_SIZE 26
+float sensor_vals[6];
 
-// data array to send
-char data[DATA_SIZE];
-
-// mock sensor values
-float sensor1 = 0;
-float sensor2 = 3.1415;
-float sensor3 = 3;
-float sensor4 = 4;
-float sensor5 = 5;
-float sensor6 = 6;
+int num = sizeof(sensor_vals) / sizeof(sensor_vals[0]);
 
 void setup() {
+  // mock sensor values
+  sensor_vals[0] = 0;
+  sensor_vals[1] = 3.14;
+  sensor_vals[2] = 2.7;
+  sensor_vals[3] = 3;
+  sensor_vals[4] = 4;
+  sensor_vals[5] = 5;
+
   Serial.begin(38400);
-  
-  // set footer bytes
-  data[DATA_SIZE - 2] = '\r';
-  data[DATA_SIZE - 1] = '\n';
 }
 
 void loop() {
   // set sensor values
-  sensor1 += 1;
-  sensor3 -= 1;
+  sensor_vals[0] += 1;
 
-  // copy values to data array
-  memcpy(&data[0], &sensor1, sizeof(sensor1));
-  memcpy(&data[4], &sensor2, sizeof(sensor2));
-  memcpy(&data[8], &sensor3, sizeof(sensor3));
-  memcpy(&data[12], &sensor4, sizeof(sensor4));
-  memcpy(&data[16], &sensor5, sizeof(sensor5));
-  memcpy(&data[20], &sensor6, sizeof(sensor6));
-
+  Serial.print('a');
   // send
-  Serial.write(data, DATA_SIZE);
+  for (int i = 0; i< num; i++){
+    Serial.print(sensor_vals[i]);
+    if (i != num-1)
+      Serial.print(","); // comma is used for separator
+  }
+  Serial.println();
 }
