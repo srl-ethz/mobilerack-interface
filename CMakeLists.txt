@@ -22,6 +22,8 @@ add_subdirectory(subm/fmt)
 add_library(MiniPID subm/MiniPID/MiniPID.cpp)
 target_include_directories(MiniPID PUBLIC subm/MiniPID)
 
+add_subdirectory(subm/pybind11)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 
@@ -43,5 +45,9 @@ target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)
 add_library(SerialInterface SHARED src/SerialInterface.cpp)
 target_include_directories(SerialInterface PUBLIC ${SERIALPORT_INCLUDE_DIRS})
 target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt)
+
+## set up pybind modules
+pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp)
+target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient)
 
 add_subdirectory(examples)

@@ -1,7 +1,7 @@
 image: ubuntu:bionic
 before_script:
   - apt-get update --yes
-  - apt-get install --yes build-essential cmake
+  - apt-get install --yes build-essential cmake python3-dev
   - apt-get install --yes libmodbus-dev libeigen3-dev libserialport-dev
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
