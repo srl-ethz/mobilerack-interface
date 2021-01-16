@@ -10,6 +10,8 @@
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 
+#include <opencv2/opencv.hpp>
+
 /**
  * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data
  * @details Frames are obtained in a separate thread. Based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
