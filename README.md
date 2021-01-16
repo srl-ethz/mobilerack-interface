@@ -3,6 +3,14 @@
 Code to connect to the experimental equipment on the Mobile Rack workbench, such as Festo valves & Qualisys motion
 tracking system. Code common across different projects using THE RACK can be kept here.
 
+## set up WSL (for Windows)
+1. Get [Ubuntu 18.04 from the Microsoft Store](https://www.microsoft.com/store/productId/9N9TNGVNDL3Q). If you don't need GUI, no further steps needed.
+1. Install [VcXsrv](https://sourceforge.net/projects/vcxsrv/). This will be used for X11 forwarding in order to use GUI.
+1. Launch VcXsrv with settings: *Multiple windows* -> *Start no client* -> check all except *Native opengl*
+1. add to end of ~/.bashrc `export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0`, and open new terminal or run `source ~/.bashrc`.
+1. GUI should work now! Try it out with `xeyes`, `xcalc`, `xclock` etc (need to install with `sudo apt install x11-apps`).
+1. For some PCs, by checking *Native opengl* in VcXsrv and adding `export LIBGL_ALWAYS_INDIRECT=1` to ~/.bashrc, OpenGL can be used.
+
 ## get this repository
 
 In the desired directory, run...
@@ -61,3 +69,7 @@ Power up the valves and make sure your PC is connected to the router.
 ## Incorporate this into your project
 
 refer to [3d-soft-trunk](https://gitlab.ethz.ch/srl/3d-soft-trunk) as an example.
+
+## references
+* https://medium.com/javarevisited/using-wsl-2-with-x-server-linux-on-windows-a372263533c3
+* https://stackoverflow.com/questions/61110603/how-to-set-up-working-x11-forwarding-on-wsl2
