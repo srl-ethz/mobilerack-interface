@@ -13,6 +13,7 @@
 /**
  * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data
  * @details Frames are obtained in a separate thread. Based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
+ * @todo set option to receive images as well (apparently not possible when playing back data)
  */
 class QualisysClient {
 public:

@@ -105,7 +105,11 @@ void QualisysClient::motiontrack_loop() {
                 for (unsigned int i = 0; i < rtPacket->GetImageCameraCount(); ++i) {
                     unsigned int w, h;
                     rtPacket->GetImageSize(i, w, h);
-                    fmt::print("found image, id:{}\twidth:{}\theight:{}\n", i, w, h);
+                    unsigned int image_size = rtPacket->GetImageSize(i);
+                    char data[image_size];
+                    fmt::print("found image, id:{}\twidth:{}\theight:{}\tsize:{}\n", i, w, h, image_size);
+                    rtPacket->GetImage(i, data, image_size);
+                    /** @todo convert to OpenCV mat data and save to member variable*/
                 }
             }
         }
