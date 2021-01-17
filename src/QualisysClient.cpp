@@ -12,7 +12,7 @@ QualisysClient::QualisysClient(const char *address, const unsigned short port, i
 bool QualisysClient::connect_and_setup() {
     fmt::print("trying to connect to Qualisys server at {}...\n", address);
     // loop until connected to server
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 5; ++i) {
         rtProtocol.Connect(address, port, &udpPort, majorVersion,
                            minorVersion, bigEndian);
         if (rtProtocol.Connected()) {
@@ -21,7 +21,7 @@ bool QualisysClient::connect_and_setup() {
         }
         fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
                    address);
-        sleep(1);
+        sleep(0.5);
     }
     bool dataAvailable = false;
     while (!dataAvailable) {

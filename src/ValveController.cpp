@@ -32,10 +32,8 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
 
 void ValveController::setSinglePressure(int index, int pressure) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (0 <= index && index < map.size())
-        desired_pressures[index] = pressure;
-    else
-        std::cout << "error: actuator ID out of bounds: \t" << index << std::endl;
+    assert(0 <= index && index < map.size());
+    desired_pressures[index] = pressure;
 }
 
 void ValveController::controllerThread() {
