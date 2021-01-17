@@ -2,7 +2,8 @@ image: ubuntu:bionic
 before_script:
   - apt-get update --yes
   - apt-get install --yes build-essential cmake
-  - apt-get install --yes libmodbus-dev libeigen3-dev libserialport-dev libopencv-dev
+  - apt-get install --yes libmodbus-dev libeigen3-dev libserialport-dev
+  - apt-get install --yes libopencv-core-dev
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 build:
