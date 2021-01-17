@@ -24,7 +24,7 @@ for Ubuntu
 
 ```bash
 sudo apt update
-sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev
+sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev libopencv-dev
 ```
 
 for macOS (todo: unverified)
