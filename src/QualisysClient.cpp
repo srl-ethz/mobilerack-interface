@@ -65,9 +65,10 @@ void QualisysClient::motiontrack_loop() {
                             int id = pTmpStr[0] - '0';
                             if (0 <= id && id < frames.size() && !std::isnan(fX)) {
                                 // assign value to each frame
-                                frames[id](0, 3) = fX;
-                                frames[id](1, 3) = fY;
-                                frames[id](2, 3) = fZ;
+                                // Qualisys data is in mm
+                                frames[id](0, 3) = fX / 1000.;
+                                frames[id](1, 3) = fY / 1000.;
+                                frames[id](2, 3) = fZ / 1000.;
                                 for (int row = 0; row < 3; ++row) {
                                     for (int column = 0; column < 3; ++column) {
                                         // column-major order

@@ -27,7 +27,7 @@ public:
 
     /**
      * Get the latest frame data.
-     * @param frames vector of frames received from motion track. index corresponds to frame label.
+     * @param frames vector of frames received from motion track. index corresponds to frame label. position in meters
      * @param timestamp timestamp obtained from QTM
      */
     void getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames, unsigned long long int &timestamp);
