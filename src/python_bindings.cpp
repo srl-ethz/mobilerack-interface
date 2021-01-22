@@ -16,7 +16,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(mobilerack_pybind_module, m){
     /** @todo add CI test to python as well! */
     py::class_<QualisysClient>(m, "QualisysClient")
-            .def(py::init<const char*, const unsigned short, int>())
+            .def(py::init<const char*, int>())
             .def("getData", [](QualisysClient& qc) {
                 // as Eigen::Transform cannot be automatically converted to a Python type and integers are immutable in Python (i.e. cannot be passed by reference to be modified),
                 // the function cannot be bound directly, in order for the actual data to be readable from Python.
