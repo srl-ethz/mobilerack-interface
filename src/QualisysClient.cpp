@@ -1,8 +1,8 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(const char *address, const unsigned short port, int numframes) :
-        address(address), port(port) {
+QualisysClient::QualisysClient(const char *address, int numframes) :
+        address(address){
     frames.resize(numframes); // for base + each segment
     connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
