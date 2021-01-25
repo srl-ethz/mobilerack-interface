@@ -33,6 +33,7 @@ for Ubuntu
 ```bash
 sudo apt update
 sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev
+sudo apt install python3-dev  # install developer package for system's default python version.
 ```
 
 for macOS (todo: unverified)
@@ -56,7 +57,7 @@ In its current implementation, you must set the `$PYTHONPATH` environment variab
 
 ```bash
 ## run this everytime you open a new terminal to run a python script using this library
-PYTHONPATH=$PYTHONPATH:/path/to/lib
+export PYTHONPATH=$PYTHONPATH:/path/to/lib
 ## Alternatively, append the line to ~/.bashrc if you don't want to run it every time.
 python3
 >> import mobilerack_pybind_module
