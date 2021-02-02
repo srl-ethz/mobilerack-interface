@@ -1,8 +1,8 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(const char *address, int numframes) :
-        address(address){
+QualisysClient::QualisysClient(const char *address, int numframes, bool enable_image) :
+        address(address), enable_image(enable_image){
     frames.resize(numframes); // for base + each segment
     connect_and_setup();
     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
@@ -36,26 +36,34 @@ bool QualisysClient::connect_and_setup() {
     if(!rtProtocol.TakeControl("gait1"))
         fmt::print("becoming master failed, {}\n", rtProtocol.GetErrorString());
 
-    // set to stream images from camera
+    // set up image streaming settings
+    // currently hardcoded to cameras 9 & 10
     unsigned int nCameraId = 9; // corresponds with QTM
-    bool enable = true;
     unsigned int nFormat = CRTPacket::EImageFormat::FormatJPG;
     unsigned int w = 320;
     unsigned int h = 200;
     float fLeftCrop = 0; float fTopCrop = 0;
     float fRightCrop = 1; float fBottomCrop = 1;
-    if (rtProtocol.SetImageSettings(nCameraId, &enable, (CRTPacket::EImageFormat*)&nFormat, &w, &h, &fLeftCrop, &fTopCrop, &fRightCrop, &fBottomCrop))
-        fmt::print("change image settings succeeded\n");
+    if (rtProtocol.SetImageSettings(nCameraId, &enable_image, (CRTPacket::EImageFormat*)&nFormat, &w, &h, &fLeftCrop, &fTopCrop, &fRightCrop, &fBottomCrop))
+        fmt::print("change image settings for camera {} succeeded\n", nCameraId);
     else
-        fmt::print("change image settings failed, {}\n", rtProtocol.GetErrorString());
+        fmt::print("change image settings for camera {} failed, {}\n", nCameraId, rtProtocol.GetErrorString());
+    
+    nCameraId = 10;
+    if (rtProtocol.SetImageSettings(nCameraId, &enable_image, (CRTPacket::EImageFormat*)&nFormat, &w, &h, &fLeftCrop, &fTopCrop, &fRightCrop, &fBottomCrop))
+        fmt::print("change image settings for camera {} succeeded\n", nCameraId);
+    else
+        fmt::print("change image settings for camera {} failed, {}\n", nCameraId, rtProtocol.GetErrorString());
 
-    // set to stream 6D frames & images
-    std::string str = "Image 6D";
+    // set to stream 6D frames (& images)
+    std::string str = "6D";
+    if (enable_image)
+        str = "Image 6D";
     while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
         sleep(1);
     }
-    fmt::print("Starting to stream 6DOF data\n");
+    fmt::print("Starting to stream data: {}\n", str);
 
     if(!rtProtocol.ReleaseControl())
         fmt::print("releasing control failed, {}\n", rtProtocol.GetErrorString());
@@ -104,13 +112,18 @@ void QualisysClient::motiontrack_loop() {
                     }
                 }
                 for (unsigned int i = 0; i < rtPacket->GetImageCameraCount(); ++i) {
+                    /** @todo this process could probably be made more efficient */
                     unsigned int w, h;
                     rtPacket->GetImageSize(i, w, h);
                     unsigned int image_size = rtPacket->GetImageSize(i);
                     char data[image_size];
-                    fmt::print("found image, id:{}\twidth:{}\theight:{}\tsize:{}\n", i, w, h, image_size);
+                    // fmt::print("found image, id:{}\twidth:{}\theight:{}\tsize:{}\n", i, w, h, image_size);
                     rtPacket->GetImage(i, data, image_size);
-                    /** @todo convert to OpenCV mat data and save to member variable*/
+                    rawImage = cv::Mat(1, image_size, CV_8SC1, (void*) data);
+                    if (rtPacket->GetImageCameraId(i) == 9)
+                        cv::imdecode(rawImage, CV_LOAD_IMAGE_COLOR, &image1);
+                    else if (rtPacket->GetImageCameraId(i) == 10)
+                        cv::imdecode(rawImage, CV_LOAD_IMAGE_COLOR, &image2);
                 }
             }
         }
@@ -122,6 +135,11 @@ void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affi
     std::lock_guard<std::mutex> lock(mtx);
     frames = this->frames;
     timestamp = this->timestamp;
+}
+
+void QualisysClient::getImage(cv::Mat& image1, cv::Mat& image2){
+    image1 = this->image1;
+    image2 = this->image2;
 }
 
 QualisysClient::~QualisysClient() {

@@ -11,20 +11,25 @@
 #include "fmt/ostream.h"
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
 
 /**
- * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data
- * @details Frames are obtained in a separate thread. Based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
- * @todo set option to receive images as well (apparently not possible when playing back data)
+ * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data- 6D frames & camera images.
+ * @details Frames (& images) are obtained in a separate thread. 6D frame streaming is based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
+ * - cf: https://docs.qualisys.com/qtm-rt-protocol/
+ * - cf: https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTPacket.cpp
  */
 class QualisysClient {
 public:
     /**
      * @param address IP address of PC running QTM . For WSL, set the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
-     * @param num_frames how many _frames you want to track. The frame labels should be "0", "1", ..., "<num_frames>".
+     * @param num_frames how many frames you want to track. The frame labels should be labeled "0", "1", ..., "<num_frames>" in QTM.
      * Can't read 2 (or more) digit labels for now.
+     * @param enable_image enable streaming of 9 & 10 camera images.
      */
-    QualisysClient(const char *address, int num_frames);
+    QualisysClient(const char *address, int num_frames, bool enable_image = false);
 
     ~QualisysClient();
 
@@ -34,6 +39,13 @@ public:
      * @param timestamp timestamp obtained from QTM
      */
     void getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames, unsigned long long int &timestamp);
+
+    /**
+     * @brief Get the latest Image received from QTM.
+     * @param image1 image from camera 9
+     * @param image2 image from camera 10
+     */
+    void getImage(cv::Mat& image1, cv::Mat& image2);
 
 private:
     CRTProtocol rtProtocol;
@@ -47,6 +59,12 @@ private:
 
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;
+
+    bool enable_image;
+    cv::Mat image1;
+    cv::Mat image2;
+    cv::Mat rawImage; /** temporarily copy received raw bytes to here */
+
     std::thread motiontrack_thread;
     std::mutex mtx;
 
