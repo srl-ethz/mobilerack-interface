@@ -6,7 +6,7 @@
 
 int main(){
     int num_frames = 2;
-    QualisysClient qc{"192.168.0.0", 22222, num_frames};
+    QualisysClient qc{"192.168.0.0", num_frames};
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;
     while (true) {

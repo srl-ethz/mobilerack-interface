@@ -7,9 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # setup output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 include_directories(include)
 
@@ -21,6 +21,8 @@ add_subdirectory(subm/fmt)
 
 add_library(MiniPID subm/MiniPID/MiniPID.cpp)
 target_include_directories(MiniPID PUBLIC subm/MiniPID)
+
+add_subdirectory(subm/pybind11)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
@@ -46,5 +48,9 @@ target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt ${Ope
 add_library(SerialInterface SHARED src/SerialInterface.cpp)
 target_include_directories(SerialInterface PUBLIC ${SERIALPORT_INCLUDE_DIRS})
 target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt)
+
+## set up pybind modules
+pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp)
+target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController)
 
 add_subdirectory(examples)

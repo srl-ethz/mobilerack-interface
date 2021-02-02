@@ -2,6 +2,7 @@
 import csv
 import matplotlib.pyplot as plt
 import sys
+from os import path
 
 """
 This is a Python3 script to plot the logged data.
@@ -18,6 +19,7 @@ try:
 except IndexError:
     print("Error: Put in filename as argument")
     exit()
+basename = path.splitext(path.basename(filename))[0] # filename but without the extension, to be used as graph title
 
 with open(filename) as csvfile:
     reader = csv.reader(csvfile)
@@ -43,5 +45,6 @@ for i in range(len(label_array)):
     plt.plot(x_data, data_array[i], ".-", label=label_array[i])
 plt.xlabel(x_label)
 plt.legend()
+plt.title(basename)
 plt.show()
 
