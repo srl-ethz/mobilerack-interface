@@ -2,6 +2,7 @@ image: ubuntu:bionic
 before_script:
   - apt-get update --yes
   - apt-get install --yes build-essential cmake python3-dev
+  - pip3 install --yes numpy
   - apt-get install --yes libmodbus-dev libeigen3-dev libserialport-dev
   - DEBIAN_FRONTEND=noninteractive apt-get install --yes libopencv-dev # skip the interactive configuration upon installation
 variables:
