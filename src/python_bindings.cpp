@@ -4,6 +4,7 @@
 
 #include "mobilerack-interface/QualisysClient.h"
 #include "mobilerack-interface/ValveController.h"
+#include "mobilerack-interface/ndarray_converter.h"
 
 namespace py = pybind11;
 
@@ -15,6 +16,8 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(mobilerack_pybind_module, m){
     /** @todo add CI test to python as well! */
+
+    NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array
     py::class_<QualisysClient>(m, "QualisysClient")
             .def(py::init<const char*, int, bool>())
             .def("getData", [](QualisysClient& qc) {
@@ -29,6 +32,12 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                 for (auto &transform : transform_data)
                     matrix_data.push_back(transform.matrix());
                 return std::make_tuple(matrix_data, timestamp);
+            })
+            .def("getImage", [](QualisysClient& qc) {
+                cv::Mat image1, image2;
+                qc.getImage(image1, image2);
+                fmt::print("image size: {}\n", image1.size());
+                return image1;
             });
 
     py::class_<ValveController>(m, "ValveController")
