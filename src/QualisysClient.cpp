@@ -74,7 +74,7 @@ void QualisysClient::motiontrack_loop() {
     CRTPacket::EPacketType packetType;
     float fX, fY, fZ;
     float rotationMatrix[9];
-
+    char data[480 * 272 * 8 * 3]; /** @todo don't hardcode array size */
     while (true) {
         sleep(0.001);
         std::lock_guard<std::mutex> lock(mtx);
@@ -116,7 +116,6 @@ void QualisysClient::motiontrack_loop() {
                     unsigned int w, h;
                     rtPacket->GetImageSize(i, w, h);
                     unsigned int image_size = rtPacket->GetImageSize(i);
-                    char data[image_size];
                     // fmt::print("found image, id:{}\twidth:{}\theight:{}\tsize:{}\n", i, w, h, image_size);
                     rtPacket->GetImage(i, data, image_size);
                     rawImage = cv::Mat(1, image_size, CV_8SC1, (void*) data);
