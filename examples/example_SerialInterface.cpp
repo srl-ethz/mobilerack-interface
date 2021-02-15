@@ -10,7 +10,7 @@ use together with the included Arduino sketch.
 
 int main() {
     SerialInterface si = SerialInterface("/dev/cu.usbmodem14201", 38400);
-    Rate r{10};
+    srl::Rate r{10};
     std::vector<float> data;
     for (int i = 0; i < 100; i++)
     {

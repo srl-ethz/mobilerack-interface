@@ -13,9 +13,9 @@ int main() {
         valve_id = map[i];
         std::cout << "actuator ID:\t" << i << "\tvalve ID:\t" << valve_id << "\tpressure\t" << pressure << std::endl;
         vc.setSinglePressure(i, pressure);
-        sleep(1);
+        srl::sleep(1);
         vc.setSinglePressure(i, 0);
-        sleep(1);
+        srl::sleep(1);
     }
     vc.disconnect();
     return 1;

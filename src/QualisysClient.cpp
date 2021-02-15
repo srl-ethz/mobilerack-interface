@@ -21,19 +21,19 @@ bool QualisysClient::connect_and_setup() {
         }
         fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
                    address);
-        sleep(0.5);
+        srl::sleep(0.5);
     }
     bool dataAvailable = false;
     while (!dataAvailable) {
         if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
             printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
-            sleep(1);
+            srl::sleep(1);
             continue;
         }
     }
     while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, CRTProtocol::cComponent6d)) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
-        sleep(1);
+        srl::sleep(1);
     }
     fmt::print("Starting to stream 6DOF data\n");
     return true;
@@ -45,7 +45,7 @@ void QualisysClient::motiontrack_loop() {
     float rotationMatrix[9];
 
     while (true) {
-        sleep(0.001);
+        srl::sleep(0.001);
         std::lock_guard<std::mutex> lock(mtx);
         if (!rtProtocol.Connected()) {
             fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
