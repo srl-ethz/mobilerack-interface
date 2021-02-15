@@ -8,7 +8,7 @@ SerialInterface::SerialInterface(std::string portname, int baud_rate) {
     fmt::print("opening port {}\n", portname);
     sp_return error = sp_get_port_by_name(portname.c_str(),&port);
     if (error == SP_OK) {
-        error = sp_open(port,SP_MODE_READ);
+        error = sp_open(port,SP_MODE_READ_WRITE);
         if (error == SP_OK) {
             fmt::print("succeeded opening serial device {}\n", portname);
             sp_set_baudrate(port,baud_rate);
@@ -32,6 +32,13 @@ void SerialInterface::getData(std::vector<float>& data){
     for (int i = 0; i < data.size(); ++i) {
         data[i] = this->data[i];
     }
+}
+
+void SerialInterface::sendData(bool flag){
+    char flag_byte = 'L';
+    if (flag)
+        flag_byte = 'H';
+    sp_blocking_write(port, &flag_byte, 1, 0);
 }
 
 void SerialInterface::serial_loop(){
