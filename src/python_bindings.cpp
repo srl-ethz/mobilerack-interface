@@ -34,10 +34,11 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                 return std::make_tuple(matrix_data, timestamp);
             })
             .def("getImage", [](QualisysClient& qc) {
+                // cv::Mat is converted to numpy array thanks to ndarray_converter
                 cv::Mat image1, image2;
                 qc.getImage(image1, image2);
                 fmt::print("image size: {}\n", image1.size());
-                return image1;
+                return std::make_tuple(image1, image2);
             });
 
     py::class_<ValveController>(m, "ValveController")
