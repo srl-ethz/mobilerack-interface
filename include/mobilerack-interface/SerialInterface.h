@@ -42,6 +42,10 @@ public:
     /** @brief get latest data from the serial port.
      */
     void getData(std::vector<float>& data);
+    /** @brief if true, send "H" over serial to Arduino, if false, send "L". `sudo` may be required for writing to the serial port.
+     * @todo support more data and not just a bool value
+     */
+    void sendData(bool flag);
 
 private:
     struct sp_port *port;
