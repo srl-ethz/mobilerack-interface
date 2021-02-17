@@ -51,3 +51,4 @@ pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp)
 target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController)
 
 add_subdirectory(examples)
+add_subdirectory(Antares)

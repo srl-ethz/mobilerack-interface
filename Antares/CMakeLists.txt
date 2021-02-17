@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.10.2)
+project(MobileRackInterface-examples)
+
+add_executable(Antares_ValveController Antares_ValveController.cpp)
+target_link_libraries(Antares_ValveController ValveController)
+
+add_executable(Antares_step_input Antares_step_input.cpp)
+target_link_libraries(Antares_step_input ValveController)
