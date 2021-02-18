@@ -30,7 +30,9 @@ private:
     const std::vector<int> map;
     const int max_pressure;
     const bool log = true;
-
+    std::ofstream log_file;
+    
+    std::chrono::high_resolution_clock::time_point logBeginTime;
 public:
     /**
      * @brief set pressure for a single valve.
@@ -39,6 +41,12 @@ public:
      */
     void setSinglePressure(int index, int pressure);
 
+    /**
+     * @brief use external clock (like from QTM) and use that to sync the timestamps for logged pressure values.
+     * "# timestamp synced\n" will be inserted into the csv at this point, to make it easy to find which point the timestamp got synced.
+     * @param currentTimeSecs external clock's current time, in milliseconds
+     */
+    void syncTimeStamp(unsigned long int currentTimeMillis);
     /**
      * @param address IP address of Festo valves.
      * @param map map[i] is the valve ID for i-th actuator.

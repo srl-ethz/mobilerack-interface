@@ -24,6 +24,5 @@ int main() {
         vc.setSinglePressure(3, sinusoid(phase + 3 * PI / 2));
         r.sleep();
     }
-    vc.disconnect();
     return 1;
 }

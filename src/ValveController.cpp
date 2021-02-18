@@ -22,12 +22,19 @@ void ValveController::setSinglePressure(int index, int pressure) {
     desired_pressures[index] = pressure;
 }
 
+void ValveController::syncTimeStamp(unsigned long int currentTimeMillis){
+    std::lock_guard<std::mutex> lock(mtx);
+    logBeginTime = std::chrono::high_resolution_clock::now() - std::chrono::milliseconds(currentTimeMillis);
+    if (log)
+        log_file << "# timestamp synced\n";
+}
+
 void ValveController::controllerThread() {
     // sensor_pressures and output_pressures use valve IDs for easier interfacing with mpa library
     std::vector<int> sensor_pressures(num_valves_total);
     std::vector<int> output_pressures(num_valves_total);
-    std::chrono::high_resolution_clock::time_point logBeginTime = std::chrono::high_resolution_clock::now();
-    std::ofstream log_file;
+    logBeginTime = std::chrono::high_resolution_clock::now();
+    
     if (log){
         std::cout << "Outputting log of ValveController to log_pressure.csv..." << std::endl;
         log_file.open("log_pressure.csv");
