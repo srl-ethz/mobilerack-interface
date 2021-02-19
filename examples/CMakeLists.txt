@@ -12,3 +12,6 @@ target_link_libraries(example_ValveController ValveController)
 
 add_executable(example_SerialInterface example_SerialInterface.cpp)
 target_link_libraries(example_SerialInterface SerialInterface)
+
+add_executable(example_ValveController_qtm_timesync example_ValveController_qtm_timesync)
+target_link_libraries(example_ValveController_qtm_timesync ValveController QualisysClient)

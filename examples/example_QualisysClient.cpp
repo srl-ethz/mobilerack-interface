@@ -6,11 +6,12 @@
 
 int main(){
     int num_frames = 2;
-    QualisysClient qc{"192.168.0.0", num_frames};
+    QualisysClient qc{"192.168.0.101", num_frames};
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;
     while (true) {
         qc.getData(frames, timestamp);
+        fmt::print("timestamp: {}", timestamp);
         for (int j = 0; j < num_frames; ++j) {
             fmt::print("frame ID:\t{}\n{}\n", j, frames[j].matrix());
         }
