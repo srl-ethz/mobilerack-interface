@@ -37,7 +37,7 @@ void ValveController::controllerThread() {
     
     if (log){
         std::cout << "Outputting log of ValveController to log_pressure.csv..." << std::endl;
-        log_file.open("log_pressure.csv");
+        log_file.open("log_pressure.csv", std::fstream::out);
         // write first line of log
         log_file << "time(sec)";
         for (int i = 0; i < map.size(); ++i) {
@@ -79,7 +79,8 @@ void ValveController::controllerThread() {
     }
     mpa->set_all_pressures(output_pressures);
     mpa->disconnect();
-    log_file.close();
+    if (log)
+        log_file.close();
 }
 
 ValveController::~ValveController() {

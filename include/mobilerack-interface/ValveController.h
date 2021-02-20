@@ -30,7 +30,7 @@ private:
     const std::vector<int> map;
     const int max_pressure;
     const bool log = true;
-    std::ofstream log_file;
+    std::fstream log_file;
     
     std::chrono::high_resolution_clock::time_point logBeginTime;
 public:
