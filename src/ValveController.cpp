@@ -66,9 +66,9 @@ void ValveController::controllerThread() {
         if (log) {
             log_file << (double) (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - logBeginTime).count()) / 1000.;
             for (int valve_id: map)
-                log_file << fmt::format(", {}", sensor_pressures[valve_id]);
+                log_file << fmt::format(", {}", output_pressures[valve_id]);
             for (int valve_id: map)
-                log_file << fmt::format(", {}", desired_pressures[valve_id]);
+                log_file << fmt::format(", {}", sensor_pressures[valve_id]);
             log_file << "\n";
         }
     }

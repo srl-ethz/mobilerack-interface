@@ -7,16 +7,14 @@ int main(){
     std::vector<int> map = {12, 13, 14, 15};
 
     ValveController vc{"192.168.0.100", map, 400};
-    QualisysClient qc{"192.168.0.101", 0};
+    QualisysClient qc{"192.168.0.101", 1};
 
     srl::sleep(1); // hacky way to wait until data from QTM is received
-
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames_; // will not be read
+    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames_; // will not be read, just is necessary for call to getData
     unsigned long long int timestamp;
     qc.getData(frames_, timestamp);
-    fmt::print("time: {}", timestamp);
-    fmt::print("time milli: {}", timestamp/1000);
 
+    fmt::print("syncing ValveController log time to that of QTM: {}\n", timestamp/1000);
     vc.syncTimeStamp(timestamp/1000); // sync timestamp to that of QTM
 
     for (int i = 0; i < map.size(); i++) {
