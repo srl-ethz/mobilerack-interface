@@ -5,4 +5,7 @@ add_executable(Antares_ValveController Antares_ValveController.cpp)
 target_link_libraries(Antares_ValveController ValveController)
 
 add_executable(Antares_step_input Antares_step_input.cpp)
-target_link_libraries(Antares_step_input ValveController)
+target_link_libraries(Antares_step_input ValveController SerialInterface)
+
+add_executable(Antares_quasistatic Antares_quasistatic.cpp)
+target_link_libraries(Antares_quasistatic ValveController SerialInterface)

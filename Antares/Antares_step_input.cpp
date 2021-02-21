@@ -1,10 +1,13 @@
 #include "mobilerack-interface/ValveController.h"
+#include "mobilerack-interface/SerialInterface.h"
 /**
  * @file example_ValveController.cpp
  * @brief This program shows an example usage of the ValveController. Actuates through each valve defined in map
  */
 
 int main() {
+    SerialInterface si = SerialInterface("/dev/ttyACM0", 9600);
+    bool flag = true;
     const int pressure = 200;
     const int total_time = 15;
     int valve_id;
@@ -15,6 +18,7 @@ int main() {
     int cycle_count = total_time/cycle_time;
     std::vector<int> map = {14, 15};
     ValveController vc{"192.168.0.100", map, 400};
+    si.sendData(flag);
     for (int j = 0; j < cycle_count; j++){
         vc.setSinglePressure(0, pressure);
         vc.setSinglePressure(1, 0);
