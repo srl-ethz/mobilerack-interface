@@ -12,7 +12,7 @@ valves = [15, 14] # 14: left chaber; 15: right chamber
 pressure = 200
 max_pressure = 300
 freq = 4;
-total_time = 5
+total_time = 2
 cycle_time = 1/freq
 cycle_count = total_time/cycle_time
 
@@ -30,7 +30,7 @@ def log_function(name):
         with open("force.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
             writer.writerow([time.time(),force_reading])
-        sleep(0.001)
+        sleep(0.1)
 
 # Create controller object
 vc = ValveController("192.168.0.100", valves, max_pressure)
