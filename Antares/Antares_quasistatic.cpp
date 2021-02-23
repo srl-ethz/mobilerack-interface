@@ -37,10 +37,6 @@ int main() {
     vc.setSinglePressure(0, 0);
     srl::sleep(wait_time);// wait to stablize
 
-    vc.setSinglePressure(1, 275);//actuate value 14 --> expand left chamber bend to right
-    vc.setSinglePressure(0, 0);
-    srl::sleep(wait_time);// wait to stablize
-
     vc.setSinglePressure(1, 0);//release pressure and start next direction
     vc.setSinglePressure(0, 0);
     srl::sleep(wait_time);// wait to stablize
@@ -63,10 +59,6 @@ int main() {
 
     vc.setSinglePressure(1, 0);//actuate value 15 --> expand right chamber bend to left
     vc.setSinglePressure(0, 250);
-    srl::sleep(wait_time);// wait to stablize
-
-    vc.setSinglePressure(1, 0);//actuate value 15 --> expand right chamber bend to left
-    vc.setSinglePressure(0, 275);
     srl::sleep(wait_time);// wait to stablize
 
     vc.setSinglePressure(1, 0);//realease pressure

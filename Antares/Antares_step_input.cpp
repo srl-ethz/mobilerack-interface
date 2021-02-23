@@ -8,24 +8,25 @@
 int main() {
     SerialInterface si = SerialInterface("/dev/ttyACM0", 9600);
     bool flag = true;
-    const int pressure = 200;
-    const int total_time = 15;
+    const int pressure = 300;
+    //const int total_time = 15;
     int valve_id;
     // 0--> value 14 --> Fish left side
     // 1--> value 15 --> Fish right side
     double freq = 4;
     double cycle_time = 1/freq;
-    int cycle_count = total_time/cycle_time;
+    //int cycle_count = total_time/cycle_time;
+    int cycle_count = 5;
     std::vector<int> map = {14, 15};
     ValveController vc{"192.168.0.100", map, 400};
     si.sendData(flag);
     for (int j = 0; j < cycle_count; j++){
         vc.setSinglePressure(0, pressure);
         vc.setSinglePressure(1, 0);
-        srl::sleep(cycle_time);
+        srl::sleep(cycle_time/2);
         vc.setSinglePressure(0, 0);
         vc.setSinglePressure(1, pressure);
-        srl::sleep(cycle_time);
+        srl::sleep(cycle_time/2);
 
 
         // for (int i = 0; i < map.size(); i++) {
