@@ -45,7 +45,7 @@ void ValveController::controllerThread() {
         output_pressures[i] = 0;
     }
     int valve_id;
-    srl::Rate r{1000};
+    srl::Rate r{200};
     while (run) {
         r.sleep();
         std::lock_guard<std::mutex> lock(mtx);
