@@ -9,10 +9,10 @@
 // HX711 circuit wiring
 const int LOADCELL_DOUT_PIN = 2;
 const int LOADCELL_SCK_PIN = 3;
-const int LED = 13;
+const int LED = 12;
 
 // calibration values
-float calibration_offset = -0.1741;
+float calibration_offset = -0.3070;
 float calibration_sensitivity = -5.3781e-6;
 
 bool waitForSync = true;
@@ -33,12 +33,15 @@ void loop() {
 }
 
 void handleSerial() {
-  while (Serial.available() > 0 && waitForSync) {
+  while (Serial.available() > 0) {
     char incomingCharacter = Serial.read();
     switch (incomingCharacter) {
     case 's':
       waitForSync = false;
       digitalWrite(LED, HIGH);
+      break;
+    case 'e':
+      digitalWrite(LED, LOW);
       break;
     }
   }
