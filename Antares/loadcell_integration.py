@@ -22,6 +22,10 @@ def log_function(name):
     # Open serial port and flush
     ser = serial.Serial('/dev/ttyACM0')
     ser.flushInput()
+    # Send sync message
+    string = 's'
+    bytestring = string.encode()
+    ser.write(bytestring)
     while True:
         # Read force from Arduino
         ser_bytes = ser.readline()
