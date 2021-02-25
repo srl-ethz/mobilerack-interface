@@ -9,9 +9,9 @@ This is a Python3 script to plot the logged data.
 Use with filename after command, such as '$./plotGraph.py log.csv'
 Assumes the first column is the x values (usually the time) and the subsequent columns are y values. 
 """
-x_label = "" # label for leftmost column (usually the time)
+x_label = "Time" # label for leftmost column (usually the time)
 x_data = [] # data for the leftmost column
-label_array = [] # labels on first row (excluding first element)
+label_array = ["Force"] # labels on first row (excluding first element)
 data_array = []
 
 try:

@@ -38,22 +38,18 @@ def log_function(name, ser):
             writer.writerow([time.time()-starttime,force_reading])
         sleep(0.1)
 
-# Create controller object
-vc = ValveController("192.168.0.100", valves, max_pressure)
-
 # Start logging thread
 log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
-i = 0
-# Controller test
-while i < cycle_count:
-    vc.setSinglePressure(0, pressure)
-    vc.setSinglePressure(1, 0)
-    sleep(cycle_time)
-    vc.setSinglePressure(0, 0)
-    vc.setSinglePressure(1, pressure)
-    sleep(cycle_time)
-    i += 1
+# Create controller object
+vc = ValveController("192.168.0.100", valves, max_pressure)
+sleep(5)
+vc.setSinglePressure(0, pressure)
+vc.setSinglePressure(1, 0)
+sleep(5)
+vc.setSinglePressure(0, 0)
+vc.setSinglePressure(1, 0)
+sleep(15)
 vc.disconnect()
 # turn off arduino LED
 string = 'e'
