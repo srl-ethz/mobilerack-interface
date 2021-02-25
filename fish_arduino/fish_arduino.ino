@@ -12,7 +12,7 @@ const int LOADCELL_SCK_PIN = 3;
 const int LED = 12;
 
 // calibration values
-float calibration_offset = -0.3070;
+float calibration_offset = -0.12;
 float calibration_sensitivity = -5.3781e-6;
 
 bool waitForSync = true;
