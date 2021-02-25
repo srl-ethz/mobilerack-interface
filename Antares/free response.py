@@ -10,13 +10,17 @@ import threading
 # Set parameters
 valves = [14, 15] # 14: left chaber; 15: right chamber
 max_pressure = 300
-
+ser = serial.Serial('/dev/ttyACM0')
 # Seperate thread function for logging
 def log_function(name):
-    print('starting thread')
-    # Open serial port and flush
-    ser = serial.Serial('/dev/ttyACM0')
+    print('Start serial logging')
+    # serial port flush
     ser.flushInput()
+    # Send sync message
+    string = 's'
+    bytestring = string.encode()
+    ser.write(bytestring)
+    starttime = time.time()
     while True:
         # Read force from Arduino
         ser_bytes = ser.readline()
@@ -24,7 +28,7 @@ def log_function(name):
         #Write data to file
         with open("force.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.time(),force_reading])
+            writer.writerow([time.time()-starttime,force_reading])
         sleep(0.1)
 
 # Create controller object
@@ -62,4 +66,8 @@ sleep(5)
 vc.setSinglePressure(1, 0)
 sleep(3)
 vc.disconnect()
+# turn off arduino LED
+string = 'e'
+bytestring = string.encode()
+ser.write(bytestring)
 
