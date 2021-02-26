@@ -16,7 +16,7 @@ cycle_time = 1/freqency
 cycle_count = 15
 ser = serial.Serial('/dev/ttyACM0')
 # Seperate thread function for logging
-def log_function(name):
+def log_function(name, ser):
     print('Start serial logging')
     # serial port flush
     ser.flushInput()
@@ -28,11 +28,12 @@ def log_function(name):
     while True:
         # Read force from Arduino
         ser_bytes = ser.readline()
-        force_reading = float(ser_bytes[0:len(ser_bytes)-2].decode("utf-8"))
+        force_reading = float(ser_bytes[0:5].decode("utf-8"))
+        time_reading = float(ser_bytes[6:len(ser_bytes)-2].decode("utf-8"))
         #Write data to file
         with open("force.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.time()-starttime,force_reading])
+            writer.writerow([time_reading*0.001 , force_reading])
         sleep(0.1)
 
 # Create controller object
@@ -40,7 +41,7 @@ vc = ValveController("192.168.0.100", valves, max_pressure)
 
 # Start logging thread
 print('Trying to start thread')
-log_thread = threading.Thread(target=log_function, args=(1,), daemon=True)
+log_thread = threading.Thread(target=log_function, aargs=(1,ser), daemon=True)
 log_thread.start()
 i = 0
 # Controller test
