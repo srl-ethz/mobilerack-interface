@@ -10,7 +10,7 @@
 const int LOADCELL_DOUT_PIN = 2;
 const int LOADCELL_SCK_PIN = 3;
 const int LED = 12;
-int starttime = 0;
+long starttime = 0;
 
 // calibration values
 float calibration_offset = -0.12;
@@ -51,7 +51,7 @@ void handleSerial() {
   if (scale.is_ready()) {
     long reading = scale.read();
     float force = reading*calibration_sensitivity + calibration_offset;
-    int reading_time = millis()-starttime;
+    long reading_time = millis()-starttime;
     Serial.print(force, 4);
     Serial.println(reading_time);
   }
