@@ -15,7 +15,7 @@ freq = 4
 total_time = 2
 cycle_time = 1/freq
 cycle_count = total_time/cycle_time
-ser = serial.Serial('COM3')
+ser = serial.Serial('/dev/ttyACM0')
 
 # Seperate thread function for logging
 def log_function(name, ser):
@@ -35,13 +35,13 @@ def log_function(name, ser):
         #Write data to file
         with open("force.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.time()-starttime, time_reading , force_reading , len(ser_bytes)])
+            writer.writerow([time_reading*0.001 , force_reading])
         sleep(0.1)
 
 # Start logging thread
 log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
-# Create controller object
+#Create controller object
 #vc = ValveController("192.168.0.100", valves, max_pressure)
 #sleep(5)
 #vc.setSinglePressure(0, pressure)
