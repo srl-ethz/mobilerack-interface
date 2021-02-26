@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import ValveController
+#from mobilerack_pybind_module import ValveController
 import time
 from time import sleep
 import serial
@@ -15,7 +15,7 @@ freq = 4
 total_time = 2
 cycle_time = 1/freq
 cycle_count = total_time/cycle_time
-ser = serial.Serial('/dev/ttyACM0')
+ser = serial.Serial('COM3')
 
 # Seperate thread function for logging
 def log_function(name, ser):
@@ -28,29 +28,30 @@ def log_function(name, ser):
     ser.write(bytestring)
     starttime = time.time()
     while True:
-        ser.write('s')
         # Read force from Arduino
         ser_bytes = ser.readline()
-        force_reading = float(ser_bytes[0:len(ser_bytes)-2].decode("utf-8"))
+        force_reading = float(ser_bytes[0:5].decode("utf-8"))
+        time_reading = float(ser_bytes[6:len(ser_bytes)-2].decode("utf-8"))
         #Write data to file
         with open("force.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.time()-starttime,force_reading])
+            writer.writerow([time.time()-starttime, time_reading , force_reading , len(ser_bytes)])
         sleep(0.1)
 
 # Start logging thread
 log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
 # Create controller object
-vc = ValveController("192.168.0.100", valves, max_pressure)
-sleep(5)
-vc.setSinglePressure(0, pressure)
-vc.setSinglePressure(1, 0)
-sleep(5)
-vc.setSinglePressure(0, 0)
-vc.setSinglePressure(1, 0)
+#vc = ValveController("192.168.0.100", valves, max_pressure)
+#sleep(5)
+#vc.setSinglePressure(0, pressure)
+#vc.setSinglePressure(1, 0)
+#sleep(5)
+#vc.setSinglePressure(0, 0)
+#vc.setSinglePressure(1, 0)
+#sleep(15)
+#vc.disconnect()
 sleep(15)
-vc.disconnect()
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()

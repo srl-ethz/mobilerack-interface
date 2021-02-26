@@ -10,6 +10,7 @@
 const int LOADCELL_DOUT_PIN = 2;
 const int LOADCELL_SCK_PIN = 3;
 const int LED = 12;
+int starttime = 0;
 
 // calibration values
 float calibration_offset = -0.12;
@@ -25,11 +26,11 @@ void setup() {
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
   Serial.println("Setup done");
+  starttime = millis();
 }
 
 void loop() {
   handleSerial();
-  
 }
 
 void handleSerial() {
@@ -39,6 +40,7 @@ void handleSerial() {
     case 's':
       waitForSync = false;
       digitalWrite(LED, HIGH);
+      starttime = millis();
       break;
     case 'e':
       digitalWrite(LED, LOW);
@@ -49,6 +51,8 @@ void handleSerial() {
   if (scale.is_ready()) {
     long reading = scale.read();
     float force = reading*calibration_sensitivity + calibration_offset;
-    Serial.println(force, 4);
+    int reading_time = millis()-starttime;
+    Serial.print(force, 4);
+    Serial.println(reading_time);
   }
 }
