@@ -55,6 +55,8 @@ while i < cycle_count:
     sleep(cycle_time/2)
     i += 1
 vc.disconnect()
+# Let the serial port get some more data
+sleep(5)
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()

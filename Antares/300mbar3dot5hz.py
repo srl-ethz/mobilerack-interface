@@ -10,8 +10,8 @@ import threading
 # Set parameters
 valves = [14, 15] # 14: left chaber; 15: right chamber
 max_pressure = 325
-pressure = 200
-freqency = 1
+pressure = 300
+freqency = 3.5
 cycle_time = 1/freqency
 cycle_count = 15
 ser = serial.Serial('/dev/ttyACM0')
@@ -55,10 +55,8 @@ while i < cycle_count:
     sleep(cycle_time/2)
     i += 1
 vc.disconnect()
-
 # Let the serial port get some more data
 sleep(5)
-
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()

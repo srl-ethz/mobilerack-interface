@@ -41,7 +41,7 @@ vc = ValveController("192.168.0.100", valves, max_pressure)
 
 # Start logging thread
 print('Trying to start thread')
-log_thread = threading.Thread(target=log_function, aargs=(1,ser), daemon=True)
+log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
 i = 0
 # Controller test
@@ -55,6 +55,8 @@ while i < cycle_count:
     sleep(cycle_time/2)
     i += 1
 vc.disconnect()
+# Let the serial port get some more data
+sleep(5)
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()

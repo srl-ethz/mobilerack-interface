@@ -1,4 +1,4 @@
-#from mobilerack_pybind_module import ValveController
+from mobilerack_pybind_module import ValveController
 import time
 from time import sleep
 import serial
@@ -9,7 +9,7 @@ import threading
 
 # Set parameters
 valves = [15, 14] # 14: left chaber; 15: right chamber
-pressure = 200
+pressure = 250
 max_pressure = 300
 freq = 4
 total_time = 2
@@ -42,16 +42,15 @@ def log_function(name, ser):
 log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
 #Create controller object
-#vc = ValveController("192.168.0.100", valves, max_pressure)
-#sleep(5)
-#vc.setSinglePressure(0, pressure)
-#vc.setSinglePressure(1, 0)
-#sleep(5)
-#vc.setSinglePressure(0, 0)
-#vc.setSinglePressure(1, 0)
-#sleep(15)
-#vc.disconnect()
+vc = ValveController("192.168.0.100", valves, max_pressure)
+sleep(5)
+vc.setSinglePressure(0, 0)
+vc.setSinglePressure(1, pressure)
+sleep(5)
+vc.setSinglePressure(0, 0)
+vc.setSinglePressure(1, 0)
 sleep(15)
+vc.disconnect()
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()

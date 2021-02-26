@@ -67,6 +67,8 @@ sleep(5)
 vc.setSinglePressure(1, 0)
 sleep(3)
 vc.disconnect()
+# Let the serial port get some more data
+sleep(20)
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()
