@@ -8,15 +8,13 @@ import threading
 # File to control valves and simultaneously log load cell data from arduino on serial port
 
 # Set parameters
-valves = [15, 14] # 14: left chaber; 15: right chamber
-pressure = 450
-max_pressure = 450
-freq = 4
-total_time = 2
-cycle_time = 1/freq
-cycle_count = total_time/cycle_time
+valves = [14, 15] # 14: left chaber; 15: right chamber
+max_pressure = 600
+pressure = 350
+freqency = 2
+cycle_time = 1/freqency
+cycle_count = 15
 ser = serial.Serial('/dev/ttyACM0')
-
 # Seperate thread function for logging
 def log_function(name, ser):
     print('Start serial logging')
@@ -38,20 +36,29 @@ def log_function(name, ser):
             writer.writerow([time_reading*0.001 , force_reading])
         sleep(0.1)
 
+# Create controller object
+vc = ValveController("192.168.0.100", valves, max_pressure)
+
 # Start logging thread
+print('Trying to start thread')
 log_thread = threading.Thread(target=log_function, args=(1,ser), daemon=True)
 log_thread.start()
-#Create controller object
-vc = ValveController("192.168.0.100", valves, max_pressure)
+i = 0
+# Controller test
 sleep(5)
-vc.setSinglePressure(0, 0)
-vc.setSinglePressure(1, pressure)
-sleep(5)
-vc.setSinglePressure(0, 0)
-vc.setSinglePressure(1, 0)
-sleep(5)
+while i < cycle_count:
+    vc.setSinglePressure(0, pressure)
+    vc.setSinglePressure(1, 0)
+    sleep(cycle_time/2)
+    vc.setSinglePressure(0, 0)
+    vc.setSinglePressure(1, pressure)
+    sleep(cycle_time/2)
+    i += 1
 vc.disconnect()
+# Let the serial port get some more data
+sleep(5)
 # turn off arduino LED
 string = 'e'
 bytestring = string.encode()
 ser.write(bytestring)
+
