@@ -3,7 +3,7 @@ before_script:
   - apt-get update --yes
   - apt-get install --yes build-essential cmake python3-dev python3-numpy
   - apt-get install --yes libmodbus-dev libeigen3-dev libserialport-dev
-  - apt-get install --yes libopencv-dev
+  - DEBIAN_FRONTEND=noninteractive apt-get install --yes libopencv-dev # skip the interactive configuration upon installation
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 build:
