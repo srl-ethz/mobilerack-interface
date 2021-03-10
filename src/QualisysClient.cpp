@@ -10,19 +10,13 @@ QualisysClient::QualisysClient(const char *address, int numframes) :
 }
 
 bool QualisysClient::connect_and_setup() {
-    fmt::print("trying to connect to Qualisys server at {}...\n", address);
-    // loop until connected to server
-    for (int i = 0; i < 5; ++i) {
-        rtProtocol.Connect(address, port, &udpPort, majorVersion,
-                           minorVersion, bigEndian);
-        if (rtProtocol.Connected()) {
-            fmt::print("connected to Qualisys server at {}\n", address);
-            break;
-        }
-        fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
-                   address);
-        srl::sleep(0.5);
-    }
+    fmt::print("trying to connect to QTM at {} ...\n", address);
+    rtProtocol.Connect(address, port, &udpPort, majorVersion,
+                        minorVersion, bigEndian);
+    if (!rtProtocol.Connected())
+        throw std::runtime_error("couldn't connect to QTM\n");
+    fmt::print("connected to QTM at {}\n", address);
+
     bool dataAvailable = false;
     while (!dataAvailable) {
         if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
