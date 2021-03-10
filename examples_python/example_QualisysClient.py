@@ -1,7 +1,7 @@
 from mobilerack_pybind_module import QualisysClient
 from time import sleep
 
-qc = QualisysClient("172.17.227.225", 2)
+qc = QualisysClient("192.168.0.101", 2)
 
 for i in range(10):
     frames, timestamp = qc.getData()

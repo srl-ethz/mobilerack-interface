@@ -55,6 +55,7 @@ void QualisysClient::motiontrack_loop() {
         if (rtProtocol.ReceiveRTPacket(packetType, true) > 0) {
             if (packetType == CRTPacket::PacketData) {
                 CRTPacket *rtPacket = rtProtocol.GetRTPacket();
+                timestamp = rtPacket->GetTimeStamp();
                 for (unsigned int i = 0; i < rtPacket->Get6DOFBodyCount(); ++i) {
                     if (rtPacket->Get6DOFBody(i, fX, fY, fZ, rotationMatrix)) {
                         const char *pTmpStr = rtProtocol.Get6DOFBodyName(i);
@@ -77,7 +78,6 @@ void QualisysClient::motiontrack_loop() {
                                 }
                             }
                         }
-                        timestamp = rtPacket->GetTimeStamp();
                     }
                 }
             }

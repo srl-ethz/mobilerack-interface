@@ -9,23 +9,19 @@
 #include "fmt/ostream.h"
 #include <mutex>
 
-/** @brief Interface for the pressure valve array. Implements an individual PID control (optional) for each valve. */
+/** @brief Interface for the pressure valve array. */
 class ValveController {
 private:
     /**
-     * @brief thread on which the PID controllers run.
+     * @brief thread on which the data is sent to Valves.
      */
     void controllerThread();
-
-    /** @brief write CSV log to log_pressure.csv */
-    void write_log();
 
     /** @brief thread runs as long as this is set to true */
     bool run;
 
     /** @brief holds the desired pressure values for each actuator */
     std::vector<int> desired_pressures;
-    std::vector<MiniPID> pid;
     MPA *mpa;
     std::thread controller_thread;
     std::mutex mtx;
@@ -33,15 +29,10 @@ private:
     const int num_valves_total = 16; /** @brief total number of valves in the Festo valve array setup */
     const std::vector<int> map;
     const int max_pressure;
-    const bool use_pid = false; /** @brief use PID control for pressure (kind of pointless since it's already done by valves */
     const bool log = true;
-
-    // variables used to save the log data
-    std::vector<double> seconds_log;
-    std::vector<std::vector<int>> sensor_pressure_log;
-    std::vector<std::vector<int>> desired_pressure_log;
+    std::fstream log_file;
+    
     std::chrono::high_resolution_clock::time_point logBeginTime;
-
 public:
     /**
      * @brief set pressure for a single valve.
@@ -50,6 +41,12 @@ public:
      */
     void setSinglePressure(int index, int pressure);
 
+    /**
+     * @brief use external clock (like from QTM) and use that to sync the timestamps for logged pressure values.
+     * "# timestamp synced\n" will be inserted into the csv at this point, to make it easy to find which point the timestamp got synced.
+     * @param currentTimeSecs external clock's current time, in milliseconds
+     */
+    void syncTimeStamp(unsigned long int currentTimeMillis);
     /**
      * @param address IP address of Festo valves.
      * @param map map[i] is the valve ID for i-th actuator.
@@ -62,5 +59,5 @@ public:
     /**
      * @brief disconnects from valve, and outputs log.
      */
-    void disconnect();
+    ~ValveController();
 };

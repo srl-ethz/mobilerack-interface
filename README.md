@@ -86,8 +86,12 @@ run `doxygen Doxyfile` in this directory to generate HTML files (can be seen wit
 
 The QualisysClient class tracks each RigidBody (labels must be an integer between 0 - 9 in order for the QualisysClient to read it).
 Before running sample program, update the IP address of the PC running QTM, in examples/example_QualisysClient.cpp.
-When on WSL, set IP address to be the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
 
+### on Windows (WSL)
+run QTM on the same machine, set IP address to be the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
+
+### on Ubuntu / macOS
+run QTM on a separate Windows machine on the same network, and set QTM address to the IP address of that machine. For the SRL PC on the mobile rack, address is `192.168.0.101`.
 ## Festo valves
 
 Power up the valves and make sure your PC is connected to the router.

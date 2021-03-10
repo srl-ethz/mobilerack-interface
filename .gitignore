@@ -5,3 +5,4 @@ lib/
 CMakeCache.txt
 Makefile
 build/
+cmake_install.cmake
