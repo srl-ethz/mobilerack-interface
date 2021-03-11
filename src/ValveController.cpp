@@ -1,8 +1,8 @@
 // Copyright 2018 ...
 #include "mobilerack-interface/ValveController.h"
 
-ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure) :
-        map(map), max_pressure(max_pressure) {
+ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz) :
+        map(map), max_pressure(max_pressure), hz(hz){
     fmt::print("connecting to valves at {}...\n", address);
     mpa = new MPA(address, "502");
     desired_pressures.resize(map.size());
@@ -10,7 +10,7 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
         fmt::print("Failed to connect to valves at {}.\n", address);
         return;
     }
-    fmt::print("Successfully connected to MPA at {}.\n", address);
+    fmt::print("Successfully connected to MPA at {}, sending at {} Hz.\n", address, hz);
 
     run = true;
     controller_thread = std::thread(&ValveController::controllerThread, this);
@@ -52,7 +52,7 @@ void ValveController::controllerThread() {
     for (int i = 0; i < num_valves_total; i++) {
         output_pressures[i] = 0;
     }
-    srl::Rate r{30};
+    srl::Rate r{hz};
     while (run) {
         r.sleep();
         std::lock_guard<std::mutex> lock(mtx);

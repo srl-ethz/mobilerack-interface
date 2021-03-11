@@ -25,6 +25,7 @@ private:
     MPA *mpa;
     std::thread controller_thread;
     std::mutex mtx;
+    const double hz;
 
     const int num_valves_total = 16; /** @brief total number of valves in the Festo valve array setup */
     const std::vector<int> map;
@@ -53,8 +54,10 @@ public:
      * @param max_pressure max pressure that can be sent out. Useful to prevent puncture of the arm with too high a pressure.
      * 1200 for DragonSkin 30, 400 for DragonSkin 10 is recommended.
      * (not throughly examined- a larger or smaller value may be better)
+     * @param hz how often to send pressure data to (and log from) valves.
+     * Default is 100 Hz but that is only possible with a wired connection, with wifi it would be slowed down to around 30Hz due to latency
      */
-    ValveController(const char *address, const std::vector<int> &map, const int max_pressure);
+    ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz = 100);
 
     /**
      * @brief disconnects from valve, and outputs log.
