@@ -19,7 +19,7 @@ using namespace Eigen;
 
 namespace srl
 {
-    void sleep(double sleep_secs)
+    inline void sleep(double sleep_secs)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(sleep_secs * 1000)));
     }
