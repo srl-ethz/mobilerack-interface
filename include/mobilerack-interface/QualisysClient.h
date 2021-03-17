@@ -24,12 +24,11 @@
 class QualisysClient {
 public:
     /**
-     * @param address IP address of PC running QTM . For WSL, set the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
      * @param num_frames how many frames you want to track. The frame labels should be labeled "0", "1", ..., "<num_frames>" in QTM.
      * Can't read 2 (or more) digit labels for now.
      * @param cameraIDs ID of RGB cameras whose images you want to stream. If argument not given, will not stream images.
      */
-    QualisysClient(const char *address, int num_frames, std::vector<int> cameraIDs = {});
+    QualisysClient(int num_frames, std::vector<int> cameraIDs = {});
 
     ~QualisysClient();
 
@@ -53,9 +52,6 @@ private:
     const int minorVersion = 19;
     const bool bigEndian = false;
     unsigned short udpPort = 6734;
-    const unsigned short port = 22222;
-
-    const char *address;
 
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;

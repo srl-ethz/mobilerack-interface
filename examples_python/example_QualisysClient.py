@@ -12,7 +12,7 @@ pip3 install opencv-python
 ```
 """
 cameras = [9]
-qc = QualisysClient("192.168.0.101", 2, cameras)
+qc = QualisysClient(2, cameras)
 
 sleep(2)  # hacky way to wait until data is received from QTM
 for i in range(100):
