@@ -19,7 +19,7 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
 
     NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array
     py::class_<QualisysClient>(m, "QualisysClient")
-            .def(py::init<const char*, int, bool>())
+            .def(py::init<const char*, int, std::vector<int>>())
             .def("getData", [](QualisysClient& qc) {
                 // as Eigen::Transform cannot be automatically converted to a Python type and integers are immutable in Python (i.e. cannot be passed by reference to be modified),
                 // the function cannot be bound directly, in order for the actual data to be readable from Python.
@@ -33,12 +33,12 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                     matrix_data.push_back(transform.matrix());
                 return std::make_tuple(matrix_data, timestamp);
             })
-            .def("getImage", [](QualisysClient& qc) {
+            .def("getImage", [](QualisysClient& qc, int id) {
                 // cv::Mat is converted to numpy array thanks to ndarray_converter
-                cv::Mat image1, image2;
-                qc.getImage(image1, image2);
-                fmt::print("image size: {}\n", image1.size());
-                return std::make_tuple(image1, image2);
+                cv::Mat image;
+                qc.getImage(id, image);
+                // fmt::print("image size: {}\n", image.size());
+                return image;
             });
 
     py::class_<ValveController>(m, "ValveController")

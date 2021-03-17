@@ -27,9 +27,9 @@ public:
      * @param address IP address of PC running QTM . For WSL, set the IPv4 address of *vEthernet (WSL)*, seen in **Settings** -> **Network&Internet** -> **View your network properties**.
      * @param num_frames how many frames you want to track. The frame labels should be labeled "0", "1", ..., "<num_frames>" in QTM.
      * Can't read 2 (or more) digit labels for now.
-     * @param enable_image enable streaming of 9 & 10 camera images.
+     * @param cameraIDs ID of RGB cameras whose images you want to stream. If argument not given, will not stream images.
      */
-    QualisysClient(const char *address, int num_frames, bool enable_image = false);
+    QualisysClient(const char *address, int num_frames, std::vector<int> cameraIDs = {});
 
     ~QualisysClient();
 
@@ -42,10 +42,10 @@ public:
 
     /**
      * @brief Get the latest Image received from QTM.
-     * @param image1 image from camera 9
-     * @param image2 image from camera 10
+     * @param id ID of camera (index of cameraIDs)
+     * @param image image from camera
      */
-    void getImage(cv::Mat& image1, cv::Mat& image2);
+    void getImage(int id, cv::Mat& image);
 
 private:
     CRTProtocol rtProtocol;
@@ -60,10 +60,8 @@ private:
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;
 
-    bool enable_image;
-    cv::Mat image1;
-    cv::Mat image2;
-    cv::Mat rawImage; /** temporarily copy received raw bytes to here */
+    const std::vector<int> cameraIDs; /** ID of each camera to stream images from. */
+    std::vector<cv::Mat> images; /** store images here */
 
     std::thread motiontrack_thread;
     std::mutex mtx;
