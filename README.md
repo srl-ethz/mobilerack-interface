@@ -86,6 +86,7 @@ run `doxygen Doxyfile` in this directory to generate HTML files (can be seen wit
 
 The QualisysClient class tracks each RigidBody (labels must be an integer between 0 - 9 in order for the QualisysClient to read it).
 QualisysClient can auto-discover QTM RT server instances on the same network. The following combination would work:
+
 QTM running on | QualisysClient running on
 --- | ---
 Windows machine | WSL on same Windows machine
