@@ -120,9 +120,9 @@ void QualisysClient::motiontrack_loop() {
                     rtPacket->GetImage(i, data, image_size);
                     rawImage = cv::Mat(1, image_size, CV_8SC1, (void*) data);
                     if (rtPacket->GetImageCameraId(i) == 9)
-                        cv::imdecode(rawImage, CV_LOAD_IMAGE_COLOR, &image1);
+                        cv::imdecode(rawImage, cv::IMREAD_COLOR, &image1);
                     else if (rtPacket->GetImageCameraId(i) == 10)
-                        cv::imdecode(rawImage, CV_LOAD_IMAGE_COLOR, &image2);
+                        cv::imdecode(rawImage, cv::IMREAD_COLOR, &image2);
                 }
             }
         }
