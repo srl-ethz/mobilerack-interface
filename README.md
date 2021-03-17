@@ -44,8 +44,8 @@ for Ubuntu
 
 ```bash
 sudo apt update
-sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev
-sudo apt install python3-dev  # install developer package for system's default python version.
+sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev libopencv-dev
+sudo apt install python3-dev python3-numpy # install developer package and numpy for system's default python3 version.
 ```
 
 for macOS (todo: unverified)

@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <array>
 #include <vector>
+#include <stdexcept>
 
 #define PI 3.141592
 

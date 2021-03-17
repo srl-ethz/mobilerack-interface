@@ -29,6 +29,9 @@ find_package(Threads)
 
 FIND_PACKAGE(PkgConfig)
 
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+
 pkg_check_modules(MODBUS REQUIRED libmodbus)
 pkg_check_modules(SERIALPORT REQUIRED libserialport)
 
@@ -40,14 +43,14 @@ target_include_directories(ValveController PUBLIC ${MODBUS_INCLUDE_DIRS})
 target_link_libraries(ValveController Threads::Threads ${MODBUS_LDFLAGS} MiniPID fmt)
 
 add_library(QualisysClient SHARED src/QualisysClient.cpp)
-target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt)
+target_link_libraries(QualisysClient qualisys_cpp_sdk Threads::Threads fmt ${OpenCV_LIBS})
 
 add_library(SerialInterface SHARED src/SerialInterface.cpp)
 target_include_directories(SerialInterface PUBLIC ${SERIALPORT_INCLUDE_DIRS})
 target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt)
 
 ## set up pybind modules
-pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp)
+pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp src/ndarray_converter.cpp)
 target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController)
 
 add_subdirectory(examples)
