@@ -1,8 +1,7 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(const char *address, int numframes, std::vector<int> cameraIDs) :
-        address(address), cameraIDs(cameraIDs){
+QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs) : cameraIDs(cameraIDs){
     frames.resize(numframes); // for base + each segment
     images.resize(cameraIDs.size());
     connect_and_setup();
@@ -11,12 +10,27 @@ QualisysClient::QualisysClient(const char *address, int numframes, std::vector<i
 }
 
 bool QualisysClient::connect_and_setup() {
-    fmt::print("trying to connect to QTM at {} ...\n", address);
-    rtProtocol.Connect(address, port, &udpPort, majorVersion,
+    // find the IP address etc. of an QTM RT server instance on the network
+    // refer to https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTClientExample/Operations.cpp
+    if (!rtProtocol.DiscoverRTServer(0, false))
+        throw std::runtime_error("couldn't find QTM RT server in the network\n");
+    int num = rtProtocol.GetNumberOfDiscoverResponses();
+
+    // just connect to the first one it finds, for now
+    fmt::print("{} QTM RT server(s) found, connecting to first one...\n", num);
+    unsigned int nAddr;
+    unsigned short nBasePort;
+    std::string msg;
+    rtProtocol.GetDiscoverResponse(0, nAddr, nBasePort, msg);
+    char tServerAddr[20]; // "should be long enough to store an IP address" - Yasu, 2021
+    // convert to string IP address
+    sprintf(tServerAddr, "%d.%d.%d.%d", 0xff & nAddr, 0xff & (nAddr >> 8), 0xff & (nAddr >> 16), 0xff & (nAddr >> 24));
+    fmt::print("connecting to QTM RT server at {} : {} msg:[{}]\n", tServerAddr, nBasePort, msg);
+    
+    rtProtocol.Connect(tServerAddr, nBasePort, &udpPort, majorVersion,
                         minorVersion, bigEndian);
     if (!rtProtocol.Connected())
         throw std::runtime_error("couldn't connect to QTM\n");
-    fmt::print("connected to QTM at {}\n", address);
 
     bool dataAvailable = false;
     while (!dataAvailable) {
