@@ -14,6 +14,7 @@ int main(){
     unsigned long long int timestamp;
     while (true) {
         qc.getData(frames, timestamp);
+        fmt::print("timestamp: {}", timestamp);
         for (int j = 0; j < num_frames; ++j) {
             fmt::print("frame ID:\t{}\n{}\n", j, frames[j].matrix());
         }
@@ -23,6 +24,6 @@ int main(){
         cv::waitKey(1); /** @todo find better way than to force sleep? */
             
         fmt::print("---------------\n");
-        sleep(0.5);
+        srl::sleep(0.5);
     }
 }

@@ -4,7 +4,7 @@ from time import sleep
 
 """
 Stream frames & images from Qualisys Track Manager.
-Images are not streamed in playback mode. (at least, by default)
+Images are not streamed in playback mode.
 
 May need extra package in order to display images:
 ```bash

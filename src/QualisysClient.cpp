@@ -11,24 +11,18 @@ QualisysClient::QualisysClient(const char *address, int numframes, std::vector<i
 }
 
 bool QualisysClient::connect_and_setup() {
-    fmt::print("trying to connect to Qualisys server at {}...\n", address);
-    // loop until connected to server
-    for (int i = 0; i < 5; ++i) {
-        rtProtocol.Connect(address, port, &udpPort, majorVersion,
-                           minorVersion, bigEndian);
-        if (rtProtocol.Connected()) {
-            fmt::print("connected to Qualisys server at {}\n", address);
-            break;
-        }
-        fmt::print("error: could not connect to Qualisys server at {}, trying again in 1 second...\n",
-                   address);
-        sleep(0.5);
-    }
+    fmt::print("trying to connect to QTM at {} ...\n", address);
+    rtProtocol.Connect(address, port, &udpPort, majorVersion,
+                        minorVersion, bigEndian);
+    if (!rtProtocol.Connected())
+        throw std::runtime_error("couldn't connect to QTM\n");
+    fmt::print("connected to QTM at {}\n", address);
+
     bool dataAvailable = false;
     while (!dataAvailable) {
         if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
             printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
-            sleep(1);
+            srl::sleep(1);
             continue;
         }
     }
@@ -61,7 +55,7 @@ bool QualisysClient::connect_and_setup() {
         str = "Image 6D";
     while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
-        sleep(1);
+        srl::sleep(1);
     }
     fmt::print("Starting to stream data: {}\n", str);
 
@@ -77,7 +71,7 @@ void QualisysClient::motiontrack_loop() {
     char data[480 * 272 * 8 * 3]; /** @todo don't hardcode array size */
     cv::Mat rawImage; /** temporarily copy received raw bytes to here */
     while (true) {
-        sleep(0.001);
+        srl::sleep(0.001);
         std::lock_guard<std::mutex> lock(mtx);
         if (!rtProtocol.Connected()) {
             fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
@@ -87,6 +81,7 @@ void QualisysClient::motiontrack_loop() {
         if (rtProtocol.ReceiveRTPacket(packetType, true) > 0) {
             if (packetType == CRTPacket::PacketData) {
                 CRTPacket *rtPacket = rtProtocol.GetRTPacket();
+                timestamp = rtPacket->GetTimeStamp();
                 for (unsigned int i = 0; i < rtPacket->Get6DOFBodyCount(); ++i) {
                     if (rtPacket->Get6DOFBody(i, fX, fY, fZ, rotationMatrix)) {
                         const char *pTmpStr = rtProtocol.Get6DOFBodyName(i);
@@ -109,7 +104,6 @@ void QualisysClient::motiontrack_loop() {
                                 }
                             }
                         }
-                        timestamp = rtPacket->GetTimeStamp();
                     }
                 }
                 for (unsigned int i = 0; i < rtPacket->GetImageCameraCount(); ++i) {

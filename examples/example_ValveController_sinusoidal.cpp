@@ -15,7 +15,7 @@ int main() {
     std::vector<int> map = {0, 1, 2, 3};
     ValveController vc{"192.168.0.100", map, 400};
     double phase;
-    Rate r{1. / timestep};
+    srl::Rate r{1. / timestep};
     for (double time = 0; time < duration; time += timestep) {
         phase = time * 2;
         vc.setSinglePressure(0, sinusoid(phase));
@@ -24,6 +24,5 @@ int main() {
         vc.setSinglePressure(3, sinusoid(phase + 3 * PI / 2));
         r.sleep();
     }
-    vc.disconnect();
     return 1;
 }
