@@ -38,7 +38,7 @@ git clone --recursive git@gitlab.ethz.ch:srl/mobilerack-interface.git
 (`--recursive` option will automatically clone the submodules as well)
 
 ## install necessary packages
-(also check .gitlab-ci.yml for hints on how to setup Ubuntu)
+(also check Dockerfile for hints on how to setup Ubuntu)
 
 for Ubuntu
 
