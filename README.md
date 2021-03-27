@@ -51,7 +51,7 @@ sudo apt install python3-dev python3-numpy # install developer package and numpy
 for macOS (todo: unverified)
 
 ```bash
-brew install libmodbus eigen libserialport
+brew install libmodbus eigen libserialport numpy opencv
 ```
 
 ## Compile
