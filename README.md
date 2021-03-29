@@ -1,10 +1,9 @@
 # Mobile Rack Interface
 
-Code to connect to the experimental equipment on the Mobile Rack workbench, such as Festo valves & Qualisys motion
-tracking system. Code common across different projects using THE RACK can be kept here.
+Code to connect to the experimental equipment on the Mobile Rack workbench, such as Festo valves & Qualisys motion tracking system. Code common across different projects using THE RACK can be kept here.
 
 ## set up WSL (for Windows)
-1. Get [Ubuntu 18.04 from the Microsoft Store](https://www.microsoft.com/store/productId/9N9TNGVNDL3Q). If you don't need GUI, no further steps needed.
+1. Get [Ubuntu 20.04 from the Microsoft Store](https://www.microsoft.com/store/productId/9n6svws3rx71). If you don't need GUI, no further steps needed.
 
 ### suggested tutorials
 * https://docs.microsoft.com/en-us/learn/modules/get-started-with-windows-subsystem-for-linux/
@@ -51,9 +50,11 @@ sudo apt install python3-dev python3-numpy # install developer package and numpy
 Cmake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
 ```bash
 # refer to: https://graspingtech.com/upgrade-cmake/
+# remove installed cmake and install required packages
 sudo apt remove --purge cmake
 sudo apt update
 sudo apt install build-essential libssl-dev
+# compile cmake from source
 wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz
 tar -zxvf cmake-3.16.5.tar.gz
 cd cmake-3.16.5
