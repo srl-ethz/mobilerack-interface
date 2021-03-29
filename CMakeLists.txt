@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.12)
 project(MobileRackInterface)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -25,12 +25,15 @@ target_include_directories(MiniPID PUBLIC subm/MiniPID)
 add_subdirectory(subm/pybind11)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads)
+find_package(Threads REQUIRED)
 
-FIND_PACKAGE(PkgConfig)
+FIND_PACKAGE(PkgConfig REQUIRED)
 
-find_package( OpenCV REQUIRED )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+# find numpy. required for ndarray_converter
+find_package (Python3 COMPONENTS NumPy REQUIRED)
 
 pkg_check_modules(MODBUS REQUIRED libmodbus)
 pkg_check_modules(SERIALPORT REQUIRED libserialport)
@@ -51,6 +54,6 @@ target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt
 
 ## set up pybind modules
 pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp src/ndarray_converter.cpp)
-target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController)
+target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController Python3::NumPy)
 
 add_subdirectory(examples)

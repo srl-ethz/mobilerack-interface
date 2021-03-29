@@ -48,10 +48,24 @@ sudo apt install cmake libmodbus-dev libeigen3-dev libserialport-dev libopencv-d
 sudo apt install python3-dev python3-numpy # install developer package and numpy for system's default python3 version.
 ```
 
+Cmake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
+```bash
+# refer to: https://graspingtech.com/upgrade-cmake/
+sudo apt remove --purge cmake
+sudo apt update
+sudo apt install build-essential libssl-dev
+wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz
+tar -zxvf cmake-3.16.5.tar.gz
+cd cmake-3.16.5
+./bootstrap
+make 
+sudo make install
+```
+
 for macOS (todo: unverified)
 
 ```bash
-brew install libmodbus eigen libserialport
+brew install libmodbus eigen libserialport numpy opencv
 ```
 
 ## Compile
