@@ -14,7 +14,8 @@
  * WSL2 doesn't support USB devices, so can only be run on Linux and macOS.
  * Currently only supports 6 float values.
  * 
- * send serial data from arduino as ascii string beginning with 'a', values separated by comma, and end with a newline character, with no spaces, i.e. "a3.14,1,2,3,4,5\n"
+ * send serial data from arduino as ascii string, with values separated by comma, and end with a newline character, with no spaces, i.e. "3.14,1,2,3,4,5\n".
+ * Data not in this format will be printed to the terminal as a warning, and will not modify the values in this program.
  * 
  * Of course it's more efficient to send the actual data rather than as ASCII string, but then it's tricky how to recoginize where data starts & ends (cf: https://forum.arduino.cc/index.php?topic=628401.0 )
  * 

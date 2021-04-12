@@ -76,22 +76,19 @@ void SerialInterface::parse_latest_data(){
     }
     if (last_newline_index < 0)
         return; // did not find newline
-    // find beginning of data, marked by 'a'
-    int data_begin_index = -1;
+    // find beginning of data
+    int data_begin_index = 0;
     for (int i = last_newline_index-1; 0 <= i; i-=1)
     {
-        if (buffer[i] == '\n')
-            return; // this is an error because there should always be 'a' somewhere between '\n'
-        if (buffer[i] == 'a'){
-            data_begin_index = i;
+        if (buffer[i] == '\n'){
+            // this is the newline from the previous data which is still in buffer.
+            data_begin_index = i+1;
             break;
         }
     }
-    if (data_begin_index < 0)
-        return;
     
     int float_head_index[6]; // stores the index of where each float value starts
-    float_head_index[0] = data_begin_index+1;
+    float_head_index[0] = data_begin_index;
     int count = 1;
     // find all the commas, which separate the float values
     for (int i = float_head_index[0] ; i < last_newline_index-1; i++)
@@ -102,13 +99,15 @@ void SerialInterface::parse_latest_data(){
             count++;
         }
     }
-    assert(count == 6);
-
-    for (int i = 0; i < 6; i++)
-    {
-        std::lock_guard<std::mutex> lock(mtx);
-        data[i] = std::atof(&buffer[float_head_index[i]]);
+    if (count == 6){
+        for (int i = 0; i < 6; i++)
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            data[i] = std::atof(&buffer[float_head_index[i]]);
+        }
     }
+    else
+        fmt::print("WARNING: detected line not conforming to SerialInterface protocol: {}\n", std::string(&buffer[data_begin_index], last_newline_index - data_begin_index + 1));
 
     // remove the read part from the buffer
     memmove(buffer, &buffer[last_newline_index+1], max_buffer_size - (last_newline_index+1));
