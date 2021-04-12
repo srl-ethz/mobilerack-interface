@@ -1,6 +1,5 @@
 /*
 Sample sketch for Arduino on how to send and receive data over serial. Use together with example_SerialInterface.cpp
-Arduino resets after communication?
 */
 
 float sensor_vals[6];
@@ -19,7 +18,7 @@ void setup() {
 
   pinMode(led, OUTPUT);
 
-  Serial.begin(38400);
+  Serial.begin(115200);
 }
 
 void loop() {
@@ -27,7 +26,6 @@ void loop() {
   sensor_vals[0] += 1;
 
   // send data
-  Serial.print('a');
   for (int i = 0; i< num; i++){
     Serial.print(sensor_vals[i]);
     if (i != num-1)
@@ -45,4 +43,5 @@ void loop() {
     else if (receivedByte == 'L')
       digitalWrite(led, LOW);
   }
+  delay(10);
 }
