@@ -1,7 +1,7 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs) : cameraIDs(cameraIDs){
+QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
     frames.resize(numframes); // for base + each segment
     images.resize(cameraIDs.size());
     connect_and_setup();
@@ -104,9 +104,12 @@ void QualisysClient::motiontrack_loop() {
                             // @todo fix implementation to allow more than 1 digit for ID.
                             // @todo better processing for when frame is missed (value becomes nan)
                             int id = pTmpStr[0] - '0';
-                            if (0 <= id && id < frames.size() && !std::isnan(fX)) {
+                            if (0 <= id && id < frames.size()) {
                                 // assign value to each frame
                                 // Qualisys data is in mm
+                                /** @todo if a frame wasn't even defined in QTM, it would not be populated with nan because this part won't run */
+                                if (std::isnan(fX) && !nan_if_missed)
+                                    continue;
                                 frames[id](0, 3) = fX / 1000.;
                                 frames[id](1, 3) = fY / 1000.;
                                 frames[id](2, 3) = fZ / 1000.;

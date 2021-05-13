@@ -27,8 +27,9 @@ public:
      * @param num_frames how many frames you want to track. The frame labels should be labeled "0", "1", ..., "<num_frames>" in QTM.
      * Can't read 2 (or more) digit labels for now.
      * @param cameraIDs ID of RGB cameras whose images you want to stream. If argument not given, will not stream images.
+     * @param nan_if_missed populate the data for a frame with nan values if the data for that timestep has been missed by the mocap system. If false, just use the previous value.
      */
-    QualisysClient(int num_frames, std::vector<int> cameraIDs = {});
+    QualisysClient(int num_frames, std::vector<int> cameraIDs = {}, bool nan_if_missed = false);
 
     ~QualisysClient();
 
@@ -52,6 +53,7 @@ private:
     const int minorVersion = 19;
     const bool bigEndian = false;
     unsigned short udpPort = 6734;
+    bool nan_if_missed;
 
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
     unsigned long long int timestamp;
