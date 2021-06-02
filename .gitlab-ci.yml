@@ -5,4 +5,4 @@ variables:
 build:
   script:
     - cmake .
-    - make
+    - make -j$(nproc) # use as many cores as available
