@@ -10,6 +10,9 @@ target_link_libraries(example_ValveController_sinusoidal ValveController)
 add_executable(example_ValveController example_ValveController.cpp)
 target_link_libraries(example_ValveController ValveController)
 
+add_executable(example_ValveController_explained example_ValveController_explained.cpp)
+target_link_libraries(example_ValveController_explained ValveController)
+
 add_executable(example_SerialInterface example_SerialInterface.cpp)
 target_link_libraries(example_SerialInterface SerialInterface)
 
