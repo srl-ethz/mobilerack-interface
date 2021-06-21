@@ -34,10 +34,24 @@ bool QualisysClient::connect_and_setup() {
 
     bool dataAvailable = false;
     while (!dataAvailable) {
-        if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
-            printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
-            srl::sleep(1);
-            continue;
+        if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+            // Reading 6DoF Bodies
+            if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
+                printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
+                srl::sleep(1);
+                continue;
+            }
+        }
+        else if (std::is_same<T, Eigen::Vector3d>::value) {
+            // Reading 3D Motion Markers
+            if (!rtProtocol.Read3DSettings(dataAvailable)) {
+                fmt::print("rtProtocol.Read3DSettings: %s\n\n", rtProtocol.GetErrorString());
+                srl::sleep(1);
+                continue;
+            }
+        }
+        else {
+            throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
         }
     }
 
@@ -63,10 +77,24 @@ bool QualisysClient::connect_and_setup() {
         }
     }
     
-    // set to stream 6D frames (& images)
-    std::string str = "6D";
-    if (cameraIDs.size() > 0)
-        str = "Image 6D";
+    // set to stream frames (& images)
+    if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+        // Reading 6DoF Bodies
+        std::string str = "6D";
+        if (cameraIDs.size() > 0)
+            str = "Image 6D";
+    }
+    else if (std::is_same<T, Eigen::Vector3d>::value) {
+        // Reading 3D Motion Markers
+        std::string str = "3D";
+        if (cameraIDs.size() > 0)
+            str = "Image 3D";
+    }
+    else {
+        throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+    }
+
+
     while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
         srl::sleep(1);
@@ -96,33 +124,65 @@ void QualisysClient::motiontrack_loop() {
             if (packetType == CRTPacket::PacketData) {
                 CRTPacket *rtPacket = rtProtocol.GetRTPacket();
                 timestamp = rtPacket->GetTimeStamp();
-                for (unsigned int i = 0; i < rtPacket->Get6DOFBodyCount(); ++i) {
-                    if (rtPacket->Get6DOFBody(i, fX, fY, fZ, rotationMatrix)) {
-                        const char *pTmpStr = rtProtocol.Get6DOFBodyName(i);
-                        if (pTmpStr) {
-                            // convert the ID to an integer
-                            // @todo fix implementation to allow more than 1 digit for ID.
-                            // @todo better processing for when frame is missed (value becomes nan)
-                            int id = pTmpStr[0] - '0';
-                            if (0 <= id && id < frames.size()) {
-                                // assign value to each frame
-                                // Qualisys data is in mm
-                                /** @todo if a frame wasn't even defined in QTM, it would not be populated with nan because this part won't run */
-                                if (std::isnan(fX) && !nan_if_missed)
-                                    continue;
-                                frames[id](0, 3) = fX / 1000.;
-                                frames[id](1, 3) = fY / 1000.;
-                                frames[id](2, 3) = fZ / 1000.;
-                                for (int row = 0; row < 3; ++row) {
-                                    for (int column = 0; column < 3; ++column) {
-                                        // column-major order
-                                        frames[id](row, column) = rotationMatrix[column * 3 + row];
+
+
+                if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+                    // Reading 6DoF Bodies
+                    for (unsigned int i = 0; i < rtPacket->Get6DOFBodyCount(); ++i) {
+                        if (rtPacket->Get6DOFBody(i, fX, fY, fZ, rotationMatrix)) {
+                            const char *pTmpStr = rtProtocol.Get6DOFBodyName(i);
+                            if (pTmpStr) {
+                                // convert the ID to an integer
+                                // @todo fix implementation to allow more than 1 digit for ID.
+                                // @todo better processing for when frame is missed (value becomes nan)
+                                int id = pTmpStr[0] - '0';
+                                if (0 <= id && id < frames.size()) {
+                                    // assign value to each frame
+                                    // Qualisys data is in mm
+                                    /** @todo if a frame wasn't even defined in QTM, it would not be populated with nan because this part won't run */
+                                    if (std::isnan(fX) && !nan_if_missed)
+                                        continue;
+                                    frames[id](0, 3) = fX / 1000.;
+                                    frames[id](1, 3) = fY / 1000.;
+                                    frames[id](2, 3) = fZ / 1000.;
+                                    for (int row = 0; row < 3; ++row) {
+                                        for (int column = 0; column < 3; ++column) {
+                                            // column-major order
+                                            frames[id](row, column) = rotationMatrix[column * 3 + row];
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                else if (std::is_same<T, Eigen::Vector3d>::value) {
+                    // Reading 3D Motion Markers
+                    for (unsigned int i = 0; i < rtPacket->Get3DMarkerCount(); ++i) {
+                        if (rtPacket->Get3DMarker(i, fX, fY, fZ)) {
+                            const char *pTmpStr = rtProtocol.Get3DLabelName(i);
+                            if (pTmpStr) {
+                                // ID looks like "1 - 4", depends on how the name is given.
+                                // Let's assume that QTM always sends them in the right order.
+                                if (i < frames.size()) {
+                                    // assign value to each frame
+                                    // Qualisys data is in mm
+                                    if (std::isnan(fX) && !nan_if_missed)
+                                        continue;
+                                    frames[i](0) = fX / 1000.;
+                                    frames[i](1) = fY / 1000.;
+                                    frames[i](2) = fZ / 1000.;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+                }
+                
+
+
                 for (unsigned int i = 0; i < rtPacket->GetImageCameraCount(); ++i) {
                     for (int j = 0; j < cameraIDs.size(); j++){
                         // find camera 
@@ -145,7 +205,7 @@ void QualisysClient::motiontrack_loop() {
     }
 }
 
-void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames,
+void QualisysClient::getData(std::vector<T> &frames,
                              unsigned long long int &timestamp) {
     std::lock_guard<std::mutex> lock(mtx);
     frames = this->frames;

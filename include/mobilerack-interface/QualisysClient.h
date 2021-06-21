@@ -16,11 +16,12 @@
 #include <opencv2/highgui.hpp>
 
 /**
- * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data- 6D frames & camera images.
+ * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data- 6D frames & camera images. NEW: also 3D motion marker tracking allowed. Instantiate this class with "Eigen::Vector3d" for motion markers. 
  * @details Frames (& images) are obtained in a separate thread. 6D frame streaming is based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
  * - cf: https://docs.qualisys.com/qtm-rt-protocol/
  * - cf: https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTPacket.cpp
  */
+template <typename T = Eigen::Transform<double, 3, Eigen::Affine>>
 class QualisysClient {
 public:
     /**
@@ -38,7 +39,7 @@ public:
      * @param frames vector of frames received from motion track. index corresponds to frame label. position in meters
      * @param timestamp timestamp (microseconds) obtained from QTM. @todo this may not be proper value when num_frames at constructor is 0.
      */
-    void getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames, unsigned long long int &timestamp);
+    void getData(std::vector<T> &frames, unsigned long long int &timestamp);
 
     /**
      * @brief Get the latest Image received from QTM.
@@ -55,7 +56,7 @@ private:
     unsigned short udpPort = 6734;
     bool nan_if_missed;
 
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
+    std::vector<T> frames;
     unsigned long long int timestamp;
 
     const std::vector<int> cameraIDs; /** ID of each camera to stream images from. */

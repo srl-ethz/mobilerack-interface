@@ -41,6 +41,26 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                 return image;
             });
 
+
+    py::class_<QualisysClient<Eigen::Vector3d>>(m, "QualisysClient3D")
+            .def(py::init<int, std::vector<int>>())
+            .def("getData", [](QualisysClient& qc) {
+                std::vector<Eigen::Vector3d> matrix_data;
+                unsigned long long int timestamp;
+                qc.getData(transform_data, timestamp);
+                // std::vector<Eigen::Vector3d> matrix_data;
+                // for (auto &transform : transform_data)
+                //     matrix_data.push_back(transform.matrix());
+                return std::make_tuple(matrix_data, timestamp);
+            })
+            .def("getImage", [](QualisysClient& qc, int id) {
+                // cv::Mat is converted to numpy array thanks to ndarray_converter
+                cv::Mat image;
+                qc.getImage(id, image);
+                return image;
+            });
+
+
     py::class_<ValveController>(m, "ValveController")
             .def(py::init<const char*, const std::vector<int>&, const int>())
             .def("setSinglePressure", &ValveController::setSinglePressure)
