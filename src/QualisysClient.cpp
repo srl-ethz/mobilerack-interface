@@ -1,14 +1,14 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-template <typename T>
-QualisysClient<T>::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
-    frames.resize(numframes); // for base + each segment
-    images.resize(cameraIDs.size());
-    connect_and_setup();
-    motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
-    fmt::print("finished setup of QualisysClient.\n");
-}
+// template <typename T>
+// QualisysClient<T>::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
+//     frames.resize(numframes); // for base + each segment
+//     images.resize(cameraIDs.size());
+//     connect_and_setup();
+//     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
+//     fmt::print("finished setup of QualisysClient.\n");
+// }
 
 template <typename T>
 bool QualisysClient<T>::connect_and_setup() {
