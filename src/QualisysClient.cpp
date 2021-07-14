@@ -1,7 +1,8 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
+template <typename T>
+QualisysClient<T>::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
     frames.resize(numframes); // for base + each segment
     images.resize(cameraIDs.size());
     connect_and_setup();
@@ -9,7 +10,8 @@ QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, bool n
     fmt::print("finished setup of QualisysClient.\n");
 }
 
-bool QualisysClient::connect_and_setup() {
+template <typename T>
+bool QualisysClient<T>::connect_and_setup() {
     // find the IP address etc. of an QTM RT server instance on the network
     // refer to https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTClientExample/Operations.cpp
     if (!rtProtocol.DiscoverRTServer(0, false))
@@ -78,15 +80,16 @@ bool QualisysClient::connect_and_setup() {
     }
     
     // set to stream frames (& images)
+    std::string str;
     if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
         // Reading 6DoF Bodies
-        std::string str = "6D";
+        str = "6D";
         if (cameraIDs.size() > 0)
             str = "Image 6D";
     }
     else if (std::is_same<T, Eigen::Vector3d>::value) {
         // Reading 3D Motion Markers
-        std::string str = "3D";
+        str = "3D";
         if (cameraIDs.size() > 0)
             str = "Image 3D";
     }
@@ -106,7 +109,9 @@ bool QualisysClient::connect_and_setup() {
     return true;
 }
 
-void QualisysClient::motiontrack_loop() {
+
+template <typename T>
+void QualisysClient<T>::motiontrack_loop() {
     CRTPacket::EPacketType packetType;
     float fX, fY, fZ;
     float rotationMatrix[9];
@@ -205,19 +210,23 @@ void QualisysClient::motiontrack_loop() {
     }
 }
 
-void QualisysClient::getData(std::vector<T> &frames,
+
+template <typename T>
+void QualisysClient<T>::getData(std::vector<T> &frames,
                              unsigned long long int &timestamp) {
     std::lock_guard<std::mutex> lock(mtx);
     frames = this->frames;
     timestamp = this->timestamp;
 }
 
-void QualisysClient::getImage(int id, cv::Mat& image){
+template <typename T>
+void QualisysClient<T>::getImage(int id, cv::Mat& image){
     assert(0 <= id && id < cameraIDs.size());
     image = images[id];
 }
 
-QualisysClient::~QualisysClient() {
+template <typename T>
+QualisysClient<T>::~QualisysClient() {
     fmt::print("stopping QualisysClient\n");
     motiontrack_thread.join();
     rtProtocol.StopCapture();

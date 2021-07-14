@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import ValveController, QualisysClient
+from mobilerack_pybind_module import ValveController, QualisysClient3D
 from time import sleep
 import time
 import numpy as np
@@ -19,7 +19,7 @@ timesteps = 300
 number_of_markers = 7
 
 vc = ValveController("192.168.0.100", valves, max_pressure)
-qc = QualisysClient(number_of_markers, cameras)
+qc = QualisysClient3D(number_of_markers, cameras)
 
 sleep(1)  # hacky way to wait until data from qtm is received
 _, timestamp = qc.getData()
