@@ -6,7 +6,9 @@
 #include <fstream>
 
 int main(){
-    const int pressures[2][3] = {
+    const int num_pressures = 2;
+    const int num_actuations = 3;
+    const int pressures[num_pressures ][num_actuations ] = {
         {350, 0, 0},
         {0, 350, 0}
     };
@@ -35,9 +37,9 @@ int main(){
     vc.syncTimeStamp(timestamp/1000); // sync timestamp to that of QTM
 
 
-    const int timesteps = 200
+    const int timesteps = 200;
 
-    for (int k = 0; k < pressures.size(); k++) {
+    for (int k = 0; k < num_pressures; k++) {
         curr_stamp = timestamp;
 
         for (int t = 0; t < timesteps; t++) {
@@ -64,12 +66,12 @@ int main(){
 
 
     // Start writing to the file
-    ofstream dataFile("captured_markers.txt")
+    std::ofstream dataFile("captured_markers.txt");
     dataFile << "STORED DATA";
 
-    for (int k = 0; k < pressures.size(); k++) {
+    for (int k = 0; k < num_pressures; k++) {
         dataFile << "\n\n\nPressure: ";
-        for (int l = 0; l < pressures[0].size(); l++) {
+        for (int l = 0; l < num_actuations; l++) {
             dataFile << pressures[k][l] << " ";
         }
         for (int t = 0; t < timesteps; t++) {
@@ -83,7 +85,7 @@ int main(){
         }
     }
 
-    dataFile.close()
+    dataFile.close();
 
     return 1;
 }

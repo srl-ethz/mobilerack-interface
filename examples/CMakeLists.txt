@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(MobileRackInterface-examples)
 
+add_executable(example_QTMcollect3DmarkerData example_QTMcollect3DmarkerData.cpp)
+target_link_libraries(example_QTMcollect3DmarkerData QualisysClient ValveController)
+
 add_executable(example_QualisysClient example_QualisysClient.cpp)
 target_link_libraries(example_QualisysClient QualisysClient)
 
