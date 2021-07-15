@@ -18,9 +18,9 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
     /** @todo add CI test to python as well! */
 
     NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array
-    py::class_<QualisysClient<>>(m, "QualisysClient")
+    py::class_<QualisysClient>(m, "QualisysClient")
             .def(py::init<int, std::vector<int>>())
-            .def("getData", [](QualisysClient<>& qc) {
+            .def("getData", [](QualisysClient& qc) {
                 // as Eigen::Transform cannot be automatically converted to a Python type and integers are immutable in Python (i.e. cannot be passed by reference to be modified),
                 // the function cannot be bound directly, in order for the actual data to be readable from Python.
                 // To resolve this, use a lambda function that calls the C++ function and formats it to a type appropriate to return to Python.
@@ -33,30 +33,17 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                     matrix_data.push_back(transform.matrix());
                 return std::make_tuple(matrix_data, timestamp);
             })
-            .def("getImage", [](QualisysClient<>& qc, int id) {
+            .def("getData3D", [](QualisysClient& qc) {
+                std::vector<Eigen::Vector3d> matrix_data;
+                unsigned long long int timestamp;
+                qc.getData(matrix_data, timestamp);
+                return std::make_tuple(matrix_data, timestamp);
+            })
+            .def("getImage", [](QualisysClient& qc, int id) {
                 // cv::Mat is converted to numpy array thanks to ndarray_converter
                 cv::Mat image;
                 qc.getImage(id, image);
                 // fmt::print("image size: {}\n", image.size());
-                return image;
-            });
-
-
-    py::class_<QualisysClient<Eigen::Vector3d>>(m, "QualisysClient3D")
-            .def(py::init<int, std::vector<int>>())
-            .def("getData", [](QualisysClient<Eigen::Vector3d>& qc) {
-                std::vector<Eigen::Vector3d> matrix_data;
-                unsigned long long int timestamp;
-                qc.getData(matrix_data, timestamp);
-                // std::vector<Eigen::Vector3d> matrix_data;
-                // for (auto &transform : transform_data)
-                //     matrix_data.push_back(transform.matrix());
-                return std::make_tuple(matrix_data, timestamp);
-            })
-            .def("getImage", [](QualisysClient<Eigen::Vector3d>& qc, int id) {
-                // cv::Mat is converted to numpy array thanks to ndarray_converter
-                cv::Mat image;
-                qc.getImage(id, image);
                 return image;
             });
 

@@ -7,7 +7,7 @@ int main(){
     std::vector<int> map = {12, 13, 14, 15};
 
     ValveController vc{"192.168.0.100", map, 400};
-    QualisysClient<> qc{1};
+    QualisysClient qc{1};
 
     srl::sleep(1); // hacky way to wait until data from QTM is received
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames_; // will not be read, just is necessary for call to getData

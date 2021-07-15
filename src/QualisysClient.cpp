@@ -1,17 +1,25 @@
 // Copyright 2018 Yasu
 #include "mobilerack-interface/QualisysClient.h"
 
-// template <typename T>
-// QualisysClient<T>::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed){
-//     frames.resize(numframes); // for base + each segment
-//     images.resize(cameraIDs.size());
-//     connect_and_setup();
-//     motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
-//     fmt::print("finished setup of QualisysClient.\n");
-// }
 
-template <typename T>
-bool QualisysClient<T>::connect_and_setup() {
+QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed, std::string frameMode) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed), frameMode(frameMode) {
+    if (frameMode == "6D") {
+        frames6D.resize(numframes); // for base + each segment
+    }
+    else if (frameMode == "3D") {
+        frames3D.resize(numframes); // for base + each segment
+    }
+    else {
+        throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+    }
+    images.resize(cameraIDs.size());
+    connect_and_setup();
+    motiontrack_thread = std::thread(&QualisysClient::motiontrack_loop, this);
+    fmt::print("finished setup of QualisysClient.\n");
+}
+
+
+bool QualisysClient::connect_and_setup() {
     // find the IP address etc. of an QTM RT server instance on the network
     // refer to https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTClientExample/Operations.cpp
     if (!rtProtocol.DiscoverRTServer(0, false))
@@ -36,7 +44,7 @@ bool QualisysClient<T>::connect_and_setup() {
 
     bool dataAvailable = false;
     while (!dataAvailable) {
-        if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+        if (frameMode == "6D") {
             // Reading 6DoF Bodies
             if (!rtProtocol.Read6DOFSettings(dataAvailable)) {
                 printf("rtProtocol.Read6DOFSettings: %s\n\n", rtProtocol.GetErrorString());
@@ -44,7 +52,7 @@ bool QualisysClient<T>::connect_and_setup() {
                 continue;
             }
         }
-        else if (std::is_same<T, Eigen::Vector3d>::value) {
+        else if (frameMode == "3D") {
             // Reading 3D Motion Markers
             if (!rtProtocol.Read3DSettings(dataAvailable)) {
                 fmt::print("rtProtocol.Read3DSettings: %s\n\n", rtProtocol.GetErrorString());
@@ -81,13 +89,13 @@ bool QualisysClient<T>::connect_and_setup() {
     
     // set to stream frames (& images)
     std::string str;
-    if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+    if (frameMode == "6D") {
         // Reading 6DoF Bodies
         str = "6D";
         if (cameraIDs.size() > 0)
             str = "Image 6D";
     }
-    else if (std::is_same<T, Eigen::Vector3d>::value) {
+    else if (frameMode == "3D") {
         // Reading 3D Motion Markers
         str = "3D";
         if (cameraIDs.size() > 0)
@@ -110,8 +118,7 @@ bool QualisysClient<T>::connect_and_setup() {
 }
 
 
-template <typename T>
-void QualisysClient<T>::motiontrack_loop() {
+void QualisysClient::motiontrack_loop() {
     CRTPacket::EPacketType packetType;
     float fX, fY, fZ;
     float rotationMatrix[9];
@@ -131,7 +138,7 @@ void QualisysClient<T>::motiontrack_loop() {
                 timestamp = rtPacket->GetTimeStamp();
 
 
-                if (std::is_same<T, Eigen::Transform<double, 3, Eigen::Affine>>::value) {
+                if (frameMode == "6D") {
                     // Reading 6DoF Bodies
                     for (unsigned int i = 0; i < rtPacket->Get6DOFBodyCount(); ++i) {
                         if (rtPacket->Get6DOFBody(i, fX, fY, fZ, rotationMatrix)) {
@@ -141,19 +148,19 @@ void QualisysClient<T>::motiontrack_loop() {
                                 // @todo fix implementation to allow more than 1 digit for ID.
                                 // @todo better processing for when frame is missed (value becomes nan)
                                 int id = pTmpStr[0] - '0';
-                                if (0 <= id && id < frames.size()) {
+                                if (0 <= id && id < frames6D.size()) {
                                     // assign value to each frame
                                     // Qualisys data is in mm
                                     /** @todo if a frame wasn't even defined in QTM, it would not be populated with nan because this part won't run */
                                     if (std::isnan(fX) && !nan_if_missed)
                                         continue;
-                                    frames[id](0, 3) = fX / 1000.;
-                                    frames[id](1, 3) = fY / 1000.;
-                                    frames[id](2, 3) = fZ / 1000.;
+                                    frames6D[id](0, 3) = fX / 1000.;
+                                    frames6D[id](1, 3) = fY / 1000.;
+                                    frames6D[id](2, 3) = fZ / 1000.;
                                     for (int row = 0; row < 3; ++row) {
                                         for (int column = 0; column < 3; ++column) {
                                             // column-major order
-                                            frames[id](row, column) = rotationMatrix[column * 3 + row];
+                                            frames6D[id](row, column) = rotationMatrix[column * 3 + row];
                                         }
                                     }
                                 }
@@ -161,7 +168,7 @@ void QualisysClient<T>::motiontrack_loop() {
                         }
                     }
                 }
-                else if (std::is_same<T, Eigen::Vector3d>::value) {
+                else if (frameMode == "3D") {
                     // Reading 3D Motion Markers
                     for (unsigned int i = 0; i < rtPacket->Get3DMarkerCount(); ++i) {
                         if (rtPacket->Get3DMarker(i, fX, fY, fZ)) {
@@ -169,14 +176,14 @@ void QualisysClient<T>::motiontrack_loop() {
                             if (pTmpStr) {
                                 // ID looks like "1 - 4", depends on how the name is given.
                                 // Let's assume that QTM always sends them in the right order.
-                                if (i < frames.size()) {
+                                if (i < frames3D.size()) {
                                     // assign value to each frame
                                     // Qualisys data is in mm
                                     if (std::isnan(fX) && !nan_if_missed)
                                         continue;
-                                    frames[i](0) = fX / 1000.;
-                                    frames[i](1) = fY / 1000.;
-                                    frames[i](2) = fZ / 1000.;
+                                    frames3D[i](0) = fX / 1000.;
+                                    frames3D[i](1) = fY / 1000.;
+                                    frames3D[i](2) = fZ / 1000.;
                                 }
                             }
                         }
@@ -211,24 +218,28 @@ void QualisysClient<T>::motiontrack_loop() {
 }
 
 
-template <typename T>
-void QualisysClient<T>::getData(std::vector<T> &frames,
+void QualisysClient::getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames,
                              unsigned long long int &timestamp) {
     std::lock_guard<std::mutex> lock(mtx);
-    frames = this->frames;
+    frames = this->frames6D;
     timestamp = this->timestamp;
 }
 
-template <typename T>
-void QualisysClient<T>::getImage(int id, cv::Mat& image){
+void QualisysClient::getData(std::vector<Eigen::Vector3d> &frames,
+                             unsigned long long int &timestamp) {
+    std::lock_guard<std::mutex> lock(mtx);
+    frames = this->frames3D;
+    timestamp = this->timestamp;
+}
+
+void QualisysClient::getImage(int id, cv::Mat& image){
     assert(0 <= id && id < cameraIDs.size());
     image = images[id];
 }
 
-template <typename T>
-QualisysClient<T>::~QualisysClient() {
+QualisysClient::~QualisysClient() {
     fmt::print("stopping QualisysClient\n");
+    rtProtocol.Disconnect();
     motiontrack_thread.join();
     rtProtocol.StopCapture();
-    rtProtocol.Disconnect();
 }
