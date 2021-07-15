@@ -30,7 +30,7 @@ public:
      * @param nan_if_missed populate the data for a frame with nan values if the data for that timestep has been missed by the mocap system. If false, just use the previous value.
      * @param frameMode string that can be either 3D or 6D, tracking either separate motion marker 3D positions, or whole 6DoF rigid body frames.
      */
-    QualisysClient(int num_frames, std::vector<int> cameraIDs = {}, bool nan_if_missed = false, std::string frameMode = "6D");
+    QualisysClient(int num_frames, std::vector<int> cameraIDs = {}, std::string frameMode = "6D", bool nan_if_missed = false);
     ~QualisysClient();
 
     /**
@@ -48,6 +48,8 @@ public:
      */
     void getImage(int id, cv::Mat& image);
 
+    std::string frameMode = "6D";
+
 private:
     CRTProtocol rtProtocol;
     const int majorVersion = 1;
@@ -55,8 +57,6 @@ private:
     const bool bigEndian = false;
     unsigned short udpPort = 6734;
     bool nan_if_missed;
-
-    std::string frameMode = "6D";
 
     std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames6D;
     std::vector<Eigen::Vector3d> frames3D;

@@ -19,12 +19,19 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
 
     NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array
     py::class_<QualisysClient>(m, "QualisysClient")
-            .def(py::init<int, std::vector<int>>())
-            .def("getData", [](QualisysClient& qc) {
+            .def(py::init<
+                    int, 
+                    std::vector<int>, 
+                    std::string
+                >())
+            .def("getData6D", [](QualisysClient& qc) {
                 // as Eigen::Transform cannot be automatically converted to a Python type and integers are immutable in Python (i.e. cannot be passed by reference to be modified),
                 // the function cannot be bound directly, in order for the actual data to be readable from Python.
                 // To resolve this, use a lambda function that calls the C++ function and formats it to a type appropriate to return to Python.
                 // cf: https://pybind11.readthedocs.io/en/stable/faq.html#limitations-involving-reference-arguments
+                if (qc.frameMode != "6D") {
+                    throw std::runtime_error("Incorrect frame type! Not 6D.\n");
+                }
                 std::vector<Eigen::Transform<double, 3, Eigen::Affine>> transform_data;
                 unsigned long long int timestamp;
                 qc.getData(transform_data, timestamp);
@@ -34,6 +41,10 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                 return std::make_tuple(matrix_data, timestamp);
             })
             .def("getData3D", [](QualisysClient& qc) {
+                if (qc.frameMode != "3D") {
+                    // Unfortunately, pybind needs to know return type at compile time, so we cannot combine 6D and 3D into one "getData" function.
+                    throw std::runtime_error("Incorrect frame type! Not 3D.\n");
+                }
                 std::vector<Eigen::Vector3d> matrix_data;
                 unsigned long long int timestamp;
                 qc.getData(matrix_data, timestamp);

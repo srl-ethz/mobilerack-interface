@@ -2,7 +2,7 @@
 #include "mobilerack-interface/QualisysClient.h"
 
 
-QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, bool nan_if_missed, std::string frameMode) : cameraIDs(cameraIDs), nan_if_missed(nan_if_missed), frameMode(frameMode) {
+QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, std::string frameMode, bool nan_if_missed) : cameraIDs(cameraIDs), frameMode(frameMode), nan_if_missed(nan_if_missed) {
     if (frameMode == "6D") {
         frames6D.resize(numframes); // for base + each segment
     }
@@ -128,8 +128,10 @@ void QualisysClient::motiontrack_loop() {
         srl::sleep(0.001);
         std::lock_guard<std::mutex> lock(mtx);
         if (!rtProtocol.Connected()) {
-            fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
-            connect_and_setup();
+            // fmt::print("disconnected from Qualisys server, attempting to reconnect...\n");
+            // connect_and_setup();
+            fmt::print("Disconnected from Qualisys server, exterminating...\n");
+            break;
         }
 
         if (rtProtocol.ReceiveRTPacket(packetType, true) > 0) {

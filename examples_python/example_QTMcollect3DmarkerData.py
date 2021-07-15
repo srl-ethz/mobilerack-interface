@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import ValveController, QualisysClient3D
+from lib.mobilerack_pybind_module import ValveController, QualisysClient
 from time import sleep
 import time
 import numpy as np
@@ -11,18 +11,18 @@ max_pressure = 400
 # Define all the K pressures you want to try out, shape [K, V], with V valves active.
 pressures = [
     [350, 0, 0],
-    [0, 350, 0],
-    [0, 0, 350]
+    #[0, 350, 0],
+    #[0, 0, 350]
 ]
 
 timesteps = 300
 number_of_markers = 7
 
 vc = ValveController("192.168.0.100", valves, max_pressure)
-qc = QualisysClient3D(number_of_markers, cameras)
+qc = QualisysClient(number_of_markers, cameras, "6D")
 
 sleep(1)  # hacky way to wait until data from qtm is received
-_, timestamp = qc.getData()
+_, timestamp = qc.getData6D()
 vc.syncTimeStamp(timestamp//1000)  # sync the time to be that of QTM
 
 captured_markers = []
@@ -33,7 +33,7 @@ for k in range(len(pressures)):
     curr_stamp = timestamp
     for t in range(timesteps):
         while timestamp == curr_stamp:
-            frames, timestamp = qc.getData()
+            frames, timestamp = qc.getData6D()
         frame_list += [np.array(frames)]
         curr_stamp = timestamp
 
@@ -55,3 +55,5 @@ for k in range(len(pressures)):
 captured_markers = np.array(captured_markers)
 captured_info = {'p': np.array(pressures), 'data': captured_markers}
 np.save("captured_data.npy", captured_info)
+
+import pdb; pdb.set_trace()
