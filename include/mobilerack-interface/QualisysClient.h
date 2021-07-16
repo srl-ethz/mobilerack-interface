@@ -16,7 +16,7 @@
 #include <opencv2/highgui.hpp>
 
 /**
- * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data- 6D frames & camera images.
+ * @brief wraps the qualisys_cpp_sdk library for easy access to motion tracking data- 6D frames & camera images. NEW: also 3D motion marker tracking allowed. Instantiate this class with "Eigen::Vector3d" for motion markers. 
  * @details Frames (& images) are obtained in a separate thread. 6D frame streaming is based on RigidBodyStreaming.cpp from the qualisys_cpp_sdk repo.
  * - cf: https://docs.qualisys.com/qtm-rt-protocol/
  * - cf: https://github.com/qualisys/qualisys_cpp_sdk/blob/master/RTPacket.cpp
@@ -28,9 +28,9 @@ public:
      * Can't read 2 (or more) digit labels for now.
      * @param cameraIDs ID of RGB cameras whose images you want to stream. If argument not given, will not stream images.
      * @param nan_if_missed populate the data for a frame with nan values if the data for that timestep has been missed by the mocap system. If false, just use the previous value.
+     * @param frameMode string that can be either 3D or 6D, tracking either separate motion marker 3D positions, or whole 6DoF rigid body frames.
      */
-    QualisysClient(int num_frames, std::vector<int> cameraIDs = {}, bool nan_if_missed = false);
-
+    QualisysClient(int num_frames, std::vector<int> cameraIDs = {}, std::string frameMode = "6D", bool nan_if_missed = false);
     ~QualisysClient();
 
     /**
@@ -39,6 +39,7 @@ public:
      * @param timestamp timestamp (microseconds) obtained from QTM. @todo this may not be proper value when num_frames at constructor is 0.
      */
     void getData(std::vector<Eigen::Transform<double, 3, Eigen::Affine>> &frames, unsigned long long int &timestamp);
+    void getData(std::vector<Eigen::Vector3d> &frames, unsigned long long int &timestamp);
 
     /**
      * @brief Get the latest Image received from QTM.
@@ -46,6 +47,8 @@ public:
      * @param image image from camera
      */
     void getImage(int id, cv::Mat& image);
+
+    std::string frameMode = "6D";
 
 private:
     CRTProtocol rtProtocol;
@@ -55,7 +58,8 @@ private:
     unsigned short udpPort = 6734;
     bool nan_if_missed;
 
-    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames;
+    std::vector<Eigen::Transform<double, 3, Eigen::Affine>> frames6D;
+    std::vector<Eigen::Vector3d> frames3D;
     unsigned long long int timestamp;
 
     const std::vector<int> cameraIDs; /** ID of each camera to stream images from. */
@@ -68,4 +72,5 @@ private:
 
     bool connect_and_setup();
 };
+
 

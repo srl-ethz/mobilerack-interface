@@ -5,11 +5,14 @@ valves = [14, 15]
 max_pressure = 500
 pressure = 300
 
+cameras = [0,1,2,3,4,5,6,7]
+number_of_rigidFrames = 4
+
 vc = ValveController("192.168.0.100", valves, max_pressure)
-qc = QualisysClient("192.168.0.101", 1)
+qc = QualisysClient(number_of_rigidFrames, cameras, "6D")
 
 sleep(1)  # hacky way to wait until data from qtm is received
-_, timestamp = qc.getData()
+_, timestamp = qc.getData6D()
 vc.syncTimeStamp(timestamp//1000)  # sync the time to be that of QTM
 
 for i in range(len(valves)):
