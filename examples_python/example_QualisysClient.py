@@ -16,7 +16,7 @@ qc = QualisysClient(2, cameras, "6D")
 
 sleep(2)  # hacky way to wait until data is received from QTM
 for i in range(100):
-    frames, timestamp = qc.getData()
+    frames, timestamp = qc.getData6D()
     print("-"*10)
     print(f"number of frames:{len(frames)}\ttimestamp:{timestamp}\ndata:{frames}")
     if len(cameras) > 0:

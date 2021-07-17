@@ -1,4 +1,4 @@
-from lib.mobilerack_pybind_module import ValveController, QualisysClient
+from mobilerack_pybind_module import ValveController, QualisysClient
 from time import sleep
 import time
 import numpy as np
