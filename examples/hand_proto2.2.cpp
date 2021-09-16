@@ -55,7 +55,7 @@ int main() {
 
 
     //Peace sign linear increase
-    const double duration = 3;
+    const double duration = 2;
     const double timestep = 0.01;
     double p;
 
@@ -86,7 +86,31 @@ int main() {
 
 
 
-srl::sleep(10);
+    srl::sleep(5);
+
+
+    for (double time = 0; time < duration; time += timestep) {
+            p = pressure * (time / duration);
+
+            //Pinky relax
+            vc.setSinglePressure(0, pressure-0.98*p);  //middle        
+            vc.setSinglePressure(1, pressure-0.8*p);  //bottom       
+            vc.setSinglePressure(2, pressure-p);  //top        
+            
+            //ring relax
+            vc.setSinglePressure(3, pressure-0.9*0.97*p);  //middle        
+            vc.setSinglePressure(4, pressure-0.9*0.8*p);  //bottom       
+            vc.setSinglePressure(5, pressure-p);  //top   
+            
+            //thumb relax
+            vc.setSinglePressure(12, pressure-0.6*p);  //bottom       
+            vc.setSinglePressure(13, pressure-0.7*p);  //top  
+            
+            //extensor for index and middle finger
+            vc.setSinglePressure(14, pressure-0.75*p);                  
+
+            srl::sleep(timestep);
+        }
 
 
 
