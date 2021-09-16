@@ -5,22 +5,92 @@
  */
 
 int main() {
-    const int pressure = 500;  //pressure variable value in mBar, can define multiple different ones
+    //const int pressure = 500;  //pressure variable value in mBar, can define multiple different ones
     int valve_id;
     std::vector<int> map = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};         //select valves 0, 1, 2, 3, ... 15
     ValveController vc{"192.168.0.100", map, 3500}; //last parameter sets max. pressure in mBar
     
 
+// hand prototype 2 v2
+    //hand prototype 2 v2
+
+
+    //set metacarpal joint angle
+    const int angle = 90;
+
+
+    //translate angle
+    const int pressure = angle * 1800 / 90;  // 90 degrees = 2bars
+
+
+    //linear increase basic
     /*
-    vc.setSinglePressure(0, 1300);       //Select entry of valve array, Set pressure in mbar   
-    srl::sleep(6);                      //waiting timw
-    vc.setSinglePressure(0, 0);         //set pressure back to 0
-    srl::sleep(4);
+    const double duration = 5;
+    const double timestep = 0.01;
+    double p;
+
+    for (double time = 0; time < duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //Pinky flexion
+        vc.setSinglePressure(0, 0.98*p);  //middle        
+        vc.setSinglePressure(1, 0.8*p);  //bottom       
+        vc.setSinglePressure(2, p);  //top        
+        
+        //ring flexion
+        vc.setSinglePressure(3, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(4, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(5, p);  //top   
+        
+        //thumb flexion
+        vc.setSinglePressure(12, 0.6*p);  //bottom       
+        vc.setSinglePressure(13, 0.7*p);  //top  
+        
+
+        //if (SensorReadout > thershold) {
+        //    break; }
+        srl::sleep(timestep);
+    }
     */
 
-    //hand prototype 2 v1
 
-    // /*
+    //Peace sign linear increase
+    const double duration = 3;
+    const double timestep = 0.01;
+    double p;
+
+    for (double time = 0; time < duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //Pinky flexion
+        vc.setSinglePressure(0, 0.98*p);  //middle        
+        vc.setSinglePressure(1, 0.8*p);  //bottom       
+        vc.setSinglePressure(2, p);  //top        
+        
+        //ring flexion
+        vc.setSinglePressure(3, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(4, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(5, p);  //top   
+        
+        //thumb flexion
+        vc.setSinglePressure(12, 0.6*p);  //bottom       
+        vc.setSinglePressure(13, 0.7*p);  //top  
+        
+        //extensor for index and middle finger
+        vc.setSinglePressure(14, 0.75*p);                  
+
+        //if (SensorReadout > thershold) {
+        //    break; }
+        srl::sleep(timestep);
+    }
+
+
+
+srl::sleep(10);
+
+
+
+/*
     //Pinky flexion
     vc.setSinglePressure(0, 700);  //middle       
     vc.setSinglePressure(1, 700);  //bottom       
@@ -30,8 +100,8 @@ int main() {
     vc.setSinglePressure(1, 1000);  //bottom       
     vc.setSinglePressure(2, 1000);  //top        
     srl::sleep(1);
-    vc.setSinglePressure(0, 1600);  //middle        
-    vc.setSinglePressure(1, 1100);  //bottom       
+    vc.setSinglePressure(0, 1650);  //middle        
+    vc.setSinglePressure(1, 1200);  //bottom       
     vc.setSinglePressure(2, 1700);  //top        
     srl::sleep(3);
 
@@ -228,7 +298,7 @@ int main() {
 
     srl::sleep(10);
 
-
+*/
 
     //End / Relax all
     vc.setSinglePressure(0, 0);
@@ -249,134 +319,6 @@ int main() {
     vc.setSinglePressure(15, 0);
 
 
-
-
-
-    
-
-    /*
-    vc.setSinglePressure(0, 1300);       //Select entry of valve array, Set pressure in mbar   
-    srl::sleep(6);                      //waiting timw
-    vc.setSinglePressure(0, 0);         //set pressure back to 0
-    srl::sleep(4);
-    */
-
-    
-
-    /*
-    //one finger actuation with steps for slowly increase of pressure
-    vc.setSinglePressure(0, 500);         
-    vc.setSinglePressure(1, 500);         
-    vc.setSinglePressure(2, 500);         
-    srl::sleep(2);
-
-    vc.setSinglePressure(0, 800);         
-    vc.setSinglePressure(1, 800);         
-    vc.setSinglePressure(2, 800);         
-    srl::sleep(2);
-
-    vc.setSinglePressure(0, 1500);         
-    vc.setSinglePressure(1, 1100);         
-    vc.setSinglePressure(2, 1700);         
-    srl::sleep(3);
-
-
-    vc.setSinglePressure(0, 0);
-    vc.setSinglePressure(1, 0);         
-    vc.setSinglePressure(2, 0);         
-    srl::sleep(0);
-    */
-
-
-    /*
-    // force strain test
-    vc.setSinglePressure(0, 500);         
-    srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-
-    vc.setSinglePressure(0, 1000);      
-    srl::sleep(6);                      //wait 1sec
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-
-    vc.setSinglePressure(0, 1500);         
-    srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-
-    vc.setSinglePressure(0, 2000);      
-    srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-
-    vc.setSinglePressure(0, 2500);      
-    srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-    
-    vc.setSinglePressure(0, 3000);      
-    srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-    
-    */
-
-    //vc.setSinglePressure(0, 3500);      
-    //srl::sleep(6);
-    //vc.setSinglePressure(0, 0);         //set pressure back to 0
-    //srl::sleep(4);
-
-    /*
-    //c.setSinglePressure(0, 3000);      
-    //srl::sleep(6);
-
-    vc.setSinglePressure(0, 2500);      
-    srl::sleep(6);
-
-    vc.setSinglePressure(0, 2000);      
-    srl::sleep(6);
-
-    vc.setSinglePressure(0, 1500);      
-    srl::sleep(6);
-
-    vc.setSinglePressure(0, 1000);      
-    srl::sleep(6);
-
-    vc.setSinglePressure(0, 500);      
-    srl::sleep(6);
-
-    vc.setSinglePressure(0, 0);      
-    srl::sleep(6);
-
-    */
-
-
-    /*
-    vc.setSinglePressure(1, 2000);      //sets pressure for valve i (i-th entry of the selected valves array), second parameter is pressure in mBar
-    srl::sleep(2);                      //wait 1sec
-    vc.setSinglePressure(1, 0);         //set pressure back to 0
-    srl::sleep(1);
-    
-
-    vc.setSinglePressure(2, 1800);      //sets pressure for valve i (i-th entry of the selected valves array), second parameter is pressure in mBar
-    srl::sleep(1);                      //wait 1sec
-    vc.setSinglePressure(2, 0);         //set pressure back to 0
-    srl::sleep(1);
-    */
-
-
-    /*
-    for (int i = 0; i < map.size(); i++) {
-        valve_id = map[i];
-        std::cout << "actuator ID:\t" << i << "\tvalve ID:\t" << valve_id << "\tpressure\t" << pressure << std::endl;
-        vc.setSinglePressure(i, pressure);  //sets pressure for valve i?
-        srl::sleep(2);                      //wait 2sec? 
-        vc.setSinglePressure(i, 0);         //set pressure back to 0
-        srl::sleep(1);
-    }
-    return 1;
-    */
-
+// hand prototype 2 v1 end
 
 }
