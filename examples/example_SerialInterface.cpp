@@ -9,7 +9,7 @@ use together with the included Arduino sketch. Reads data sent from Arduino, and
 */
 
 int main() {
-    SerialInterface si = SerialInterface("/dev/cu.usbmodem14201", 38400);
+    SerialInterface si = SerialInterface("/dev/ttyACM0", 9600); //input port name , baud rate
     srl::Rate r{10};
     std::vector<float> data;
     bool flag = true;
