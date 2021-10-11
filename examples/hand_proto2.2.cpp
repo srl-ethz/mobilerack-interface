@@ -59,7 +59,7 @@ int main() {
     const double timestep = 0.01;
     double p;
 
-    for (double time = 0; time < duration; time += timestep) {
+    for (double time = 0; time <= duration; time += timestep) {
         p = pressure * (time / duration);
 
         //Pinky flexion
