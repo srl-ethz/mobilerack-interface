@@ -8,7 +8,7 @@ int main() {
     //const int pressure = 500;  //pressure variable value in mBar, can define multiple different ones
     int valve_id;
     std::vector<int> map = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};         //select valves 0, 1, 2, 3, ... 15
-    ValveController vc{"192.168.0.100", map, 3500}; //last parameter sets max. pressure in mBar
+    ValveController vc{"192.168.0.100", map, 2000}; //last parameter sets max. pressure in mBar
     
 
 // hand prototype 2 v2
@@ -20,16 +20,16 @@ int main() {
 
 
     //translate angle
-    const int pressure = angle * 1800 / 90;  // 90 degrees = 2bars
+    const int pressure = angle * 1500 / 90;  // 90 degrees = 2bars
 
+    ////////////////////////////////////////////////////////////////
+    //flex all fingers together
 
-    //linear increase basic
-    /*
-    const double duration = 5;
-    const double timestep = 0.01;
+    double duration = 5;
+    double timestep = 0.01;
     double p;
 
-    for (double time = 0; time < duration; time += timestep) {
+    for (double time = 0; time <= duration; time += timestep) {
         p = pressure * (time / duration);
 
         //Pinky flexion
@@ -41,25 +41,164 @@ int main() {
         vc.setSinglePressure(3, 0.9 * 0.97*p);  //middle        
         vc.setSinglePressure(4, 0.9 * 0.8*p);  //bottom       
         vc.setSinglePressure(5, p);  //top   
+
+        //middle flexion
+        vc.setSinglePressure(6, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(7, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(8, p);  //top   
+
+        //index flexion
+        vc.setSinglePressure(9, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(10, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(11, p);  //top   
         
         //thumb flexion
         vc.setSinglePressure(12, 0.6*p);  //bottom       
-        vc.setSinglePressure(13, 0.7*p);  //top  
-        
+        vc.setSinglePressure(13, 0.7*p);  //top                
 
-        //if (SensorReadout > thershold) {
-        //    break; }
+        std::cout<<p<<std::endl;
         srl::sleep(timestep);
     }
-    */
 
 
-    //Peace sign linear increase
-    const double duration = 2;
-    const double timestep = 0.01;
-    double p;
+    srl::sleep(3);
 
-    for (double time = 0; time < duration; time += timestep) {
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //Pinky relax
+        vc.setSinglePressure(0, 0.98*(pressure-p) );  //middle        
+        vc.setSinglePressure(1, 0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(2, pressure-p);  //top        
+            
+        //ring relax
+        vc.setSinglePressure(3, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(4, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(5, pressure-p);  //top   
+
+        //middle relax
+        vc.setSinglePressure(6, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(7, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(8, pressure-p);  //top  
+
+        //index relax
+        vc.setSinglePressure(9, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(10, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(11, pressure-p);  //top  
+            
+        //thumb relax
+        vc.setSinglePressure(12, 0.6*(pressure-p) );  //bottom       
+        vc.setSinglePressure(13, 0.7*(pressure-p) );  //top  
+                       
+
+        double p_check = pressure-p;
+
+        std::cout<<p_check<<std::endl;
+        srl::sleep(timestep);
+        }
+
+
+
+    srl::sleep(3);
+
+
+    ///////////////////////////////////////////////////////////////
+    //flex fingers individually
+
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //Pinky flexion
+        vc.setSinglePressure(0, 0.98*p);  //middle        
+        vc.setSinglePressure(1, 0.8*p);  //bottom       
+        vc.setSinglePressure(2, p);  //top        
+
+        srl::sleep(timestep);
+    }
+
+    srl::sleep(1);
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //Pinky relax
+        vc.setSinglePressure(0, 0.98*(pressure-p) );  //middle        
+        vc.setSinglePressure(1, 0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(2, pressure-p);  //top            
+
+        //ring flexion
+        vc.setSinglePressure(3, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(4, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(5, p);  //top       
+
+        srl::sleep(timestep);
+    }
+
+    srl::sleep(1);
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //ring relax
+        vc.setSinglePressure(3, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(4, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(5, pressure-p);  //top          
+
+        //middle flexion
+        vc.setSinglePressure(6, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(7, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(8, p);  //top     
+
+        srl::sleep(timestep);
+    }
+
+    srl::sleep(1);
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //middle relax
+        vc.setSinglePressure(6, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(7, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(8, pressure-p);  //top        
+
+        //index flexion
+        vc.setSinglePressure(9, 0.9 * 0.97*p);  //middle        
+        vc.setSinglePressure(10, 0.9 * 0.8*p);  //bottom       
+        vc.setSinglePressure(11, p);  //top     
+
+        srl::sleep(timestep);
+    }
+
+    srl::sleep(1);
+
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
+
+        //index relax
+        vc.setSinglePressure(9, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(10, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(11, pressure-p);  //top  
+
+        srl::sleep(timestep);
+    }
+
+
+
+    srl::sleep(3);
+
+
+
+
+    ///////////////////////////////////////////////////////////////
+    //Peace sign 
+
+    duration = 5;
+    timestep = 0.01;
+
+    for (double time = 0; time <= duration; time += timestep) {
         p = pressure * (time / duration);
 
         //Pinky flexion
@@ -77,10 +216,12 @@ int main() {
         vc.setSinglePressure(13, 0.7*p);  //top  
         
         //extensor for index and middle finger
-        vc.setSinglePressure(14, 0.75*p);                  
+        vc.setSinglePressure(15, 0.75*p);                  
 
         //if (SensorReadout > thershold) {
         //    break; }
+
+        std::cout<<p<<std::endl;
         srl::sleep(timestep);
     }
 
@@ -89,27 +230,30 @@ int main() {
     srl::sleep(5);
 
 
-    for (double time = 0; time < duration; time += timestep) {
-            p = pressure * (time / duration);
+    for (double time = 0; time <= duration; time += timestep) {
+        p = pressure * (time / duration);
 
-            //Pinky relax
-            vc.setSinglePressure(0, pressure-0.98*p);  //middle        
-            vc.setSinglePressure(1, pressure-0.8*p);  //bottom       
-            vc.setSinglePressure(2, pressure-p);  //top        
+        //Pinky relax
+        vc.setSinglePressure(0, 0.98*(pressure-p) );  //middle        
+        vc.setSinglePressure(1, 0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(2, pressure-p);  //top        
             
-            //ring relax
-            vc.setSinglePressure(3, pressure-0.9*0.97*p);  //middle        
-            vc.setSinglePressure(4, pressure-0.9*0.8*p);  //bottom       
-            vc.setSinglePressure(5, pressure-p);  //top   
-            
-            //thumb relax
-            vc.setSinglePressure(12, pressure-0.6*p);  //bottom       
-            vc.setSinglePressure(13, pressure-0.7*p);  //top  
-            
-            //extensor for index and middle finger
-            vc.setSinglePressure(14, pressure-0.75*p);                  
+        //ring relax
+        vc.setSinglePressure(3, 0.9*0.97*(pressure-p) );  //middle        
+        vc.setSinglePressure(4, 0.9*0.8*(pressure-p) );  //bottom       
+        vc.setSinglePressure(5, pressure-p);  //top    
+        
+        //thumb relax
+        vc.setSinglePressure(12, 0.6*(pressure-p) );  //bottom       
+        vc.setSinglePressure(13, 0.7*(pressure-p) );  //top   
+        
+        //extensor for index and middle finger
+        vc.setSinglePressure(15, 0.75*(pressure-p) );                  
 
-            srl::sleep(timestep);
+        double p_check = pressure-p;
+
+        std::cout<<p_check<<std::endl;
+        srl::sleep(timestep);
         }
 
 

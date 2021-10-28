@@ -32,107 +32,82 @@ try:
 
 
     #set metacarpal joint angle
-    angle = 90
 
 
     #translate angle
-    pressure = angle * 1600 / 90;  # 90 degrees = 2bars
+    pressure = 1800
+    p_thumb = 1200;
     break_pressure = -1
 
 
     #linear increase
-    duration = 4
+    duration = 7
     timestep = 0.01
-    
+
+
+
+
+
 
     for time in np.arange(0, duration, timestep):
     #for (double time = 0; time < duration; time += timestep) {
         p = pressure * (time / duration)
+        pt = p_thumb * (time / duration);
         #print(int(p))
-
-        #Pinky flexion
-        vc.setSinglePressure(0, int(0.98*p) );    #middle        
-        vc.setSinglePressure(1, int(0.8*p) );     #bottom       
-        vc.setSinglePressure(2, int(p) );         #top        
-        
-        #ring flexion
-        vc.setSinglePressure(3, int(0.9 * 0.97*p) );  #middle        
-        vc.setSinglePressure(4, int(0.9 * 0.8*p) );   #bottom       
-        vc.setSinglePressure(5, int(p) );             #top   
-
-        #middle flexion
-        vc.setSinglePressure(6, int(0.9 * 0.97*p) );  #middle        
-        vc.setSinglePressure(7, int(0.9 * 0.8*p) );   #bottom       
-        vc.setSinglePressure(8, int(p) );             #top  
-
-        #index flexion
-        vc.setSinglePressure(9, int(0.9 * 0.97*p) );  #middle        
-        vc.setSinglePressure(10, int(0.9 * 0.8*p) );   #bottom       
-        vc.setSinglePressure(11, int(p) );             #top   
-        
-        #thumb flexion
-        vc.setSinglePressure(12, int(0.6*p) );  #bottom       
-        vc.setSinglePressure(13, int(0.7*p) );  #top  
-        
-        #extensor for index
-        vc.setSinglePressure(14, int(0.7*p) );                  
-
 
         line = ser.readline()           #serial readout command
         try: 
-            sensor = float(line)             #convert it to float
+            #sensor = float(line)             #convert it to float
+            sensor = list(map(float, str(line.decode("utf-8")).split(", ")))   #sensor list 0,1,2,3,4
             print(sensor)                    #print the float
         except ValueError:                  #avoid random error breakouts
             continue
 
-        if (sensor > 40):
+        #if (sensor > 40):
+        #    break_pressure = p
+        #    break; 
+
+
+        if (sensor[1] < 40):
+            #Pinky & ring flexion - sensor 0,1
+            vc.setSinglePressure(0, int(0.95*p) );    #middle        
+            vc.setSinglePressure(1, int(0.85*p) );     #bottom       
+            vc.setSinglePressure(2, int(p) );         #top   
+
+        if (sensor[2] < 40):
+            #middle flexion - sensor 2
+            vc.setSinglePressure(3, int(0.95*0.95*p) );  #middle        
+            vc.setSinglePressure(4, int(0.95*0.85*p) );   #bottom       
+            vc.setSinglePressure(5, int(0.95*p) );             #top   
+
+        #if (sensor[3] < 40):
+        #index flexion - no working sensor
+        vc.setSinglePressure(6, int(0.9 * 0.95*p) );  #middle        
+        vc.setSinglePressure(7, int(0.9 * 0.85*p) );   #bottom       
+        vc.setSinglePressure(8, int(0.9*p) );             #top  
+
+        if (sensor[3] < 40):
+            #thumb flexion
+            vc.setSinglePressure(12, int(0.8*pt));  #bottom thumb flexor      
+            vc.setSinglePressure(11, int(0.9*pt));  #top thumb flexor
+            vc.setSinglePressure(10, int(0.9*pt));  #opponens pollicis
+            vc.setSinglePressure(9, int(0.7*pt));  #abductor pollicis brevis   
+        
+        if (sensor[4] > 60):
             break_pressure = p
             break; 
         
+        
         sleep(timestep)
 
         
-    
-
-
-
-    sleep(5)
-
-    for time in np.arange(0, duration, timestep):
-    #for (double time = 0; time < duration; time += timestep) {
-        if break_pressure != -1:
-            pressure = break_pressure
-
-        p = pressure * (time / duration)
-
-        #Pinky relax
-        vc.setSinglePressure(0, int(pressure-0.98*p) );   #middle        
-        vc.setSinglePressure(1, int(pressure-0.8*p) );    #bottom       
-        vc.setSinglePressure(2, int(pressure-p) );        #top        
         
-        #ring relax
-        vc.setSinglePressure(3, int(pressure-0.9*0.97*p) );   #middle        
-        vc.setSinglePressure(4, int(pressure-0.9*0.8*p) );    #bottom       
-        vc.setSinglePressure(5, int(pressure-p) );            #top  
-
-        #middle relax
-        vc.setSinglePressure(6, int(pressure-0.9*0.97*p) );   #middle        
-        vc.setSinglePressure(7, int(pressure-0.9*0.8*p) );    #bottom       
-        vc.setSinglePressure(8, int(pressure-p) );            #top  
-
-        #index relax
-        vc.setSinglePressure(9, int(pressure-0.9*0.97*p) );   #middle        
-        vc.setSinglePressure(10, int(pressure-0.9*0.8*p) );    #bottom       
-        vc.setSinglePressure(11, int(pressure-p) );            #top  
         
-        #thumb relax
-        vc.setSinglePressure(12, int(pressure-0.6*p) );  #bottom       
-        vc.setSinglePressure(13, int(pressure-0.7*p) );  #top  
-        
-        #extensor for index and middle finger
-        vc.setSinglePressure(14, int(pressure-0.7*p) );                  
+    sleep(10)
 
-        sleep(timestep)
+
+
+
         
 finally:
     #End / Relax all

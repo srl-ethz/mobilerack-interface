@@ -16,5 +16,24 @@ target_link_libraries(example_ValveController_explained ValveController)
 add_executable(example_SerialInterface example_SerialInterface.cpp)
 target_link_libraries(example_SerialInterface SerialInterface)
 
+add_executable(hand_proto2.2 hand_proto2.2.cpp)
+target_link_libraries(hand_proto2.2 ValveController)
+
+add_executable(hand_proto3.1 hand_proto3.1.cpp)
+target_link_libraries(hand_proto3.1 ValveController)
+
+add_executable(hand_proto3.2 hand_proto3.2.cpp)
+target_link_libraries(hand_proto3.2 ValveController)
+
+add_executable(hand_proto3.3 hand_proto3.3.cpp)
+target_link_libraries(hand_proto3.3 ValveController)
+
+add_executable(hand_proto3.4 hand_proto3.4.cpp)
+target_link_libraries(hand_proto3.4 ValveController)
+
+
+add_executable(PAM_SoPra PAM_SoPra.cpp)
+target_link_libraries(PAM_SoPra ValveController)
+
 add_executable(example_ValveController_qtm_timesync example_ValveController_qtm_timesync)
 target_link_libraries(example_ValveController_qtm_timesync ValveController QualisysClient)
