@@ -24,8 +24,13 @@ bool QualisysClient::connect_and_setup() {
     rtProtocol.GetDiscoverResponse(0, nAddr, nBasePort, msg);
     char tServerAddr[20]; // "should be long enough to store an IP address" - Yasu, 2021
     // convert to string IP address
-    sprintf(tServerAddr, "%d.%d.%d.%d", 0xff & nAddr, 0xff & (nAddr >> 8), 0xff & (nAddr >> 16), 0xff & (nAddr >> 24));
-    fmt::print("connecting to QTM RT server at {} : {} msg:[{}]\n", tServerAddr, nBasePort, msg);
+
+    if (nAddr) {
+        sprintf(tServerAddr, "%d.%d.%d.%d", 0xff & nAddr, 0xff & (nAddr >> 8), 0xff & (nAddr >> 16), 0xff & (nAddr >> 24));
+        fmt::print("connecting to QTM RT server at {} : {} msg:[{}]\n", tServerAddr, nBasePort, msg);
+    } else {
+        sprintf(tServerAddr, "%d.%d.%d.%d", 192, 168, 0, 102);
+    }
     
     rtProtocol.Connect(tServerAddr, nBasePort, &udpPort, majorVersion,
                         minorVersion, bigEndian);
