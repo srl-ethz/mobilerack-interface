@@ -32,8 +32,9 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+find_package(Python3 COMPONENTS Interpreter Development NumPy)
 # find numpy. required for ndarray_converter
-find_package (Python3 COMPONENTS NumPy REQUIRED)
+# find_package (Python3 COMPONENTS NumPy REQUIRED)
 
 pkg_check_modules(MODBUS REQUIRED libmodbus)
 pkg_check_modules(SERIALPORT REQUIRED libserialport)
