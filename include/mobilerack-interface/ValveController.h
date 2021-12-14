@@ -26,6 +26,7 @@ private:
 
     /** @brief holds the desired pressure values for each actuator */
     std::vector<int> desired_pressures {};
+    std::vector<int> measured_pressures {};
 
     // sensor_pressures and output_pressures use valve IDs for easier interfacing with mpa library
     std::vector<int> sensor_pressures {};
