@@ -22,14 +22,14 @@ private:
     std::atomic<bool> run {};
 
     /** @brief total number of valves in the Festo valve array setup */
-    const int num_valves_total {16}; 
+    const size_t num_valves_total {16}; 
 
     /** @brief holds the desired pressure values for each actuator */
-    std::vector<int> desired_pressures {num_valves_total, 0};
+    std::vector<int> desired_pressures {};
 
     // sensor_pressures and output_pressures use valve IDs for easier interfacing with mpa library
-    std::vector<int> sensor_pressures {num_valves_total, 0};
-    std::vector<int> output_pressures {num_valves_total, 0};
+    std::vector<int> sensor_pressures {};
+    std::vector<int> output_pressures {};
 
     MPA *mpa;
     std::thread controller_thread;

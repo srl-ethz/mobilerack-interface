@@ -5,7 +5,11 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
         map(map), max_pressure(max_pressure), hz(hz){
     fmt::print("connecting to valves at {}...\n", address);
     mpa = new MPA(address, "502");
+
     desired_pressures.resize(map.size());
+    sensor_pressures.resize(map.size());
+    output_pressures.resize(map.size());
+
     if (!mpa->connect()) {
         fmt::print("Failed to connect to valves at {}.\n", address);
         return;
