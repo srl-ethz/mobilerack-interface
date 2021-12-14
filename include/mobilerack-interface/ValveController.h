@@ -8,6 +8,7 @@
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 #include <mutex>
+#include <atomic>
 
 /** @brief Interface for the pressure valve array. */
 class ValveController {
