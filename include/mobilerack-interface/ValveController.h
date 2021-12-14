@@ -19,7 +19,7 @@ private:
     void controllerThread();
 
     /** @brief thread runs as long as this is set to true */
-    std::atomic<bool> run;
+    std::atomic<bool> run {};
 
     /** @brief total number of valves in the Festo valve array setup */
     const int num_valves_total {16}; 
