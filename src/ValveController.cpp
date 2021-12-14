@@ -7,8 +7,10 @@ ValveController::ValveController(const char *address, const std::vector<int> &ma
     mpa = new MPA(address, "502");
 
     desired_pressures.resize(map.size());
-    sensor_pressures.resize(map.size());
-    output_pressures.resize(map.size());
+    measured_pressures.resize(map.size());
+
+    sensor_pressures.resize(num_valves_total);
+    output_pressures.resize(num_valves_total);
 
     if (!mpa->connect()) {
         fmt::print("Failed to connect to valves at {}.\n", address);
@@ -29,7 +31,7 @@ void ValveController::setSinglePressure(int index, int pressure) {
 int ValveController::getSinglePressure(int index) {
     std::lock_guard<std::mutex> lock(mtx);
     assert(0 <= index && index < map.size());
-    return sensor_pressures[index];
+    return measured_pressures[index];
 }
 
 void ValveController::setPressures(const std::vector<int>& pressures) {
@@ -39,7 +41,7 @@ void ValveController::setPressures(const std::vector<int>& pressures) {
 
 std::vector<int> ValveController::getPressures() {
     std::lock_guard<std::mutex> lock(mtx);
-    return sensor_pressures;
+    return measured_pressures;
 }
 
 void ValveController::syncTimeStamp(unsigned long int currentTimeMillis){
@@ -77,6 +79,7 @@ void ValveController::controllerThread() {
             // constrain pressure value to between 0 and max_pressure
             // valve goes haywire when it tries to write negative value
             output_pressures[map[i]] = std::max(0, std::min(desired_pressures[i], max_pressure));
+            measured_pressures[i] = sensor_pressures[map[i]];
         }
         mpa->set_all_pressures(output_pressures);
         if (log) {
