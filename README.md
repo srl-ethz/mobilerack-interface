@@ -24,15 +24,9 @@ Code to connect to the experimental equipment on the Mobile Rack workbench, such
 
 ## get this repository
 
-In the desired directory, run...
+Set up SSH key for GitHub, and in the desired directory, run...
 ```bash
-## option 1: clone with https- enter username & password each time you access remote
-git clone --recursive https://gitlab.ethz.ch/srl/mobilerack-interface.git 
-```
-or
-```bash
-## option 2: clone with SSH- need to set up SSH key in GitLab, no username / password required
-git clone --recursive git@gitlab.ethz.ch:srl/mobilerack-interface.git
+git clone --recursive git@github.com:srl-ethz/mobilerack-interface.git
 ```
 (`--recursive` option will automatically clone the submodules as well)
 
