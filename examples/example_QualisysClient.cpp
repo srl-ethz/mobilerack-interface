@@ -16,7 +16,8 @@ int main(){
         qc.getData(frames, timestamp);
         fmt::print("timestamp: {}", timestamp);
         for (int j = 0; j < num_frames; ++j) {
-            fmt::print("frame ID:\t{}\n{}\n", j, frames[j].matrix());
+            fmt::print("frame ID:\t{}\n", j);
+            std::cout << frames[j].matrix() << std::endl;
         }
         qc.getImage(0, image);
         if (image.rows > 0)
