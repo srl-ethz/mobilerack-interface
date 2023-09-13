@@ -60,7 +60,7 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
 
 
     py::class_<ValveController>(m, "ValveController")
-            .def(py::init<const char*, const std::vector<int>&, const int>())
+            .def(py::init<const std::string&, const std::vector<int>&, const int>())
             .def("setSinglePressure", &ValveController::setSinglePressure)
             .def("syncTimeStamp", &ValveController::syncTimeStamp)
             .def("getSinglePressure", &ValveController::getSinglePressure)

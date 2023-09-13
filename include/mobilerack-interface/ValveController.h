@@ -66,7 +66,7 @@ public:
      * @param hz how often to send pressure data to (and log from) valves.
      * Default is 100 Hz but that is only possible with a wired connection, with wifi it would be slowed down to around 30Hz due to latency
      */
-    ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz = 100);
+    ValveController(const std::string &address, const std::vector<int> &map, const int max_pressure, double hz = 100);
 
     int getSinglePressure(int index);
 
