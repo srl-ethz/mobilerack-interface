@@ -4,7 +4,7 @@
 ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz) :
         map(map), max_pressure(max_pressure), hz(hz){
     fmt::print("connecting to valves at {}...\n", address);
-    mpa = new MPA(address, "502");
+    mpa = std::make_unique<MPA>(address, "502");
 
     desired_pressures.resize(map.size());
     measured_pressures.resize(map.size());

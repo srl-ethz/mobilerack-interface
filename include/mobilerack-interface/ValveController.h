@@ -32,7 +32,7 @@ private:
     std::vector<int> sensor_pressures {};
     std::vector<int> output_pressures {};
 
-    MPA *mpa;
+    std::unique_ptr<MPA> mpa;
     std::thread controller_thread;
     std::mutex mtx;
     const double hz;
