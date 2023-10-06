@@ -8,6 +8,7 @@
 #include "fmt/core.h"
 #include "fmt/ostream.h"
 #include <mutex>
+#include <atomic>
 
 /** @brief Interface for the pressure valve array. */
 class ValveController {
@@ -18,16 +19,24 @@ private:
     void controllerThread();
 
     /** @brief thread runs as long as this is set to true */
-    bool run;
+    std::atomic<bool> run {};
+
+    /** @brief total number of valves in the Festo valve array setup */
+    const size_t num_valves_total {16}; 
 
     /** @brief holds the desired pressure values for each actuator */
-    std::vector<int> desired_pressures;
-    MPA *mpa;
+    std::vector<int> desired_pressures {};
+    std::vector<int> measured_pressures {};
+
+    // sensor_pressures and output_pressures use valve IDs for easier interfacing with mpa library
+    std::vector<int> sensor_pressures {};
+    std::vector<int> output_pressures {};
+
+    std::unique_ptr<MPA> mpa;
     std::thread controller_thread;
     std::mutex mtx;
     const double hz;
 
-    const int num_valves_total = 16; /** @brief total number of valves in the Festo valve array setup */
     const std::vector<int> map;
     const int max_pressure;
     const bool log = true;
@@ -57,7 +66,13 @@ public:
      * @param hz how often to send pressure data to (and log from) valves.
      * Default is 100 Hz but that is only possible with a wired connection, with wifi it would be slowed down to around 30Hz due to latency
      */
-    ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz = 100);
+    ValveController(const std::string &address, const std::vector<int> &map, const int max_pressure, double hz = 100);
+
+    int getSinglePressure(int index);
+
+    void setPressures(const std::vector<int>& pressures);
+
+    std::vector<int> getPressures();
 
     /**
      * @brief disconnects from valve, and outputs log.

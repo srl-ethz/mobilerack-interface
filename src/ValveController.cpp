@@ -1,11 +1,17 @@
 // Copyright 2018 ...
 #include "mobilerack-interface/ValveController.h"
 
-ValveController::ValveController(const char *address, const std::vector<int> &map, const int max_pressure, double hz) :
+ValveController::ValveController(const std::string& address, const std::vector<int> &map, const int max_pressure, double hz) :
         map(map), max_pressure(max_pressure), hz(hz){
     fmt::print("connecting to valves at {}...\n", address);
-    mpa = new MPA(address, "502");
+    mpa = std::make_unique<MPA>(address.c_str(), "502");
+
     desired_pressures.resize(map.size());
+    measured_pressures.resize(map.size());
+
+    sensor_pressures.resize(num_valves_total);
+    output_pressures.resize(num_valves_total);
+
     if (!mpa->connect()) {
         fmt::print("Failed to connect to valves at {}.\n", address);
         return;
@@ -22,6 +28,22 @@ void ValveController::setSinglePressure(int index, int pressure) {
     desired_pressures[index] = pressure;
 }
 
+int ValveController::getSinglePressure(int index) {
+    std::lock_guard<std::mutex> lock(mtx);
+    assert(0 <= index && index < map.size());
+    return measured_pressures[index];
+}
+
+void ValveController::setPressures(const std::vector<int>& pressures) {
+    std::lock_guard<std::mutex> lock(mtx);
+    std::copy(pressures.begin(), pressures.end(), desired_pressures.begin());
+}
+
+std::vector<int> ValveController::getPressures() {
+    std::lock_guard<std::mutex> lock(mtx);
+    return measured_pressures;
+}
+
 void ValveController::syncTimeStamp(unsigned long int currentTimeMillis){
     std::lock_guard<std::mutex> lock(mtx);
     logBeginTime = std::chrono::high_resolution_clock::now() - std::chrono::milliseconds(currentTimeMillis);
@@ -30,11 +52,7 @@ void ValveController::syncTimeStamp(unsigned long int currentTimeMillis){
 }
 
 void ValveController::controllerThread() {
-    // sensor_pressures and output_pressures use valve IDs for easier interfacing with mpa library
-    std::vector<int> sensor_pressures(num_valves_total);
-    std::vector<int> output_pressures(num_valves_total);
-    logBeginTime = std::chrono::high_resolution_clock::now();
-    
+    logBeginTime = std::chrono::high_resolution_clock::now();   
     if (log){
         std::cout << "Outputting log of ValveController to log_pressure.csv..." << std::endl;
         log_file.open("log_pressure.csv", std::fstream::out);
@@ -61,6 +79,7 @@ void ValveController::controllerThread() {
             // constrain pressure value to between 0 and max_pressure
             // valve goes haywire when it tries to write negative value
             output_pressures[map[i]] = std::max(0, std::min(desired_pressures[i], max_pressure));
+            measured_pressures[i] = sensor_pressures[map[i]];
         }
         mpa->set_all_pressures(output_pressures);
         if (log) {
