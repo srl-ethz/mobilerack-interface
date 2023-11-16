@@ -18,7 +18,7 @@ print("nr of markers?")
 number_of_markers = int(input())
 
 rec_time = 10                   # recording time [s]
-time_int = 0.1                 # time interval between steps
+time_int = 0.01                 # time interval between steps
 timesteps = rec_time/time_int   # nr of recordings
 
 
@@ -32,7 +32,7 @@ file = open('ExportData/'+fileName+'.txt', 'w')
 file.write(str(headerList)+'\n')
 
 # print(headerList)
-qc = QualisysClient(number_of_markers, cameras, "3D")
+qc = QualisysClient(number_of_markers, cameras, "3DNoLabels")
 
 sleep(1)  # hacky way to wait until data from qtm is received
 # _, timestamp = qc.getData3D()
@@ -66,7 +66,6 @@ for t in IntervalTimer(time_int, stop=timesteps):
         dataList[m+1].append(frames[m][0])
         dataList[m+1].append(frames[m][1])
         dataList[m+1].append(frames[m][2])
-    import pdb; pdb.set_trace()
     file.writelines(str(dataList)+'\n')
 
             

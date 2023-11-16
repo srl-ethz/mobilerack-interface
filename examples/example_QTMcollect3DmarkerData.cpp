@@ -6,7 +6,7 @@
 #include <fstream>
 
 int main(){
-    const int num_pressures = 35;
+    const int num_pressures = 5;
     const int num_actuations = 3;
     const int max_pressure = 400;
     int valve_id;
