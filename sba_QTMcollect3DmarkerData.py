@@ -12,16 +12,23 @@ cameras = [0,1,2,3,4,5,6,7]
 valves = [0,1,2]
 max_pressure = 400
 
+print("Enter file name")
+fileName = input()
+print("nr of markers?")
+number_of_markers = int(input())
+
 rec_time = 10                   # recording time [s]
-time_int = 0.01                 # time interval between steps
+time_int = 0.1                 # time interval between steps
 timesteps = rec_time/time_int   # nr of recordings
 
-number_of_markers = 8
+
+
+# number_of_markers = 8
 headerList = ["timestamp"]
 for i in range(number_of_markers):
     headerList.append(["x"+str(i),"y"+str(i),"z"+str(i)])
     
-file = open('ExportData/captured_data.txt', 'w')
+file = open('ExportData/'+fileName+'.txt', 'w')
 file.write(str(headerList)+'\n')
 
 # print(headerList)
@@ -33,9 +40,7 @@ sleep(1)  # hacky way to wait until data from qtm is received
 
 captured_markers = []
 
-# print("print before loop")
-# for k in range(len(pressures)):
-# for k in range(1):
+
 start_time = time.time()
 # start_time = datetime.datetime.now()
 print(start_time)
@@ -43,7 +48,7 @@ print(start_time)
 frame_list = []
 # curr_stamp = timestamp
 
-file = open('ExportData/captured_data', 'a')
+file = open('ExportData/'+fileName+'.txt', 'a')
 # curr_stamp = datetime.datetime.now()
 curr_stamp = time.time()
 timestamp = curr_stamp
@@ -51,37 +56,21 @@ timestamp = curr_stamp
 # for t in range(timesteps):
 for t in IntervalTimer(time_int, stop=timesteps):
     dataList = []
-    # while timestamp == curr_stamp:
-    # while time.time()-timestamp < time_int:
-    # frames, timestamp = qc.getData3D()
     frames, _ = qc.getData3D()
-    # timestamp = datetime.datetime.now()
+    # print(frames)
+    print(str(qc.getData3D()))
     timestamp = time.time()
-    # dataList.append(str(timestamp))
     dataList.append(timestamp)
-    # print(timestamp)
     for m in range(number_of_markers):
         dataList.append([])
-        # print(frames[m][0])
-        # print(m)
         dataList[m+1].append(frames[m][0])
         dataList[m+1].append(frames[m][1])
         dataList[m+1].append(frames[m][2])
-        
-    frame_list += [np.array(frames)]
-    curr_stamp = timestamp
-    # print(frame_list[t])
-    # print(frame_list)
-    # file.writelines(str(frame_list)+'\n')
+    import pdb; pdb.set_trace()
     file.writelines(str(dataList)+'\n')
 
             
 total_time = time.time()-start_time
-# total_time = datetime.datetime.now()-start_time
-# print(f"Ran for {total_time:.3f}")
-# print(f"Ran for {total_time}")
-# print(f"Timing accuracy: {100*(total_time-timesteps/100)/timesteps/100}")
-
 captured_markers.append(np.array(frame_list))     # frame_list has shape [T, N, 3] for N motion markers
 
 

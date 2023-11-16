@@ -7,10 +7,13 @@ import numpy as np
 import pandas as pd
 import csv
 
-file = open('ExportData/captured_data.txt', 'r')
+print("Which file should be analized?")
+fileName=input()
+
+file = open('ExportData/'+fileName, 'r')
 data = file.read
 print(data)
 
-data = np.loadtxt('ExportData/captured_data.txt', skiprows=1)
+data = np.loadtxt('ExportData/'+fileName, skiprows=1)
 print(data[0])
 print(data[1])
