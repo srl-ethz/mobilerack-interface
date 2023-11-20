@@ -8,7 +8,7 @@ import pandas as pd
 import csv
 
 
-cameras = [0,1,2,3,4,5,6,7]
+cameras = [0,1,2,3,4,5,6,7,8]
 valves = [0,1,2]
 max_pressure = 400
 
@@ -60,7 +60,7 @@ for t in IntervalTimer(time_int, stop=timesteps):
     # print(frames)
     print(str(qc.getData3D()))
     timestamp = time.time()
-    dataList.append(timestamp)
+    dataList.append(timestamp-start_time)
     for m in range(number_of_markers):
         dataList.append([])
         dataList[m+1].append(frames[m][0])
