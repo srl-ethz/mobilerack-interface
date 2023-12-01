@@ -14,18 +14,20 @@ max_pressure = 400
 
 print("Enter file name")
 fileName = input()
-print("nr of markers?")
-number_of_markers = int(input())
+# print("nr of markers?")
+# number_of_markers = int(input())
 
+number_of_markers = 8
 rec_time = 10                   # recording time [s]
 time_int = 0.01                 # time interval between steps
 timesteps = rec_time/time_int   # nr of recordings
 
+datadict = {"timestamp":[], "points": []}
 
 # number_of_markers = 8
 headerList = [["timestamp"]]
 for i in range(number_of_markers):
-    headerList.append(["x"+str(i),"y"+str(i),"z"+str(i)])
+    headerList.append(["x"+str(i+1),"y"+str(i+1),"z"+str(i+1)])
     
 file = open('ExportData/'+fileName+'.txt', 'w')
 file.write(str(headerList)+'\n')
