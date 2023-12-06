@@ -101,7 +101,15 @@ for i in trange(1, len(marker_pos3d_arr)):
 
     curr_pos = curr_pos[pdist_argmin]
 
-    prev_pos = curr_pos
+    before_sort = np.array(marker_pos3d_arr[i][1:])
+
+    marker_pos3d_arr[i][1:] = curr_pos.tolist()
+
+    after_sort = np.array(marker_pos3d_arr[i][1:])
+
+    print(f"{(before_sort - after_sort).max(axis=0)} --> {pdist_argmin}")
+
+    prev_pos = curr_pos.copy()
 
 plt.figure()
 
@@ -109,7 +117,9 @@ color_arr = ['#ff0000', '#ff8000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '
 
 for data_arr in marker_pos3d_arr:
     tstamp, pos_data = data_arr[0], data_arr[1:]
-    plt.scatter(p3d[1], p3d[2], alpha=1, s=1)
+    pos_data = np.array(pos_data)
+
+    plt.scatter(pos_data[:, 1], pos_data[:, 2], alpha=0.5, s=1, c=color_arr)
 
 plt.show()
 
