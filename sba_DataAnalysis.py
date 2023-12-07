@@ -12,12 +12,14 @@ import math
 from sklearn.metrics import pairwise_distances
 # from mpl_toolkits import mplot3d
 from tqdm import trange, tqdm
+import os
+import json
 
 path = str(Path(__file__).parent)
 
 print("Which file should be analized?")
 # fileName=input()
-fileName="test"
+fileName="test2_50g"
 
 
 
@@ -25,23 +27,50 @@ fileName="test"
 ### Inspired by ChatGPT ###
 
 # import file
-with open('ExportData/'+fileName+'.txt') as file:
-    header = file.readlines()[0]
-with open('ExportData/'+fileName+'.txt') as file:
-    dataStr = file.readlines()[1:]
+# with open('ExportData/'+fileName+'.txt') as file:
+#     header = file.readlines()[0]
+# with open('ExportData/'+fileName+'.txt') as file:
+#     dataStr = file.readlines()[1:]
 
-# convert imported file to float lists
-data = []
-i = 0
-for line in dataStr:                                                            # Remove line break, split list in data points
-    dataLine = line.strip()[1:-1].split('], [')
-    i += 1
-    dataTimestep = []
-    for entry in dataLine:                                                      # Convert entries of single lines to float
-        values = entry.replace('[', '').replace(']', '').split(', ')
-        values = [float(value) for value in values if value.strip() != '']
-        dataTimestep.append(values)
-    data.append(dataTimestep)                                                   # Combine data lines to list
+
+
+# Function to read JSON files and merge data
+def merge_json_files(directory):
+    combined_data = {"timestamp": [], "points": []}
+
+    # Get a list of JSON files in the directory
+    json_files = [file for file in os.listdir(directory)] #if file.startswith(fileName) and file.endswith(".json")]
+    json_files.sort()  # Sort the files if needed
+
+    for file in json_files:
+        with open(os.path.join(directory, file), 'r') as json_file:
+            data = json.load(json_file)
+            combined_data["timestamp"].extend(data["timestamp"])
+            combined_data["points"].extend(data["points"])
+
+    return combined_data
+
+# Replace 'directory_path' with the path to your JSON files' directory
+directory_path = 'ExportData/' + fileName
+tPosData = merge_json_files(directory_path)
+
+# # Access the combined data
+# print(combined_json_data)
+
+
+
+# # convert imported file to float lists
+# data = []
+# i = 0
+# for line in dataStr:                                                            # Remove line break, split list in data points
+#     dataLine = line.strip()[1:-1].split('], [')
+#     i += 1
+#     dataTimestep = []
+#     for entry in dataLine:                                                      # Convert entries of single lines to float
+#         values = entry.replace('[', '').replace(']', '').split(', ')
+#         values = [float(value) for value in values if value.strip() != '']
+#         dataTimestep.append(values)
+#     data.append(dataTimestep)                                                   # Combine data lines to list
     
     
 # print(data[0])
@@ -285,21 +314,27 @@ def absDist(list1, list2):
 x = []; y = []; z=[]
 j = 0
 # while j < len(dataSort)-1:
-while j < len(data[0])-1:
+# while j < len(data[0])-1:
+while j < len(tPosData["points"][0]):
     x.append([])
     y.append([])
     z.append([])
     i = 0
-    for line in data:
-        x[j].append(data[i][j+1][0])
-        y[j].append(data[i][j+1][1])
-        z[j].append(data[i][j+1][2])
-        i += 1
+    # for line in data:
+    #     x[j].append(data[i][j+1][0])
+    #     y[j].append(data[i][j+1][1])
+    #     z[j].append(data[i][j+1][2])
+    #     i += 1
     # for line in dataSort:
     #     x[j].append(dataSort[i][j+1][0])
     #     y[j].append(dataSort[i][j+1][1])
     #     z[j].append(dataSort[i][j+1][2])
     #     i += 1
+    for timestep in tPosData["points"]:
+        x[j].append(tPosData["points"][i][j][0])
+        y[j].append(tPosData["points"][i][j][1])
+        z[j].append(tPosData["points"][i][j][2])
+        i += 1
     # plt.plot(y[0], z[0])
     # plt.plot(y[1], z[1])
     # plt.plot(y[4], z[4])
