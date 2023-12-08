@@ -19,8 +19,17 @@ path = str(Path(__file__).parent)
 
 print("Which file should be analized?")
 # fileName=input()
-fileName="test2_50g"
+fileName="test4_50g"
 
+
+
+
+def absCoord(list3D):
+    return math.sqrt(list3D[0]**2 + list3D[1]**2 + list3D[2]**2)
+
+def absDist(list1, list2):
+    # return math.sqrt((list1[0]-list2[0])**2 + (list1[1]-list2[1])**2 + (list1[2]-list2[2])**2)
+    return math.sqrt((list1[1]-list2[1])**2 + (list1[2]-list2[2])**2)
 
 
 
@@ -54,6 +63,90 @@ def merge_json_files(directory):
 directory_path = 'ExportData/' + fileName
 tPosData = merge_json_files(directory_path)
 
+dataSort = {"timestamp": [], "points": []}
+
+i = 1900
+for x in range(i):
+    # dataSort["timestamp"].append(tPosData["timestamp"][i])
+    dataSort["points"].append([[None]*3]*8)
+# for timestep in tPosData["points"]:
+for timestep in range(100):
+    
+    dataSort["timestamp"].append(tPosData["timestamp"][i])
+    dataSort["points"].append([None]*8)
+
+    # calculate relative distances between all points of timestep
+    distMat = np.empty((8,8), float)
+    j = 0
+    for point in tPosData["points"][i]:
+        k = 0
+        for pCompar in tPosData["points"][i]:
+            distMat[j,k] = absDist(tPosData["points"][i][j], tPosData["points"][i][k])
+            k += 1
+        j += 1
+    
+    
+    # search for DP markers (distance = 14.5 mm, points 6 & 7)
+    distMat67 = abs(distMat - 0.0145)
+    couple67 = np.where(distMat67 == np.min(distMat67))[0]
+    dataSort["points"][i][6] = tPosData["points"][i][couple67[0]]
+    dataSort["points"][i][7] = tPosData["points"][i][couple67[1]]
+    
+    # delete P6/7 from distMat
+    distMat_del = np.copy(distMat)
+    distMat_del[couple67[0]].fill(None)
+    distMat_del[couple67[1]].fill(None)
+    distMat_del[:, couple67[0]].fill(None)
+    distMat_del[:, couple67[1]].fill(None)
+    
+    
+    # search for MP markers (distance = 24 mm, points 4 & 5)
+    distMat45 = abs(distMat_del - 0.024)
+    couple45 = np.where(distMat45 == np.nanmin(distMat45))[0]
+    dataSort["points"][i][4] = tPosData["points"][i][couple45[0]]
+    dataSort["points"][i][5] = tPosData["points"][i][couple45[1]]
+    
+    # delete P4/5 from distMat
+    # distMat_0123 = np.copy(distMat_012345)
+    distMat_del[couple45[0]].fill(None)
+    distMat_del[couple45[1]].fill(None)
+    distMat_del[:, couple45[0]].fill(None)
+    distMat_del[:, couple45[1]].fill(None)
+    
+    
+    # search for MC markers (distance = 8 mm, points 0 & 1)
+    distMat01 = abs(distMat_del - 0.008)
+    couple01 = np.where(distMat01 == np.nanmin(distMat01))[0]
+    dataSort["points"][i][0] = tPosData["points"][i][couple01[0]]
+    dataSort["points"][i][1] = tPosData["points"][i][couple01[1]]
+    
+    # delete P0/1 from distMat
+    # distMat_23 = np.copy(distMat_0123)
+    distMat_del[couple01[0]].fill(None)
+    distMat_del[couple01[1]].fill(None)
+    distMat_del[:, couple01[0]].fill(None)
+    distMat_del[:, couple01[1]].fill(None)
+    
+    
+    # search for PP markers (distance = 36 mm, points 2 & 3)
+    distMat23 = abs(distMat_del - 0.036)
+    couple23 = np.where(distMat23 == np.nanmin(distMat23))[0]
+    dataSort["points"][i][2] = tPosData["points"][i][couple23[0]]
+    dataSort["points"][i][3] = tPosData["points"][i][couple23[1]]
+    
+    # delete P0/1 from distMat
+    # distMat_ = np.copy(distMat_23)
+    distMat_del[couple23[0]].fill(None)
+    distMat_del[couple23[1]].fill(None)
+    distMat_del[:, couple23[0]].fill(None)
+    distMat_del[:, couple23[1]].fill(None)
+    
+    
+    i += 1
+
+
+
+print()
 # # Access the combined data
 # print(combined_json_data)
 
@@ -79,12 +172,7 @@ tPosData = merge_json_files(directory_path)
 # print(data[0][1][0])
 
 
-def absCoord(list3D):
-    return math.sqrt(list3D[0]**2 + list3D[1]**2 + list3D[2]**2)
 
-def absDist(list1, list2):
-    # return math.sqrt((list1[0]-list2[0])**2 + (list1[1]-list2[1])**2 + (list1[2]-list2[2])**2)
-    return math.sqrt((list1[1]-list2[1])**2 + (list1[2]-list2[2])**2)
 
 # ### Sort first data points at t=0 ###
 # dist0 = []
@@ -330,15 +418,19 @@ while j < len(tPosData["points"][0]):
     #     y[j].append(dataSort[i][j+1][1])
     #     z[j].append(dataSort[i][j+1][2])
     #     i += 1
-    for timestep in tPosData["points"]:
-        x[j].append(tPosData["points"][i][j][0])
-        y[j].append(tPosData["points"][i][j][1])
-        z[j].append(tPosData["points"][i][j][2])
+    # for timestep in tPosData["points"]:
+    #     x[j].append(tPosData["points"][i][j][0])
+    #     y[j].append(tPosData["points"][i][j][1])
+    #     z[j].append(tPosData["points"][i][j][2])
+    #     i += 1
+    for timestep in dataSort["points"]:
+        x[j].append(dataSort["points"][i][j][0])
+        y[j].append(dataSort["points"][i][j][1])
+        z[j].append(dataSort["points"][i][j][2])
         i += 1
-    # plt.plot(y[0], z[0])
-    # plt.plot(y[1], z[1])
-    # plt.plot(y[4], z[4])
-    plt.plot(y[j], z[j], linestyle='-', marker='.', label='P'+str(j+1))
+    
+    # plt.plot(y[1], z[1], linestyle='', marker='.', alpha=0.1)    
+    plt.plot(y[j], z[j], linestyle='-', marker='.', label='P'+str(j), alpha=0.1)
     # patches.append(mpatches.Patch())
     j += 1
 plt.axis('equal')

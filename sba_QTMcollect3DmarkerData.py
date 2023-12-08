@@ -19,7 +19,7 @@ fileName = input()
 # number_of_markers = int(input())
 
 number_of_markers = 8
-rec_time = 30                   # recording time [s]
+rec_time = 20                   # recording time [s]
 time_int = 0.01                 # time interval between steps
 timesteps = rec_time/time_int   # nr of recordings
 
