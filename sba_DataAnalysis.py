@@ -65,12 +65,12 @@ tPosData = merge_json_files(directory_path)
 
 dataSort = {"timestamp": [], "points": []}
 
-i = 1900
-for x in range(i):
-    # dataSort["timestamp"].append(tPosData["timestamp"][i])
-    dataSort["points"].append([[None]*3]*8)
-# for timestep in tPosData["points"]:
-for timestep in range(100):
+i = 0
+# for x in range(i):
+#     # dataSort["timestamp"].append(tPosData["timestamp"][i])
+#     dataSort["points"].append([[None]*3]*8)
+for timestep in tPosData["points"]:
+# for timestep in range(100):
     
     dataSort["timestamp"].append(tPosData["timestamp"][i])
     dataSort["points"].append([None]*8)
