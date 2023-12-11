@@ -78,7 +78,7 @@ for t in IntervalTimer(time_int, stop=timesteps):
     # file.writelines(str(dataList)+'\n')
     dataDict["points"].append(points)
     if i % 1000 == 0:
-        with open("ExportData/"+fileName+"/"+fileName+"_"+now.strftime("%Y-%m-%d_%H:%M:%S")+".json", "w") as file:
+        with open("ExportData/"+fileName+"/"+fileName+"_"+now.strftime("%Y-%m-%d_%H-%M-%S")+".json", "w") as file:
             json.dump(dataDict, file)
             now = datetime.now()
             dataDict = {"timestamp": [], "points": []}
