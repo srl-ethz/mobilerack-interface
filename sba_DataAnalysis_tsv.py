@@ -2,13 +2,23 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+
+
+### Convert list rad > deg
+def RadDeg(angRad):
+    angDeg = []
+    for entry in angRad:
+        angDeg.append(math.degrees(entry))
+    return angDeg
+
 
 ### Import data ###
 path = str(Path(__file__).parent)
 
 print("Which file should be analized?")
 # fileName=input()
-fileName="1finger_test"
+fileName="test_10000"
 
 directory_path = 'QTM_Data/' + fileName + '.tsv'
 
@@ -16,17 +26,24 @@ directory_path = 'QTM_Data/' + fileName + '.tsv'
 ### Convert data to dictionary ###
 dataImport = pd.read_csv (directory_path, sep = '\t', skiprows=11, header=None)
 dataDict = {
-    "timestamp": [],
-    "MC": [],
+    "timestamp": [],    ## timestamps
+    "MC": [],           ## positions of markers
     "PP": [],
     "MP": [],
-    "DP": []
+    "DP": [],
+    "angMC": [],        ## angles of phalanges [rad]    ∠ = arctan(Δz/Δy)
+    "angPP": [],
+    "angMP": [],
+    "angDP": []
     }
+    ## form of dataDict point entries: dataDict["phalanx"][timestep][markerID][x/y/z]
 
 i = 0
 for line in dataImport[0]:
+    ## timestamps
     dataDict["timestamp"].append(dataImport[1][i])
     
+    ## points
     dataDict["MC"].append([])    
     for j in range(2,11):
         if (j-2)%3 == 0:                # generate new list for every x coordinate
@@ -74,6 +91,15 @@ for line in dataImport[0]:
             dataDict["DP"][i][1].append(dataImport[j][i])
         elif j in range(35,38):
             dataDict["DP"][i][2].append(dataImport[j][i])
+    
+    ## angles
+    dataDict["angMC"].append(math.atan2(dataDict["MC"][i][1][2]-dataDict["MC"][i][2][2], dataDict["MC"][i][1][1]-dataDict["MC"][i][2][1]))
+    dataDict["angPP"].append(math.atan2(dataDict["PP"][i][1][2]-dataDict["PP"][i][0][2], dataDict["PP"][i][1][1]-dataDict["PP"][i][0][1]))
+    dataDict["angMP"].append(math.atan2(dataDict["MP"][i][1][2]-dataDict["MP"][i][0][2], dataDict["MP"][i][1][1]-dataDict["MP"][i][0][1]))
+    dataDict["angDP"].append(math.atan2(dataDict["DP"][i][1][2]-dataDict["DP"][i][0][2], dataDict["DP"][i][1][1]-dataDict["DP"][i][0][1]))
+    
+    if i % 6000 == 0:
+        print("dictionary conversion:"+str(i))
     
     i += 1
     
@@ -143,14 +169,23 @@ plt.legend()
 plt.show()
 
 
-### plot z(t) of DP1
-plt.figure(1)
-plt.plot(dataDict["timestamp"], DP1[1])
-plt.plot(dataDict["timestamp"], DP1[2])
+# ### plot z(t) of DP1
+# plt.figure(1)
+# plt.plot(dataDict["timestamp"], DP1[1])
+# plt.plot(dataDict["timestamp"], DP1[2])
+# plt.xlabel("t [s]")
+# plt.ylabel("y/z [mm]")
+# plt.show
+
+
+### plot α(t) of MP
+plt.figure(2)
+plt.plot(dataDict["timestamp"], RadDeg(dataDict["angMP"]))
+plt.title("α MP")
 plt.xlabel("t [s]")
-plt.ylabel("y/z [mm]")
+plt.ylabel("α [°]")
 plt.show
 
 
 
-###
+### search for max flexion/extension time
