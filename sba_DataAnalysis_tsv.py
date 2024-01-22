@@ -52,10 +52,15 @@ def process_tsv_file(file_path, dataDict, markOrd, prev_timestamp):
     return dataDict, timestamp
 
 
-### Export plot as PDF ###
-def ExportPDF(nameAttachment):
+### Export plot as PDF, SVG, PNG ###
+# def ExportPDF(nameAttachment):
+def Export(nameAttachment):
     ExportPath = 'C:/Users/samue/polybox/ETH/Master/Master Thesis/images/plots/'
     plt.savefig(ExportPath + fileName + "_" + nameAttachment + ".pdf",
+                bbox_inches='tight', pad_inches=0, transparent=1)
+    plt.savefig(ExportPath + fileName + "_" + nameAttachment + ".svg",
+                bbox_inches='tight', pad_inches=0, transparent=1)
+    plt.savefig(ExportPath + fileName + "_" + nameAttachment + ".png",
                 bbox_inches='tight', pad_inches=0, transparent=1)
     
     
@@ -99,6 +104,9 @@ dataDict["angMP"] = []
 dataDict["angDP"] = []
 
 
+
+#%%
+
 i = 0
 ### Iterate through files (0001-numFiles) (ChatGPT) ###
 for fileNum in range(1, numFiles+1):
@@ -113,7 +121,6 @@ for fileNum in range(1, numFiles+1):
     current_file_path = directory_path.format(fileNum)
     dataDict, start_timestamp = process_tsv_file(current_file_path, dataDict, markOrd, start_timestamp)
 
-    #%%
     
 ### Write data in dictionary ###    
     # i = 0
@@ -276,7 +283,13 @@ movIdx = [*range(tStartIdx,tStopIdx)]
 print("Remove stationary data: 100.0 %")
 
 
-### Write biggest MP angle of every second to dict ###
+
+dataTimestamp = np.array(dataDict["timestamp"])
+dataAngMP = np.array(dataDict["angMP"])
+dataAngPP = np.array(dataDict["angPP"])
+dataAngDP = np.array(dataDict["angDP"])
+
+### Write biggest phalanx angles of every second to dict ###
 angMax = {
     "frame": [],
     "timestamp": [],
@@ -284,24 +297,24 @@ angMax = {
     "MP": [],
     "DP": []
     }
-i = 0
-iMax_check = []
-for t_ in np.arange(tStart, tStop-1, 1):
-    if round(t_,2) in dataDict["timestamp"]:
-        i_ = dataDict["timestamp"].index(round(t_,2))
-        iMax = i_ + np.argmax(dataDict["angMP"][i_:i_+freq])
+
+for i, t_ in enumerate(np.arange(tStart, tStop-1, 1)):
+    t_rounded = round(t_, 2)
+    if t_rounded in dataTimestamp:
+        i_ = np.where(dataTimestamp == t_rounded)[0][0]
+        freq_slice = slice(i_, i_+freq)
+        iMax = i_ + np.argmax(dataAngMP[freq_slice])
         angMax["frame"].append(iMax)
-        angMax["timestamp"].append(dataDict["timestamp"][iMax])
-        angMax["PP"].append(dataDict["angPP"][iMax])
-        angMax["MP"].append(dataDict["angMP"][iMax])
-        angMax["DP"].append(dataDict["angDP"][iMax])
-    i += 1
+        angMax["timestamp"].append(dataTimestamp[iMax])
+        angMax["PP"].append(dataAngPP[iMax])
+        angMax["MP"].append(dataAngMP[iMax])
+        angMax["DP"].append(dataAngDP[iMax])
     print(end='\x1b[2K')    # ANSI code to clear line
     print("Calculate max angles: "+str(round(i/len(np.arange(tStart, tStop-1, 1))*100, 1))+" %", end='\r')
 print("Calculate max angles: "+str(round(i/len(np.arange(tStart, tStop-1, 1))*100, 1))+" %", end='\n')
 
 
-### Write lowest MP angle of every second to dict ###
+### Write lowest phalanx angles of every second to dict ###
 angMin = {
     "frame": [],
     "timestamp": [],
@@ -309,17 +322,17 @@ angMin = {
     "MP": [],
     "DP": []
     }
-i = 0
-for t_ in np.arange(tStart, tStop-1, 1):
-    if round(t_,2) in dataDict["timestamp"]:
-        i_ = dataDict["timestamp"].index(round(t_,2))
-        iMin = i_ + np.argmin(dataDict["angMP"][i_:i_+freq])
+for i, t_ in enumerate(np.arange(tStart, tStop-1, 1)):
+    t_rounded = round(t_, 2)
+    if t_rounded in dataTimestamp:
+        i_ = np.where(dataTimestamp == t_rounded)[0][0]
+        freq_slice = slice(i_, i_+freq)
+        iMin = i_ + np.argmin(dataAngMP[freq_slice])
         angMin["frame"].append(iMin)
-        angMin["timestamp"].append(dataDict["timestamp"][iMin])
-        angMin["PP"].append(dataDict["angPP"][iMin])
-        angMin["MP"].append(dataDict["angMP"][iMin])
-        angMin["DP"].append(dataDict["angDP"][iMin])
-    i += 1
+        angMin["timestamp"].append(dataTimestamp[iMin])
+        angMin["PP"].append(dataAngPP[iMin])
+        angMin["MP"].append(dataAngMP[iMin])
+        angMin["DP"].append(dataAngDP[iMin])
     print(end='\x1b[2K')    # ANSI code to clear line
     print("Calculate min angles: "+str(round(i/len(np.arange(tStart, tStop-1, 1))*100, 1))+" %", end='\r')
 print("Calculate min angles: "+str(round(i/len(np.arange(tStart, tStop-1, 1))*100, 1))+" %", end='\n')
@@ -367,7 +380,7 @@ plt.plot([MP0[1][a:b:step],MP1[1][a:b:step]], [MP0[2][a:b:step],MP1[2][a:b:step]
 plt.plot([DP0[1][a:b:step],DP1[1][a:b:step]], [DP0[2][a:b:step],DP1[2][a:b:step]], color='red', alpha=0.005)
 ## empty fake plots for legend
 plt.plot(np.NaN, np.NaN, color='blue', label='MC')
-plt.plot(np.NaN, np.NaN, color='GREEN', label='PP')
+plt.plot(np.NaN, np.NaN, color='green', label='PP')
 plt.plot(np.NaN, np.NaN, color='gold', label='MP')
 plt.plot(np.NaN, np.NaN, color='red', label='DP')
 
@@ -378,7 +391,7 @@ plt.ylabel("z [mm]")
 plt.legend()
 plt.grid(True)
 plt.rc('grid', alpha=0.5, linewidth=0.5)
-ExportPDF("trajectory")
+Export("trajectory")
 plt.show
 
 #%%
@@ -430,7 +443,7 @@ plt.legend()
 plt.axis('equal')
 plt.grid(True)
 plt.rc('grid', alpha=0.5, linewidth=0.5)
-ExportPDF("DP1_extremePos")
+Export("DP1_extremePos")
 plt.show
 
 
@@ -455,7 +468,7 @@ plt.ylabel("deviation [mm]")
 plt.legend()
 plt.grid(True)
 plt.rc('grid', alpha=0.5, linewidth=0.5)
-ExportPDF("DP1_extrPosDev")
+Export("DP1_extrPosDev")
 plt.show
 
 
@@ -512,7 +525,7 @@ plt.legend(loc='upper right')
 # fig.legend(bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
 plt.grid(True)
 plt.rc('grid', alpha=0.5, linewidth=0.5)
-ExportPDF("extrAngles")
+Export("extrAngles")
 plt.show
 
 
