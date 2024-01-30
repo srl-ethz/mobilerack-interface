@@ -1,9 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
-
+// Ben Forrai: removing valve controller to avoid libmodbus error
 #include "mobilerack-interface/QualisysClient.h"
-#include "mobilerack-interface/ValveController.h"
 #include "mobilerack-interface/ndarray_converter.h"
 
 namespace py = pybind11;
@@ -60,11 +59,4 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
             });
 
 
-    py::class_<ValveController>(m, "ValveController")
-            .def(py::init<const std::string&, const std::vector<int>&, const int>())
-            .def("setSinglePressure", &ValveController::setSinglePressure)
-            .def("syncTimeStamp", &ValveController::syncTimeStamp)
-            .def("getSinglePressure", &ValveController::getSinglePressure)
-            .def("setPressures", &ValveController::setPressures)
-            .def("getPressures", &ValveController::getPressures);
 }
