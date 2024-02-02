@@ -58,7 +58,7 @@ bool QualisysClient::connect_and_setup() {
         else if ((frameMode == "3D") || (frameMode == "3DNoLabels")) {
             // Reading 3D Motion Markers
             //
-            fmt::print("Reading 3D motion markers in mode: {}", frameMode);
+            // fmt::print("Reading 3D motion markers in mode: {}", frameMode);
             if (!rtProtocol.Read3DSettings(dataAvailable)) {
                 fmt::print("rtProtocol.Read3DSettings: %s\n\n", rtProtocol.GetErrorString());
                 srl::sleep(1);
