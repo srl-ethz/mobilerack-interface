@@ -14,7 +14,7 @@ namespace py = pybind11;
  * see mobilerack-interface/examples_python for example usage.
  */
 
-PYBIND11_MODULE(mobilerack_pybind_module, m){
+PYBIND11_MODULE(mobilerack, m){
     /** @todo add CI test to python as well! */
 
     NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array

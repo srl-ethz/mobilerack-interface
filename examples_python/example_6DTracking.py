@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import QualisysClient
+from mobilerack import QualisysClient
 import cv2
 from time import sleep
 

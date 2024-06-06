@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import QualisysClient
+from mobilerack import QualisysClient
 from time import sleep
 import time
 import matplotlib.pyplot as plt
