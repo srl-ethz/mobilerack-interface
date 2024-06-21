@@ -81,8 +81,8 @@ In its current implementation, you must set the `$PYTHONPATH` environment variab
 export PYTHONPATH=$PYTHONPATH:/path/to/lib
 ## Alternatively, append the line to ~/.bashrc if you don't want to run it every time.
 python3
->> import mobilerack_pybind_module
->> vc = mobilerack_pybind_module.ValveController("192.168.0.100", [0, 1], 200)
+>> import mobilerack
+>> vc = mobilerack.ValveController("192.168.0.100", [0, 1], 200)
 >> vc.setSinglePressure(0, 100)
 ```
 

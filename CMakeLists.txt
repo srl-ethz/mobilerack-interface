@@ -53,7 +53,7 @@ target_include_directories(SerialInterface PUBLIC ${SERIALPORT_INCLUDE_DIRS})
 target_link_libraries(SerialInterface ${SERIALPORT_LDFLAGS} Threads::Threads fmt)
 
 ## set up pybind modules
-pybind11_add_module(mobilerack_pybind_module src/python_bindings.cpp src/ndarray_converter.cpp)
-target_link_libraries(mobilerack_pybind_module PUBLIC QualisysClient ValveController Python3::NumPy)
+pybind11_add_module(mobilerack src/python_bindings.cpp src/ndarray_converter.cpp)
+target_link_libraries(mobilerack PUBLIC QualisysClient ValveController Python3::NumPy)
 
 add_subdirectory(examples)

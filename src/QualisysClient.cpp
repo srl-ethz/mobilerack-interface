@@ -9,8 +9,11 @@ QualisysClient::QualisysClient(int numframes, std::vector<int> cameraIDs, std::s
     else if (frameMode == "3D") {
         frames3D.resize(numframes); // for base + each segment
     }
+    else if (frameMode == "3DNoLabels") {
+        frames3D.resize(numframes); // for base + each segment
+    }
     else {
-        throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+        throw std::runtime_error("Failed to recognize frame type (3D, 3DNoLabels or 6D).\n");
     }
     images.resize(cameraIDs.size());
     connect_and_setup();
@@ -52,8 +55,10 @@ bool QualisysClient::connect_and_setup() {
                 continue;
             }
         }
-        else if (frameMode == "3D") {
+        else if ((frameMode == "3D") || (frameMode == "3DNoLabels")) {
             // Reading 3D Motion Markers
+            //
+            fmt::print("Reading 3D motion markers in mode: {}", frameMode);
             if (!rtProtocol.Read3DSettings(dataAvailable)) {
                 fmt::print("rtProtocol.Read3DSettings: %s\n\n", rtProtocol.GetErrorString());
                 srl::sleep(1);
@@ -61,7 +66,7 @@ bool QualisysClient::connect_and_setup() {
             }
         }
         else {
-            throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+            throw std::runtime_error("Failed to recognize frame type (3D, 3DNoLabels or 6D).\n");
         }
     }
 
@@ -100,6 +105,12 @@ bool QualisysClient::connect_and_setup() {
         str = "3D";
         if (cameraIDs.size() > 0)
             str = "Image 3D";
+    }
+    else if (frameMode == "3DNoLabels") {
+        // Reading 3D Motion Markers
+        str = "3DNoLabels";
+        if (cameraIDs.size() > 0)
+            str = "Image 3DNoLabels";
     }
     else {
         throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
@@ -191,8 +202,27 @@ void QualisysClient::motiontrack_loop() {
                         }
                     }
                 }
+                else if (frameMode == "3DNoLabels") {
+                    unsigned int no_label_id(0);
+                    if (rtPacket->Get3DNoLabelsMarkerCount() > 0)
+                    {
+                     for (unsigned int i = 0; i < rtPacket->Get3DNoLabelsMarkerCount(); ++i)
+                     {
+                        if (rtPacket ->Get3DNoLabelsMarker(i, fX, fY, fZ, no_label_id)) 
+                        {
+                            if (i < frames3D.size())
+                            {
+                                frames3D[i](0) = fX / 1000.;
+                                frames3D[i](1) = fY / 1000.;
+                                frames3D[i](2) = fZ / 1000.;
+
+                            }
+                        }
+                     }   
+                    }
+                }
                 else {
-                    throw std::runtime_error("Failed to recognize frame type (3D or 6D).\n");
+                    throw std::runtime_error("Failed to recognize frame type (3D, 3DNoLabels or 6D).\n");
                 }
                 
 

@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import ValveController
+from mobilerack import ValveController
 from time import sleep
 
 # @todo try to run this code!
