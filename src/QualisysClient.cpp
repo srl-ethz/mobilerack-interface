@@ -106,7 +106,7 @@ bool QualisysClient::connect_and_setup() {
     }
 
 
-    while (!rtProtocol.StreamFrames(CRTProtocol::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
+    while (!rtProtocol.StreamFrames(CRTProtocol::EStreamRate::RateAllFrames, 0, udpPort, NULL, str.c_str())) {
         printf("rtProtocol.StreamFrames: %s\n\n", rtProtocol.GetErrorString());
         srl::sleep(1);
     }
