@@ -15,6 +15,7 @@ include_directories(include)
 
 ### compile the submodules
 set(BUILD_EXAMPLES true) # this is read by the CMake file in qualisys_cpp_sdk
+set(qualisys_cpp_sdk_OUTPUT_TYPE SHARED)
 add_subdirectory(subm/qualisys_cpp_sdk)
 
 add_subdirectory(subm/fmt)
