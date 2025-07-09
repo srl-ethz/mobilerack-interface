@@ -1,4 +1,4 @@
-from mobilerack_pybind_module import ValveController, QualisysClient
+from mobilerack import ValveController, QualisysClient
 from time import sleep
 
 valves = [14, 15]

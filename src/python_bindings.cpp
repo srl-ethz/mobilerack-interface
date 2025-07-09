@@ -14,7 +14,7 @@ namespace py = pybind11;
  * see mobilerack-interface/examples_python for example usage.
  */
 
-PYBIND11_MODULE(mobilerack_pybind_module, m){
+PYBIND11_MODULE(mobilerack, m){
     /** @todo add CI test to python as well! */
 
     NDArrayConverter::init_numpy(); // this must be called first, or segfault happens during conversion from cv::Mat to numpy array
@@ -41,9 +41,10 @@ PYBIND11_MODULE(mobilerack_pybind_module, m){
                 return std::make_tuple(matrix_data, timestamp);
             })
             .def("getData3D", [](QualisysClient& qc) {
-                if (qc.frameMode != "3D") {
+                if (qc.frameMode != "3D" && qc.frameMode != "3DNoLabels") {
                     // Unfortunately, pybind needs to know return type at compile time, so we cannot combine 6D and 3D into one "getData" function.
-                    throw std::runtime_error("Incorrect frame type! Not 3D.\n");
+                   fmt::print("frame mode: {}", qc.frameMode);
+                    throw std::runtime_error("Incorrect frame type! Not 3D: " + qc.frameMode);
                 }
                 std::vector<Eigen::Vector3d> matrix_data;
                 unsigned long long int timestamp;
