@@ -9,19 +9,6 @@ Code to connect to the experimental equipment on the Mobile Rack workbench, such
 * https://docs.microsoft.com/en-us/learn/modules/get-started-with-windows-subsystem-for-linux/
 * https://ubuntu.com/tutorials/command-line-for-beginners
 
-### to enable GUI in WSL
-1. Make sure you're running WSL **2** (check by running `wsl -l -v` in Windows command line), if on WSL **1**, [refer to this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and update to WSL 2.
-1. Install [VcXsrv](https://sourceforge.net/projects/vcxsrv/). This will be used for X11 forwarding in order to use GUI.
-1. Launch VcXsrv with settings: *Multiple windows* -> *Start no client* -> check all except *Native opengl*
-1. add to end of ~/.bashrc
-    ```bash
-    export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
-    export LIBGL_ALWAYS_INDIRECT=0
-    ```
-    and open new terminal or run `source ~/.bashrc`.
-1. GUI should work now! Try it out with `xeyes`, `xcalc`, `xclock` etc (need to install with `sudo apt install x11-apps`) (reboot may be needed).
-1. For some PCs, by checking *Native opengl* in VcXsrv and adding `export LIBGL_ALWAYS_INDIRECT=1` to ~/.bashrc, OpenGL can be used.
-
 ## get this repository
 
 Set up SSH key for GitHub, and in the desired directory, run...
