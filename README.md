@@ -2,12 +2,12 @@
 
 Code to connect to the experimental equipment on the Mobile Rack workbench, such as Festo valves & Qualisys motion tracking system. Code common across different projects using THE RACK can be kept here.
 
-## set up WSL (for Windows)
-1. Get [Ubuntu 20.04 from the Microsoft Store](https://www.microsoft.com/store/productId/9n6svws3rx71). If you don't need GUI, no further steps needed.
+## Supported platforms:
 
-### suggested tutorials
-* https://docs.microsoft.com/en-us/learn/modules/get-started-with-windows-subsystem-for-linux/
-* https://ubuntu.com/tutorials/command-line-for-beginners
+- Ubuntu
+- macOS
+- Windows
+    - tested with WSL
 
 ## get this repository
 
@@ -20,7 +20,7 @@ git clone --recursive git@github.com:srl-ethz/mobilerack-interface.git
 ## install necessary packages
 (also check GitHub Actions file in `.github/workflows/ci.yml` for hints on how to setup Ubuntu)
 
-for Ubuntu
+### for Ubuntu
 
 ```bash
 sudo apt update
@@ -28,6 +28,7 @@ sudo apt install cmake build-essential libmodbus-dev libeigen3-dev libserialport
 sudo apt install python3-dev python3-numpy # install developer package and numpy for system's default python3 version.
 ```
 
+#### for Ubuntu 18.04 and older
 Cmake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
 ```bash
 # refer to: https://graspingtech.com/upgrade-cmake/
@@ -44,7 +45,7 @@ make
 sudo make install
 ```
 
-for macOS (todo: unverified)
+### for macOS (todo: unverified)
 
 ```bash
 brew install libmodbus eigen libserialport numpy opencv
