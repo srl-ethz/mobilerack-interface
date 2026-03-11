@@ -18,7 +18,7 @@ git clone --recursive git@github.com:srl-ethz/mobilerack-interface.git
 (`--recursive` option will automatically clone the submodules as well)
 
 ## install necessary packages
-(also check GitHub Actions file in `.github/workflows/ci.yml` for hints on how to setup Ubuntu)
+(also check GitHub Actions file in `.github/workflows/ci.yml` for hints on how to set up Ubuntu)
 
 ### for Ubuntu
 
@@ -29,7 +29,7 @@ sudo apt install python3-dev python3-numpy # install developer package and numpy
 ```
 
 #### for Ubuntu 18.04 and older
-Cmake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
+CMake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
 ```bash
 # refer to: https://graspingtech.com/upgrade-cmake/
 # remove installed cmake and install required packages
