@@ -18,7 +18,7 @@ git clone --recursive git@github.com:srl-ethz/mobilerack-interface.git
 (`--recursive` option will automatically clone the submodules as well)
 
 ## install necessary packages
-(also check Dockerfile for hints on how to setup Ubuntu)
+(also check GitHub Actions file in `.github/workflows/ci.yml` for hints on how to setup Ubuntu)
 
 for Ubuntu
 
