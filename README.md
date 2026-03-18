@@ -2,25 +2,12 @@
 
 Code to connect to the experimental equipment on the Mobile Rack workbench, such as Festo valves & Qualisys motion tracking system. Code common across different projects using THE RACK can be kept here.
 
-## set up WSL (for Windows)
-1. Get [Ubuntu 20.04 from the Microsoft Store](https://www.microsoft.com/store/productId/9n6svws3rx71). If you don't need GUI, no further steps needed.
+## Supported platforms:
 
-### suggested tutorials
-* https://docs.microsoft.com/en-us/learn/modules/get-started-with-windows-subsystem-for-linux/
-* https://ubuntu.com/tutorials/command-line-for-beginners
-
-### to enable GUI in WSL
-1. Make sure you're running WSL **2** (check by running `wsl -l -v` in Windows command line), if on WSL **1**, [refer to this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and update to WSL 2.
-1. Install [VcXsrv](https://sourceforge.net/projects/vcxsrv/). This will be used for X11 forwarding in order to use GUI.
-1. Launch VcXsrv with settings: *Multiple windows* -> *Start no client* -> check all except *Native opengl*
-1. add to end of ~/.bashrc
-    ```bash
-    export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
-    export LIBGL_ALWAYS_INDIRECT=0
-    ```
-    and open new terminal or run `source ~/.bashrc`.
-1. GUI should work now! Try it out with `xeyes`, `xcalc`, `xclock` etc (need to install with `sudo apt install x11-apps`) (reboot may be needed).
-1. For some PCs, by checking *Native opengl* in VcXsrv and adding `export LIBGL_ALWAYS_INDIRECT=1` to ~/.bashrc, OpenGL can be used.
+- Ubuntu
+- macOS
+- Windows
+    - tested with WSL
 
 ## get this repository
 
@@ -31,9 +18,9 @@ git clone --recursive git@github.com:srl-ethz/mobilerack-interface.git
 (`--recursive` option will automatically clone the submodules as well)
 
 ## install necessary packages
-(also check Dockerfile for hints on how to setup Ubuntu)
+(also check GitHub Actions file in `.github/workflows/ci.yml` for hints on how to set up Ubuntu)
 
-for Ubuntu
+### for Ubuntu
 
 ```bash
 sudo apt update
@@ -41,7 +28,8 @@ sudo apt install cmake build-essential libmodbus-dev libeigen3-dev libserialport
 sudo apt install python3-dev python3-numpy # install developer package and numpy for system's default python3 version.
 ```
 
-Cmake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
+#### for Ubuntu 18.04 and older
+CMake version should be above 3.12 (check with `cmake --version`). Ubuntu 18.04 default cmake is older than that, so upgrade may be necessary, in which case run
 ```bash
 # refer to: https://graspingtech.com/upgrade-cmake/
 # remove installed cmake and install required packages
@@ -57,7 +45,7 @@ make
 sudo make install
 ```
 
-for macOS (todo: unverified)
+### for macOS (todo: unverified)
 
 ```bash
 brew install libmodbus eigen libserialport numpy opencv
